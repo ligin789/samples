@@ -1,5 +1,7 @@
 gcloud auth list
 
+cd ~/terraform-google-network/examples/simple_project
+
 https://accounts.google.com/AddSession/identifier?service=accountsettings&sarp=1&continue=https%3A%2F%2Fconsole.cloud.google.com%2Fhome%2Fdashboard%3Fproject%3Dqwiklabs-gcp-02-146e880671e2&flowName=GlifWebSignIn&flowEntry=AddSession
 
 student-03-e154a1c3a9f6@qwiklabs.net
