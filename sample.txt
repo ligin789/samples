@@ -1,19 +1,127 @@
-https://accounts.google.com/AddSession/signinchooser?service=accountsettings&sarp=1&continue=https%3A%2F%2Fconsole.cloud.google.com%2Fhome%2Fdashboard%3Fproject%3Dqwiklabs-gcp-02-0f6361d70a7b&flowName=GlifWebSignIn&flowEntry=AddSession#Email=student-02-a6c1e58ab3b5@qwiklabs.net
+https://accounts.google.com/AddSession/signinchooser?service=accountsettings&sarp=1&continue=https%3A%2F%2Fconsole.cloud.google.com%2Fhome%2Fdashboard%3Fproject%3Dqwiklabs-gcp-02-5fc606762ee8&flowName=GlifWebSignIn&flowEntry=AddSession#Email=student-03-06e2db4ce441@qwiklabs.net
 
-student-02-a6c1e58ab3b5@qwiklabs.net
+student-03-1441a7c088a2@qwiklabs.net
 
-0vWaXazfNUFY
+DcVzKJbhMRip
+
+qwiklabs-gcp-02-5fc606762ee8
+
+gcloud auth list
+
+touch main.tf
+
+gcloud config list --format 'value(core.project)'
+
+provider "google" {
+  project     = "# REPLACE WITH YOUR PROJECT ID"
+  region      = "us-central-1"
+}
+resource "google_storage_bucket" "test-bucket-for-state" {
+  name        = "# REPLACE WITH YOUR PROJECT ID"
+  location    = "US"
+  uniform_bucket_level_access = true
+}
 
 
-qwiklabs-gcp-02-0f6361d70a7b
 
-tf-bucket-31499
 
-tf-instance-502023
+terraform {
+  backend "local" {
+    path = "terraform/state/terraform.tfstate"
+  }
+}
 
-tf-vpc-844358
 
-metadata_startup_script = <<-EOT
-        #!/bin/bash
-    EOT
-allow_stopping_for_update = true
+
+terraform {
+  backend "gcs" {
+    bucket  = "# REPLACE WITH YOUR BUCKET NAME"
+    prefix  = "terraform/state"
+  }
+}
+
+
+terraform init -migrate-state
+
+
+
+terraform {
+  backend "local" {
+    path = "terraform/state/terraform.tfstate"
+  }
+}
+
+
+
+
+resource "google_storage_bucket" "test-bucket-for-state" {
+  name        = "qwiklabs-gcp-03-c26136e27648"
+  location    = "US"
+  uniform_bucket_level_access = true
+  force_destroy = true
+}
+
+
+
+docker run --name hashicorp-learn --detach --publish 8080:80 nginx:latest
+
+
+
+git clone https://github.com/hashicorp/learn-terraform-import.git
+
+
+cd learn-terraform-import
+
+
+provider "docker" {
+#   host    = "npipe:////.//pipe//docker_engine"
+}
+
+
+
+resource "docker_container" "web" {
+    image = "sha256:87a94228f133e2da99cb16d653cd1373c5b4e8689956386c1c12b60a20421a02"
+    name  = "hashicorp-learn"
+    ports {
+        external = 8080
+        internal = 80
+        ip       = "0.0.0.0"
+        protocol = "tcp"
+    }
+}
+
+
+docker image inspect <IMAGE-ID> -f {{.RepoTags}}
+
+
+
+resource "docker_image" "nginx" {
+  name         = "nginx:latest"
+}
+
+
+resource "docker_container" "web" {
+    image = docker_image.nginx.latest
+    name  = "hashicorp-learn"
+    ports {
+        external = 8080
+        internal = 80
+        ip       = "0.0.0.0"
+        protocol = "tcp"
+    }
+}
+
+
+resource "docker_container" "web" {
+  name  = "hashicorp-learn"
+  image = docker_image.nginx.latest
+  ports {
+    external = 8081
+    internal = 80
+    ip       = "0.0.0.0"
+    protocol = "tcp"
+  }
+}
+
+
+docker ps --filter "name=hashicorp-learn"
