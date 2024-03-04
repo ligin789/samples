@@ -1,84 +1,69 @@
-import React, {useEffect} from 'react';
-import {SafeAreaView, Text, View} from 'react-native';
-import Header from '../../components/header';
-import {stylesForMyTask} from './style';
-import tempStorage from '../../assets/jsons/myFlights-Main.json';
-import globals from '../../lib/globals';
-import Banner from '../../components/banner';
+import * as THREE from "https://threejs.org/build/three.module.js";
+var camera, scene, renderer,front,back,wheel1,wheel2,wheel3,wheel4;
+var add = .005
 
-import codeTemplate from '../../assets/jsons/myTasks.json';
+function init() {
 
-import {connect} from 'react-redux';
-import {bindActionCreators} from 'redux';
-import {getComponent} from '../../lib/WidgetJSONParser';
+// initialize the evironment set ups here such as scene,camera and renderer
 
-const MyTasks = (props: any) => {
-  console.log(
-    'inside myTask before return myTaskData',
-    JSON.stringify(props.myTaskData.data),
-  );
-  let componentJson = codeTemplate;
+}
+function mainLoop(){
 
-  const traverseToTaskListScreen = (prop: any) => {
-    props.navigation.navigate('MyTasksListScreen', {subData: prop.subdata});
-  };
-  let widgetParameters = {
-    DataValue: props,
-    componentJson: componentJson,
-    selectedDate: props.selectedDate,
-    selectTabIndex: props.selectTabIndex,
-    onClickFunction: traverseToTaskListScreen,
-  };
-  let dataForRender =
-    props?.myTaskData?.data?.length !== 0 ? props?.myTaskData?.data : {};
-  // let dataForRender= codeTemplate.data
+  // make animations here using requestAnimationFrame() (recursion)
 
-  return (
-    <SafeAreaView testID="myTaskView" style={stylesForMyTask.itemContainer}>
-      <View style={stylesForMyTask.itemBody}>
-        <Header
-          isCalenderRequired={false}
-          subData={[]}
-          componentJson={tempStorage?.template}
-          isSortRequired={false}
-          headerTitle={globals.HEADER.Tasks}
-          headerType={1}
-          tabBarIndex={1}
-          screenValue={1.1}
-        />
-        <Banner />
-        {props?.myTaskData?.data.assigned &&
-          componentJson?.template &&
-          componentJson.template?.body &&
-          componentJson.template.body?.elements &&
-          componentJson.template.body.elements.length > 0 &&
-          componentJson.template.body.elements.map(
-            (childCmp: any, rowIndex: any) => {
-              return (
-                (childCmp.componentVisibility ||
-                  childCmp.visibilityType === 'always') &&
-                getComponent({
-                  ...widgetParameters,
-                  childCmp: childCmp,
-                  subdata: dataForRender,
-                })
-              );
-            },
-          )}
-        {(props?.myTaskData?.data?.assigned?.length === 0 ||
-          props?.myTaskData?.data?.assigned === undefined) && (
-          <View style={stylesForMyTask.itemBodyNoData}>
-            <Text style={stylesForMyTask.textColor}>No task to display</Text>
-          </View>
-        )}
-      </View>
-    </SafeAreaView>
-  );
-};
-const mapStateToProps = (state: any, props: any) => {
-  return {
-    myTaskData: state?.HomeReducer?.myTaskData,
-  };
-};
+}
+function carBody(){
+  // create car bosy here
+}
+function carBack(){
+  // create car back part here
 
-export default connect(mapStateToProps)(MyTasks);
+}
+function wheels_1(){
+ 
+  // create first wheel here
+
+}
+function wheels_2(){
+  
+  // create second wheel here
+  
+}
+function wheels_3(){
+  
+
+  // create third wheel here
+  
+}
+function wheels_4(){
+ 
+  // create fourth wheel here
+  
+}
+function item(){
+  
+  // create the box behind the vehicle here
+}
+
+function circle (){
+ 
+   // create alloys for the wheels here
+
+}
+function road(){
+  
+   // create road here
+}
+
+// create a event listening function here
+
+
+
+
+
+
+
+
+
+init()
+mainLoop()
