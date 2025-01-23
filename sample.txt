@@ -1,96 +1,67 @@
-import {  useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import "./login.css";
-import tcsAvianaLogo from "../../assets/images/tcsAvianaLogo.png";
-import { useNavigate } from "react-router-dom";
-import warningIcon from "../../assets/images/warningIcon.png";
+import axios from "axios";
 
-const Login = () => {
-  const username = useRef<any>();
-  const pwd = useRef<any>();
-  const dispatch = useDispatch();
-  const isloggedin = useSelector(
-    (state: any) => state?.UserData?.isValidUserLoggedIn
-  );
-  const navigate = useNavigate();
-  const [incorrectDetail, setIncorrectDetail] = useState(false);
-  const loginApi = () => {
-    //for incorrect username and password below if condition
+const getHeaders = () => ({
+    'Content-type': 'application/json',
+    // 'Access-Control-Allow-Origin': '*',
+    // 'token': localStorage.getItem('accessToken'),
+    // 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    // 'Authorization': `my-secert-key`
+    // 'Authorization' : 'Tcsapi#1234'
+    // 'x-api-key':'7tB4xW5Nfo5YM0z6qPXC39j7uZwCLkEt9bDNNoY1'
+})
 
-    // if (username.current.value.length == 0 || pwd.current.value.length == 0) {
-    //   alert("Please enter username and password");
-    // }
-    // else if (username.current.value == "n1234" &&pwd.current.value == "Aviana@123") {
-    //   setIncorrectDetail(false);
-    //   navigate("/home");
-    // } else {
-    //   setIncorrectDetail(true);
-    // }
-    navigate("/home");
-  };
-  const handleKeypress = (e: any) => {
-    if (e.keyCode === 13) {
-      loginApi();
+class Service {
+    async request(options: any) {
+        try {
+            let response: any
+            await axios(options)
+                .then((res:any) => {
+                    response = res
+                })
+                .catch((error:any) => {
+                    console.log("get Data Error",error.message);
+                    response = error
+                })
+            return response
+        } catch (err) {
+            console.log(err);
+        }
     }
-  };
-  return (
-    <div className="loginContainer">
-      <div className="login-box">
-        <div className="logo-container">
-          <div className="logo-container-inner">
-            <img className="logo-img" alt="logo" src={tcsAvianaLogo} />
-          </div>
-        </div>
-        <div className="login-box-inner">
-          <div className="user-area">
-            <div className="header-user-title">User Name</div>
-            <input
-              onKeyDown={handleKeypress}
-              ref={username}
-              className="user-name"
-              title="user-name"
-              placeholder=""
-            />
-            <div className="password-area">
-              <div className="header-user-title">Password</div>
-              <input
-                onKeyDown={handleKeypress}
-                type="password"
-                ref={pwd}
-                className="password-name"
-                title="password"
-                placeholder=""
-              />
-            </div>
-            {incorrectDetail && (
-              <div className="IncorrectDetailArea">
-                <img className="warningImage" alt="logo" src={warningIcon} />
-                <span className="IncorrectText">
-                  Incorrect Username or Password
-                </span>
-              </div>
-            )}
-            <div className="submit-area">
-              <button
-                onClick={() => {
-                  loginApi();
-                }}
-                className="submit-button"
-              >
-                Login
-              </button>
-            </div>
-            {/* <div className="forgot-pwd">Forgot Password?</div> */}
+    async get(url: any) {
+        const options = {
+            url,
+            method: 'GET',
+            headers: getHeaders()
+        }
+        return this.request(options)
+    }
+    async post(url: any, body: any, optional: any = '') {
+        const options: any = {
+            url,
+            method: 'POST',
+            headers: getHeaders(),
+            data: JSON.stringify(body)
+        }
+        if (optional?.toLowerCase() == 'blob') {
+            options.responseType = optional
+        }
+        return await this.request(options)
+    }
+}
 
-            {/* <SocketHandler connectionFor='boardingcard' station='ord' terminal='t1' zone={['Z4','Z5','Z6']} closeConnection={false}/> */}
-          </div>
-        </div>
-        <div className="copyText">
-          ©2022 Tata Consultancy Services Limited. All Rights Reserved.
-        </div>
-      </div>
-    </div>
-  );
-};
+export default new Service()
 
-export default Login;
+export async function APIcall(
+    method: any,
+    uri: any,
+    payload = {},
+    responseType: any = ''
+) {
+    const instance = new Service()
+    if (method.toUpperCase() == 'POST') {
+        return await instance.post(uri, payload, responseType)
+    }
+    else {
+        return await instance.get(uri)
+    }
+}
