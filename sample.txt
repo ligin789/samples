@@ -1,1 +1,67 @@
 
+import moment from "moment"
+
+export const getIsoStringValue = () =>{
+    return new Date().toISOString()
+}
+
+export const getLocalTimeStringValueInHHmm = (date:string) =>{
+    let localStringValue = new Date(date).toLocaleTimeString('en-GB',{
+        timeZone:'Europe/London',
+        hour:'2-digit',
+        minute:'2-digit'
+    })
+    return localStringValue
+}
+
+export const getLocalDateStringValue = (date:string) => {
+    return moment(date).format('DD MMM').toUpperCase()
+}
+
+export const getActualDifference = (date:string) => {
+    return moment.utc(moment.utc(new Date(), "YYYY-MM-DD  HH:mm:ss").diff(moment.utc(date, "YYYY-MM-DD  HH:mm:ss"))).format("HH:mm")
+}
+
+export const getActualDifferenceInMin = (date:string) => {
+    const currentTimeInUtc = moment.utc(new Date()).format("YYYY-MM-DDTHH:mm:ssZ")
+    const currentTime = new Date(currentTimeInUtc).getTime()
+    const departureTime = new Date(date).getTime()
+    const delayInMin = (currentTime-departureTime)/(60*1000);
+    return delayInMin;
+}
+
+export const getDelayInHHMMFormat = (min:number) => {
+   const hrs = Math.floor(min/60).toString().padStart(2,'0') || '00'
+   const mins = Math.floor(min%60).toString().padStart(2,'0') || '00'
+   return `${hrs}:${mins}` 
+}
+
+export const formatDateToCustom = () =>{
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}T00:00:00Z`;
+    // return "2024-11-10T00:00:00Z"
+}
+
+export const getActualDifferenceInMinSec = (date:string) => {
+    const currentTimeInUtc = moment.utc(new Date()).format("YYYY-MM-DDTHH:mm:ssZ")
+    const currentTime = new Date(currentTimeInUtc).getTime()
+    const referenceTimeInUtc = moment.utc(date).format("YYYY-MM-DDTHH:mm:ssZ")
+    const referenceTime = new Date(referenceTimeInUtc).getTime()
+    const delayInSeconds = (currentTime-referenceTime)/(1000);
+    const sec = Math.floor(delayInSeconds%60)
+    const min = Math.floor(delayInSeconds/60)
+    return {sec,min}
+}
+
+export const getActualDepartureDifference = (date:string) => {
+    const currentTimeInUtc = moment.utc(new Date()).format("YYYY-MM-DDTHH:mm:ssZ")
+    const currentTime = new Date(currentTimeInUtc).getTime()
+    const departureTimeInUtc = moment.utc(date).format("YYYY-MM-DDTHH:mm:ssZ")
+    const departureTime = new Date(departureTimeInUtc).getTime()
+    const delayInSeconds = (currentTime-departureTime)/(1000);
+    const min = Math.floor(delayInSeconds/60)
+    return min > 0 ? min : 0
+}
