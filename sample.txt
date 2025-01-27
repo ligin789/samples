@@ -1,9 +1,43 @@
- ● Test suite failed to run
+getListStyles › should return the correct style when extraStyleKey is 'visibilityColorChange' and visibilityColor is 'red'
 
-    test/utils/GetListStyles.test.ts:65:33 - error TS2339: Property 'key' does not exist on type '{ type: string; props: { key: number; extraStyleKey: string; customStyles: { acknowledgeIconClicked: { style: { border: string; }; }; }; }; }'.
+    expect(received).toEqual(expected) // deep equality
 
-    65     expect(props.childComponent.key).toEqual("acknowledgeIconClicked");
-                                       ~~~
-    test/utils/GetListStyles.test.ts:88:33 - error TS2339: Property 'key' does not exist on type '{ type: string; props: { key: number; extraStyleKey: string; customStyles: { acknowledgeIconNotClicked: { style: { border: string; }; }; }; }; }'.
+    - Expected  - 3
+    + Received  + 1
 
-    88     expect(props.childComponent.key).toEqual("acknowledgeIconNotClicked");
+    - Object {
+    -   "color": "red",
+    - }
+    + Object {}
+
+      20 |     const result = getListStyles(props);
+      21 |  
+    > 22 |     expect(result).toEqual({ color: "red" });
+         |                    ^
+      23 |   });
+      24 |  
+      25 |   it("should return the correct style when extraStyleKey is 'severity' and severity is 'HIGH'", () => {
+
+      at Object.<anonymous> (test/utils/GetListStyles.test.ts:22:20)
+
+  ● getListStyles › should handle RsImage when acknowledgeIconClicked is true
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 3
+    + Received  + 1
+
+    - Object {
+    -   "border": "2px solid green",
+    - }
+    + Object {}
+
+      61 |     const result = getListStyles(props);
+      62 |    
+    > 63 |     expect(result).toEqual({ border: "2px solid green" });
+         |                    ^
+      64 |   });
+      65 |  
+      66 |   it("should handle RsImage when acknowledgeIconClicked is false", () => {
+
+      at Object.<anonymous> (test/utils/GetListStyles.test.ts:63:20)
