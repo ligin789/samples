@@ -1,184 +1,466 @@
-import FlatListComponent from "../atoms/flatListComponent";
-import HorizontalLine from "../atoms/horizontalLineComponent";
-import ImageComponent from "../atoms/imageComponent";
-import ListViewComponent from "../atoms/listViewComponent";
-import PieChartComp from "../atoms/Piechart/PieChart";
-import TextComponent from "../atoms/textComponent";
-import TouchableOpacityComponent from "../atoms/touchableOpacityComponent";
-import ViewComponent from "../atoms/viewComponent";
-import DropdownWidget from "../components/dropDownWidget";
-import { getAdditionalStyles } from "./GetAdditionalStyles";
-import {
-  FetchDataFromKey,
-  GetListData,
-  getValuesForCountdownTimer,
-  isComponentVisible,
-} from "./GetListData";
-import { getListStyles } from "./GetListStyles";
-import GetNativeStyles from "./GetNativeStyles";
+ test/utils/GetMicroComponent.test.ts
+  ● Test suite failed to run
 
-const GetMicroComponent = (props: any) => {
-  const { childComponent, data, mappedFunctions, mainListIndex } = props;
-  switch (childComponent.type) {
-    case "RsContainer":
-      return (
-        <ViewComponent
-          styles={{
-            ...GetNativeStyles({
-              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-              objectStyles: childComponent?.css?.any?.object,
-              cssStringStyles: childComponent?.css?.any?.string || "",
-              wrapperObjectStringStyles:
-                childComponent?.wrapperCss?.any?.string || "",
-            }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-          }}
-          childComponent={childComponent}
-          data={data}
-          mappedFunctions={mappedFunctions}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent?.props?.visible?.value
-          }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "RsLabel":
-      return (
-        <TextComponent
-          styles={{
-            ...GetNativeStyles({
-              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-              objectStyles: childComponent?.css?.any?.object,
-              cssStringStyles: childComponent?.css?.any?.string || "",
-              wrapperObjectStringStyles:
-                childComponent?.wrapperCss?.any?.string || "",
-            }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-          }}
-          text={
-            FetchDataFromKey(childComponent.key, data, childComponent) || ""
-          }
-        />
-      );
-    case "RsImage":
-      return (
-        <ImageComponent
-          styles={{
-            ...GetNativeStyles({
-            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-            objectStyles: childComponent?.css?.any?.object,
-            cssStringStyles: childComponent?.css?.any?.string || "",
-            wrapperObjectStringStyles:
-              childComponent?.wrapperCss?.any?.string || "",
-          }),
-          ...getListStyles({data,childComponent})       
-        }}
-          source={childComponent?.key}
-        />
-      );
-    case "ButtonContainer":
-      return (
-        <TouchableOpacityComponent
-          styles={
-            {
-              ...GetNativeStyles({
-                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-                objectStyles: childComponent?.css?.any?.object,
-                cssStringStyles: childComponent?.css?.any?.string || "",
-                wrapperObjectStringStyles:
-                  childComponent?.wrapperCss?.any?.string || "",
-              }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-            }}
-          childComponent={childComponent}
-          text={childComponent?.props?.children?.value}
-          data={data}
-          mappedFunctions={mappedFunctions}
-          label={childComponent?.key}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent?.props?.visible?.value
-          }
-          buttonState={childComponent?.props?.disabled?.value}
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "List":
-      return (
-        <FlatListComponent
-          styles={{...GetNativeStyles({
-            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-            objectStyles: childComponent?.css?.any?.object,
-            cssStringStyles: childComponent?.css?.any?.string || "",
-            wrapperObjectStringStyles:
-              childComponent?.wrapperCss?.any?.string || "",
-          }),
-        ...getListStyles({data,childComponent})}}
-          data={GetListData(childComponent?.key, data)}
-          childComponent={childComponent?.children}
-          mappedFunctions={mappedFunctions}
-          visible={isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent.props.visible.value
-            }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "ListView":
-      return (
-        <ListViewComponent
-          styles={
-            {
-              ...GetNativeStyles({
-                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-                objectStyles: childComponent?.css?.any?.object,
-                cssStringStyles: childComponent?.css?.any?.string || "",
-                wrapperObjectStringStyles:
-                  childComponent?.wrapperCss?.any?.string || "",
-              }),
-            ...getAdditionalStyles({ data, childComponent }),
-            }}
-          childComponent={childComponent}
-          data={GetListData(childComponent?.key, data)}
-          mappedFunctions={mappedFunctions}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent.props.visible.value
-          }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case 'RsProgressCircle':
-      return <PieChartComp value={FetchDataFromKey(childComponent.key,data) || ''}/>
-    case 'HorizontalLine':
-      return <HorizontalLine
-      styles={{
-        ...GetNativeStyles({
-          wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-          objectStyles: childComponent?.css?.any?.object,
-          cssStringStyles: childComponent?.css?.any?.string || "",
-          wrapperObjectStringStyles:
-            childComponent?.wrapperCss?.any?.string || "",
-        }),
-        ...getAdditionalStyles({ data, childComponent }),
-      }}
-      />
-    case'RsDropdown':
-    return <DropdownWidget
-    styles={{
-      ...GetNativeStyles({
-        wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-        objectStyles: childComponent?.css?.any?.object,
-        cssStringStyles: childComponent?.css?.any?.string || "",
-        wrapperObjectStringStyles:childComponent?.wrapperCss?.any?.string || "",
-      }),
-    }}
-    childComponent={childComponent}
-    />
-  }
-};
+    test/utils/GetMicroComponent.test.ts:15:58 - error TS2304: Cannot find name 'div'.
 
-export default GetMicroComponent;
+    15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                ~~~
+    test/utils/GetMicroComponent.test.ts:15:62 - error TS2304: Cannot find name 'Mocked'.
+
+    15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                    ~~~~~~
+    test/utils/GetMicroComponent.test.ts:15:69 - error TS2365: Operator '<' cannot be applied to types '(props: any) => any' and 'RegExp'.
+
+    15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:15:69 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                            ~~~~~~~~~~~~~~~~~~~~~~
+     16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:16:58 - error TS2304: Cannot find name 'div'.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                ~~~
+    test/utils/GetMicroComponent.test.ts:16:62 - error TS2304: Cannot find name 'Mocked'.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                    ~~~~~~
+    test/utils/GetMicroComponent.test.ts:16:69 - error TS2365: Operator '<' cannot be applied to types '(props: any) => JSX.Element' and 'RegExp'.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                           ~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:16:69 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                            ~~~~~~~~~~~~~~~~~~~~~~
+     17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:17:59 - error TS2304: Cannot find name 'div'.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                 ~~~
+    test/utils/GetMicroComponent.test.ts:17:63 - error TS2304: Cannot find name 'Mocked'.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                     ~~~~~~
+    test/utils/GetMicroComponent.test.ts:17:70 - error TS2365: Operator '<' cannot be applied to types '(props: any) => JSX.Element' and 'RegExp'.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                            ~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:17:70 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                             ~~~~~~~~~~~~~~~~~~~~~~~
+     18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:18:70 - error TS2304: Cannot find name 'div'.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                            ~~~
+    test/utils/GetMicroComponent.test.ts:18:74 - error TS2304: Cannot find name 'Mocked'.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                                ~~~~~~
+    test/utils/GetMicroComponent.test.ts:18:81 - error TS2365: Operator '<' cannot be applied to types '(props: any) => any' and 'RegExp'.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:18:81 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:19:62 - error TS2304: Cannot find name 'div'.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                    ~~~
+    test/utils/GetMicroComponent.test.ts:19:66 - error TS2304: Cannot find name 'Mocked'.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                        ~~~~~~
+    test/utils/GetMicroComponent.test.ts:19:73 - error TS2365: Operator '<' cannot be applied to types '(props: any) => any' and 'RegExp'.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:19:73 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+     20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:20:62 - error TS2304: Cannot find name 'div'.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                    ~~~
+    test/utils/GetMicroComponent.test.ts:20:66 - error TS2304: Cannot find name 'Mocked'.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                        ~~~~~~
+    test/utils/GetMicroComponent.test.ts:20:73 - error TS2365: Operator '<' cannot be applied to types '(props: any) => JSX.Element' and 'RegExp'.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:20:73 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~
+     21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:21:62 - error TS2304: Cannot find name 'div'.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                    ~~~
+    test/utils/GetMicroComponent.test.ts:21:66 - error TS2304: Cannot find name 'Mocked'.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                        ~~~~~~
+    test/utils/GetMicroComponent.test.ts:21:73 - error TS2365: Operator '<' cannot be applied to types '({ value }: any) => JSX.Element' and 'RegExp'.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                               ~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:21:73 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                                ~~~~~~~~~~~~~~~~~~~~~
+     22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:22:68 - error TS2304: Cannot find name 'div'.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                          ~~~
+    test/utils/GetMicroComponent.test.ts:22:72 - error TS2304: Cannot find name 'Mocked'.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                              ~~~~~~
+    test/utils/GetMicroComponent.test.ts:22:79 - error TS2365: Operator '<' cannot be applied to types '(props: any) => JSX.Element' and 'RegExp'.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                                     ~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:22:79 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~
+     23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:23:64 - error TS2304: Cannot find name 'div'.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                      ~~~
+    test/utils/GetMicroComponent.test.ts:23:68 - error TS2304: Cannot find name 'Mocked'.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                          ~~~~~~
+    test/utils/GetMicroComponent.test.ts:23:75 - error TS2365: Operator '<' cannot be applied to types '(props: any) => JSX.Element' and 'RegExp'.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                                 ~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:23:75 - error TS2554: Expected 0-1 arguments, but got 3.
+
+     23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                                  ~~~~~~~~~~~~~~~~~~~~~~~
+     24 
+        
+    ... 
+     95   });
+        ~~~~~
+     96 });
+        ~~
+    test/utils/GetMicroComponent.test.ts:45:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    45     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:51:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    51     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:57:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    57     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:63:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    63     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:69:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    69     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:75:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    75     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:81:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    81     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:87:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    87     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:93:35 - error TS2749: 'GetMicroComponent' refers to a value, but is being used as a type here. Did you mean 'typeof GetMicroComponent'?
+
+    93     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:15:69 - error TS1005: ',' expected.
+
+    15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                           ~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:15:84 - error TS1161: Unterminated regular expression literal.
+
+    15 jest.mock('../atoms/viewComponent', () => jest.fn(() => <div>Mocked ViewComponent</div>));
+                                                                                          
+    test/utils/GetMicroComponent.test.ts:16:1 - error TS1005: ',' expected.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:16:69 - error TS1005: ',' expected.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                           ~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:16:84 - error TS1161: Unterminated regular expression literal.
+
+    16 jest.mock('../atoms/textComponent', () => jest.fn(() => <div>Mocked TextComponent</div>));
+                                                                                          
+    test/utils/GetMicroComponent.test.ts:17:1 - error TS1005: ',' expected.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:17:70 - error TS1005: ',' expected.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                            ~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:17:86 - error TS1161: Unterminated regular expression literal.
+
+    17 jest.mock('../atoms/imageComponent', () => jest.fn(() => <div>Mocked ImageComponent</div>));
+                                                                                            
+    test/utils/GetMicroComponent.test.ts:18:1 - error TS1005: ',' expected.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:18:81 - error TS1005: ',' expected.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:18:108 - error TS1161: Unterminated regular expression literal.
+
+    18 jest.mock('../atoms/touchableOpacityComponent', () => jest.fn(() => <div>Mocked TouchableOpacityComponent</div>));
+                                                                                                                  
+    test/utils/GetMicroComponent.test.ts:19:1 - error TS1005: ',' expected.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:19:73 - error TS1005: ',' expected.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                               ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:19:92 - error TS1161: Unterminated regular expression literal.
+
+    19 jest.mock('../atoms/flatListComponent', () => jest.fn(() => <div>Mocked FlatListComponent</div>));
+                                                                                                  
+    test/utils/GetMicroComponent.test.ts:20:1 - error TS1005: ',' expected.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:20:73 - error TS1005: ',' expected.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                               ~~~~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:20:92 - error TS1161: Unterminated regular expression literal.
+
+    20 jest.mock('../atoms/listViewComponent', () => jest.fn(() => <div>Mocked ListViewComponent</div>));
+                                                                                                  
+    test/utils/GetMicroComponent.test.ts:21:1 - error TS1005: ',' expected.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:21:73 - error TS1005: ',' expected.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                               ~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:21:87 - error TS1161: Unterminated regular expression literal.
+
+    21 jest.mock('../atoms/Piechart/PieChart', () => jest.fn(() => <div>Mocked PieChartComp</div>));
+                                                                                             
+    test/utils/GetMicroComponent.test.ts:22:1 - error TS1005: ',' expected.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:22:79 - error TS1005: ',' expected.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                                     ~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:22:95 - error TS1161: Unterminated regular expression literal.
+
+    22 jest.mock('../atoms/horizontalLineComponent', () => jest.fn(() => <div>Mocked HorizontalLine</div>));
+                                                                                                     
+    test/utils/GetMicroComponent.test.ts:23:1 - error TS1005: ',' expected.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+       ~~~~
+    test/utils/GetMicroComponent.test.ts:23:75 - error TS1005: ',' expected.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                                 ~~~~~~~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:23:91 - error TS1161: Unterminated regular expression literal.
+
+    23 jest.mock('../components/dropDownWidget', () => jest.fn(() => <div>Mocked DropdownWidget</div>));
+                                                                                                 
+    test/utils/GetMicroComponent.test.ts:25:1 - error TS1005: ',' expected.
+
+    25 describe('GetMicroComponent', () => {
+       ~~~~~~~~
+    test/utils/GetMicroComponent.test.ts:45:53 - error TS1005: '>' expected.
+
+    45     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:45:65 - error TS1109: Expression expected.
+
+    45     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:45:66 - error TS1109: Expression expected.
+
+    45     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:51:53 - error TS1005: '>' expected.
+
+    51     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:51:65 - error TS1109: Expression expected.
+
+    51     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:51:66 - error TS1109: Expression expected.
+
+    51     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:57:53 - error TS1005: '>' expected.
+
+    57     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:57:65 - error TS1109: Expression expected.
+
+    57     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:57:66 - error TS1109: Expression expected.
+
+    57     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:63:53 - error TS1005: '>' expected.
+
+    63     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:63:65 - error TS1109: Expression expected.
+
+    63     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:63:66 - error TS1109: Expression expected.
+
+    63     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:69:53 - error TS1005: '>' expected.
+
+    69     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:69:65 - error TS1109: Expression expected.
+
+    69     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:69:66 - error TS1109: Expression expected.
+
+    69     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:75:53 - error TS1005: '>' expected.
+
+    75     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:75:65 - error TS1109: Expression expected.
+
+    75     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:75:66 - error TS1109: Expression expected.
+
+    75     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:81:53 - error TS1005: '>' expected.
+
+    81     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:81:65 - error TS1109: Expression expected.
+
+    81     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:81:66 - error TS1109: Expression expected.
+
+    81     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:87:53 - error TS1005: '>' expected.
+
+    87     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:87:65 - error TS1109: Expression expected.
+
+    87     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:87:66 - error TS1109: Expression expected.
+
+    87     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:93:53 - error TS1005: '>' expected.
+
+    93     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                           ~
+    test/utils/GetMicroComponent.test.ts:93:65 - error TS1109: Expression expected.
+
+    93     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                       ~
+    test/utils/GetMicroComponent.test.ts:93:66 - error TS1109: Expression expected.
+
+    93     const { getByText } = render(<GetMicroComponent {...props} />);
+                                                                        ~
+    test/utils/GetMicroComponent.test.ts:96:3 - error TS1005: ')' expected.
+
+    96 });
+         ~
