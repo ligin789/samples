@@ -1,126 +1,17 @@
-import moment from "moment";
-const referenceKeyObjectForRequest: any = {
-    "Market": "market",
-    "Haul Type": "haulType",
-    "Flight Status": "flightStatus",
-    "IRROP Events": "irropsEvent",
-    "Terminal / Gate": "terminalgate",
-    "Aircraft": "aircraft",
-    "Fleet": "fleetType"
-}
-
-export function getStartAndEndTime(input: string) {
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const oneDayInMs = 24 * 60 * 60 * 1000;
-
-    let startTime, endTime;
-    switch (input) {
-        case '30 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 30 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '60 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 1 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '90 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 1.5 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '2 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 2 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '4 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 4 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '6 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 6 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '8 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 8 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '10 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 10 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '12 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 12 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-        case '24 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 24 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-        case 'Yesterday':
-            startTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT23:59:59');
-            break;
-        case 'Today':
-            startTime = moment.utc(new Date()).format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).format('YYYY-MM-DDT23:59:59');
-            break;
-
-        case 'Tomorrow':
-            startTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT23:59:59');
-            break;
-
-        default:
-            throw new Error('Invalid input. Please provide a valid interval like "30 Min", "2 Hours", "Today", etc.');
+export const getListStyles = (props:any) => {
+    let {data,childComponent,type} = props;
+    let key = childComponent?.props?.extraStyleKey ?? ''
+   let value:any=""
+   value=key=="visibilityColorChange"&&data?.["visibilityColor"]=="red"?"red":data?.["visibilityColor"]=="yellow"?"yellow":"#000000"
+   value=key=="severity"&&data?.["severity"]=="HIGH"?"HIGH":data?.["severity"]=="MEDIUM"?"MEDIUM":data?.[key]
+   if(childComponent?.type=="RsImage"&&key=="acknowledgeIconClicked"){
+    if(data?.acknowledgeIconClicked==true){
+        childComponent.key="acknowledgeIconClicked"
     }
-    const formatDate = (time: any) => {
-        return time + 'Z'
+    else{
+        childComponent.key="acknowledgeIconNotClicked"
     }
-    return {
-        startTime: formatDate(startTime),
-        endTime: formatDate(endTime)
-    };
-}
-
-export const getRequest = ({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod, selectedStartPeriod = null, selectedEndPeriod = null }: any) => {
-    const requestObj: any = {}
-    const object: any = {};
-    filterArr?.forEach((element: any) => {
-        if (element.name === "Terminal / Gate") {
-            element?.options?.forEach((option: any) => {
-                const terminalArray = option?.terminals?.map((terminal: any) => {
-                    const terminalObject: any = {}
-                    terminalObject[terminal?.name] = terminal?.gates?.filter((subElement: any) => subElement.isSelected === true)?.map((gate: any) => gate.name)
-                    return terminalObject
-                })
-                object[element.requestKey] = selectedDepartureStation !== 'ALL' ? terminalArray : [];
-            })
-        } else {
-            object[element.requestKey] = element?.options?.filter((subElement: any) => subElement.isSelected === true)?.map((subElement: any) => subElement.name)
-        }
-    })
-    object["departure"] = selectedDepartureStation;
-    object["arrival"] = selectedArrivalStation;
-    let startTime, endTime
-    if (selectedPeriod !== 'Custom') {
-        startTime = getStartAndEndTime(selectedPeriod).startTime
-        endTime = getStartAndEndTime(selectedPeriod).endTime
-    }
-    object["startTimeUTC"] = selectedStartPeriod ?? startTime;
-    object["endTimeUTC"] = selectedEndPeriod ?? endTime;
-    object["startTimeLCL"] = "";
-    object["endTimeLCL"] = "";
-    requestObj["searchBy"] = object
-    requestObj["from"] = '0';
-    requestObj["to"] = "10000";
-    requestObj["orderBy"] = "scheduledDepartureUTC"
-    return requestObj
+   }
+    const styles = childComponent?.props?.customStyles?.[value]?.style
+    return styles ?? {}
 }
