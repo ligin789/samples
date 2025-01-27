@@ -1,126 +1,87 @@
-import moment from "moment";
-const referenceKeyObjectForRequest: any = {
-    "Market": "market",
-    "Haul Type": "haulType",
-    "Flight Status": "flightStatus",
-    "IRROP Events": "irropsEvent",
-    "Terminal / Gate": "terminalgate",
-    "Aircraft": "aircraft",
-    "Fleet": "fleetType"
-}
 
-export function getStartAndEndTime(input: string) {
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const oneDayInMs = 24 * 60 * 60 * 1000;
 
-    let startTime, endTime;
-    switch (input) {
-        case '30 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 30 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
+import {render, screen} from '@testing-library/react'
+import React from 'react'
+import App from '../src/App';
+import '@testing-library/jest-dom';
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from 'react-redux';
+import {MemoryRouter} from 'react-router-dom'
+import { TextEncoder } from 'util';
+jest.mock('../src/screens/home/index',()=>()=><>Mocked home page</>)
+jest.mock('../src/screens/login/index',()=>()=><>Mocked Login page</>)
+// 
 
-        case '60 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 1 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
 
-        case '90 Min':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 1.5 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
+global.TextEncoder = TextEncoder;
 
-        case '2 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 2 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
+describe('Testing App component', () => {
+  const  mockValues:any={
+    UserData:{isValidUserLoggedIn:true}
+  } 
+  const store = configureStore({reducer:mockValues});
+    it('should render the app component', async () => {
 
-        case '4 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 4 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
+      const { getByText}:any = 
+      render(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={["/"]}>
+          <App/>
+        </MemoryRouter>
+        </Provider>
+        )
 
-        case '6 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 6 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '8 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 8 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '10 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 10 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-
-        case '12 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 12 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-        case '24 Hours':
-            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
-            endTime = moment.utc(new Date(now.getTime() + 24 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
-            break;
-        case 'Yesterday':
-            startTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT23:59:59');
-            break;
-        case 'Today':
-            startTime = moment.utc(new Date()).format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).format('YYYY-MM-DDT23:59:59');
-            break;
-
-        case 'Tomorrow':
-            startTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT00:00:00');
-            endTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT23:59:59');
-            break;
-
-        default:
-            throw new Error('Invalid input. Please provide a valid interval like "30 Min", "2 Hours", "Today", etc.');
-    }
-    const formatDate = (time: any) => {
-        return time + 'Z'
-    }
-    return {
-        startTime: formatDate(startTime),
-        endTime: formatDate(endTime)
-    };
-}
-
-export const getRequest = ({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod, selectedStartPeriod = null, selectedEndPeriod = null }: any) => {
-    const requestObj: any = {}
-    const object: any = {};
-    filterArr?.forEach((element: any) => {
-        if (element.name === "Terminal / Gate") {
-            element?.options?.forEach((option: any) => {
-                const terminalArray = option?.terminals?.map((terminal: any) => {
-                    const terminalObject: any = {}
-                    terminalObject[terminal?.name] = terminal?.gates?.filter((subElement: any) => subElement.isSelected === true)?.map((gate: any) => gate.name)
-                    return terminalObject
-                })
-                object[element.requestKey] = selectedDepartureStation !== 'ALL' ? terminalArray : [];
-            })
-        } else {
-            object[element.requestKey] = element?.options?.filter((subElement: any) => subElement.isSelected === true)?.map((subElement: any) => subElement.name)
-        }
+      expect(getByText("Mocked home page")).toBeDefined();
     })
-    object["departure"] = selectedDepartureStation;
-    object["arrival"] = selectedArrivalStation;
-    let startTime, endTime
-    if (selectedPeriod !== 'Custom') {
-        startTime = getStartAndEndTime(selectedPeriod).startTime
-        endTime = getStartAndEndTime(selectedPeriod).endTime
-    }
-    object["startTimeUTC"] = selectedStartPeriod ?? startTime;
-    object["endTimeUTC"] = selectedEndPeriod ?? endTime;
-    object["startTimeLCL"] = "";
-    object["endTimeLCL"] = "";
-    requestObj["searchBy"] = object
-    requestObj["from"] = '0';
-    requestObj["to"] = "10000";
-    requestObj["orderBy"] = "scheduledDepartureUTC"
-    return requestObj
+})
+
+
+import './App.css';
+import Home from './screens/home/index';
+import Login from './screens/login/index'
+import { useDispatch, useSelector } from 'react-redux';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+function App() {
+  // const dispatch = useDispatch()
+  const isloggedin = useSelector((state: any) => state?.UserData?.isValidUserLoggedIn)
+
+  return (
+    <>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            <Route
+              path="/"
+              element={
+                isloggedin ?
+                  <Navigate to="/home" />
+                  : <Navigate to="/login" />
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+        </>
+  )
 }
+
+export default App;
+
+
+test/app.test.tsx
+  ● Test suite failed to run
+
+    ReferenceError: TextEncoder is not defined
+
+      3 | import Login from './screens/login/index'
+      4 | import { useDispatch, useSelector } from 'react-redux';
+    > 5 | import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+        | ^
+      6 | function App() {
+      7 |   // const dispatch = useDispatch()
+      8 |   const isloggedin = useSelector((state: any) => state?.UserData?.isValidUserLoggedIn)
+
+      at Object.<anonymous> (node_modules/react-router/dist/development/index.js:8366:15)
+      at Object.<anonymous> (node_modules/react-router-dom/dist/index.js:39:38)
+      at Object.<anonymous> (src/App.tsx:5:1)
+      at Object.<anonymous> (test/app.test.tsx:5:1)
