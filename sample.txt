@@ -1,72 +1,126 @@
-import { getActualDifference, getActualDifferenceInMin, getActualDifferenceInMinSec, getLocalDateStringValue, getLocalTimeStringValueInHHmm } from "./GetIsoString"
-
-
-export const GetListData = (key: any, data: any) => {
-  return data?.[key]
+import moment from "moment";
+const referenceKeyObjectForRequest: any = {
+    "Market": "market",
+    "Haul Type": "haulType",
+    "Flight Status": "flightStatus",
+    "IRROP Events": "irropsEvent",
+    "Terminal / Gate": "terminalgate",
+    "Aircraft": "aircraft",
+    "Fleet": "fleetType"
 }
 
-export const FetchDataFromKey = (key: string, data: any, childComponent: any = null) => {
-  const array = ["schActivityStartTime", "schActivityEndTime", "schdeputcdttm", "estdeputcdttm", "scharrutcdttm", "estarrutcdttm", "actActivityStartTime", "actActivityEndTime", "referenceStartTimeUTC", "referenceEndTimeUTC", "arrivalTimeUTCDttm", "departureTimeUTCDttm", "actualEndTimeUTC", "petd", "delayTime", "actualStartTimeUTC", "actualEndTimeUTC"]
-  const percentagearray =["turnaroundPercentage","boardingPercentage","dispatchPercentage","baggagePecentage"]
-  if (array.includes(key) && data?.[key]) {
-    if (childComponent?.props?.type === 'date') {
-      return getLocalDateStringValue(data?.[key])
+export function getStartAndEndTime(input: string) {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const oneDayInMs = 24 * 60 * 60 * 1000;
+
+    let startTime, endTime;
+    switch (input) {
+        case '30 Min':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 30 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '60 Min':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 1 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '90 Min':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 1.5 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '2 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 2 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '4 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 4 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '6 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 6 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '8 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 8 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '10 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 10 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+
+        case '12 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 12 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+        case '24 Hours':
+            startTime = moment.utc(now).format('YYYY-MM-DDTHH:mm:ss');
+            endTime = moment.utc(new Date(now.getTime() + 24 * 60 * 60 * 1000)).format('YYYY-MM-DDTHH:mm:ss');
+            break;
+        case 'Yesterday':
+            startTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT00:00:00');
+            endTime = moment.utc(new Date()).subtract(1, 'days').format('YYYY-MM-DDT23:59:59');
+            break;
+        case 'Today':
+            startTime = moment.utc(new Date()).format('YYYY-MM-DDT00:00:00');
+            endTime = moment.utc(new Date()).format('YYYY-MM-DDT23:59:59');
+            break;
+
+        case 'Tomorrow':
+            startTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT00:00:00');
+            endTime = moment.utc(new Date()).add(1, 'days').format('YYYY-MM-DDT23:59:59');
+            break;
+
+        default:
+            throw new Error('Invalid input. Please provide a valid interval like "30 Min", "2 Hours", "Today", etc.');
     }
-    return getLocalTimeStringValueInHHmm(data?.[key])
-  } else if (key === 'availablegroundtime' && data?.[key]) {
-    let hrs = `${Math.floor(data?.[key] / 60)}` || "00";
-    let minutes = `${data?.[key] % 60}` || "00";
-    return `${hrs.padStart(2, '0')}:${minutes.padStart(2, '0')}`
-  } else if (key === 'dept') {
-    const selectedTab = data?.['#percentage']?.filter((item: any) => item.isDepartmentTabSelected === true)?.[0]
-    return `${selectedTab.dept}`
-  } else if (key === 'percentage') {
-    //const selectedTab = data?.['#activityList']?.filter((item: any) => item.activityTabSelected === true)?.[0]
-    return `${data?.percentage ?? 0}%`
-  } else if (key === 'tabPercentage') {
-    //const selectedTab = data?.['#activityList']?.filter((item: any) => item.activityTabSelected === true)?.[0]
-    return data?.percentage || 0
-  } else if (key === "delayTime" && childComponent?.props?.type === 'delayTime') {
-    const actualDelayOfTask = getActualDifferenceInMin(data?.["departureTimeUTCDttm"])
-    if (actualDelayOfTask > 0) {
-      return `${Math.floor(actualDelayOfTask / 60).toString().padStart(2, '0')}:${Math.floor(actualDelayOfTask % 60).toString().padStart(2, '0')}`
+    const formatDate = (time: any) => {
+        return time + 'Z'
     }
-    return '0'
-  } else if (key === 'moreInfoLabel') {
-    return data?.['showContextualInfo'] === true ? 'Show Less' : 'More Info'
-  }else if(percentagearray.includes(key)  && childComponent?.type === "RsLabel"){
-    return `${data?.[key]}%`
-  } else if(data?.[key]==="DELAY"){
-    return `${data?.[key]} - ${data?.["delatTime"]}`
-  }
-  return data?.[key]
+    return {
+        startTime: formatDate(startTime),
+        endTime: formatDate(endTime)
+    };
 }
 
-export const isComponentVisible = (key: string, data: any, childComponent: any = null) => {
-  if (key === 'viewNotesClickHandler' && data?.['#comments']) {
-    // console.log("isComponentVisible", key, data, childComponent);
-    // return !!(data?.['#comments']?.length)
-    return false
-  }
-  if(key === 'actualActivityCompleteTimer' || key === 'actualActivityStartTimeContainer'){
-    return !!(data?.['actualStartTimeUTC'])
-  }
-  if (childComponent?.props?.type === 'actualEndTimeUTC') {
-    return !!data?.[childComponent?.props?.type]
-  }
-  if(childComponent?.extraKey){
-    console.log("hhhhh",data?.[childComponent?.extraKey],data)
-    return data?.[childComponent?.extraKey]
-  }
-  if(key=="resolveButton"&&data?.acknowledgeIconClicked==true&&childComponent?.props?.extraStyleKey=="acknowledgeIconClicked"){
-  return !childComponent?.props?.visible?.value
-  }
-  if(key=="snoozeDropDown"){
-  return data?.snoozeIconClicked
-  }
-}
-
-export const getValuesForCountdownTimer = (key:string, data:any) => {
-  const actActivityStartTime = data?.['actActivityStartTime']
-  return getActualDifferenceInMinSec(actActivityStartTime)
+export const getRequest = ({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod, selectedStartPeriod = null, selectedEndPeriod = null }: any) => {
+    const requestObj: any = {}
+    const object: any = {};
+    filterArr?.forEach((element: any) => {
+        if (element.name === "Terminal / Gate") {
+            element?.options?.forEach((option: any) => {
+                const terminalArray = option?.terminals?.map((terminal: any) => {
+                    const terminalObject: any = {}
+                    terminalObject[terminal?.name] = terminal?.gates?.filter((subElement: any) => subElement.isSelected === true)?.map((gate: any) => gate.name)
+                    return terminalObject
+                })
+                object[element.requestKey] = selectedDepartureStation !== 'ALL' ? terminalArray : [];
+            })
+        } else {
+            object[element.requestKey] = element?.options?.filter((subElement: any) => subElement.isSelected === true)?.map((subElement: any) => subElement.name)
+        }
+    })
+    object["departure"] = selectedDepartureStation;
+    object["arrival"] = selectedArrivalStation;
+    let startTime, endTime
+    if (selectedPeriod !== 'Custom') {
+        startTime = getStartAndEndTime(selectedPeriod).startTime
+        endTime = getStartAndEndTime(selectedPeriod).endTime
+    }
+    object["startTimeUTC"] = selectedStartPeriod ?? startTime;
+    object["endTimeUTC"] = selectedEndPeriod ?? endTime;
+    object["startTimeLCL"] = "";
+    object["endTimeLCL"] = "";
+    requestObj["searchBy"] = object
+    requestObj["from"] = '0';
+    requestObj["to"] = "10000";
+    requestObj["orderBy"] = "scheduledDepartureUTC"
+    return requestObj
 }
