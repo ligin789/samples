@@ -1,87 +1,184 @@
+import FlatListComponent from "../atoms/flatListComponent";
+import HorizontalLine from "../atoms/horizontalLineComponent";
+import ImageComponent from "../atoms/imageComponent";
+import ListViewComponent from "../atoms/listViewComponent";
+import PieChartComp from "../atoms/Piechart/PieChart";
+import TextComponent from "../atoms/textComponent";
+import TouchableOpacityComponent from "../atoms/touchableOpacityComponent";
+import ViewComponent from "../atoms/viewComponent";
+import DropdownWidget from "../components/dropDownWidget";
+import { getAdditionalStyles } from "./GetAdditionalStyles";
+import {
+  FetchDataFromKey,
+  GetListData,
+  getValuesForCountdownTimer,
+  isComponentVisible,
+} from "./GetListData";
+import { getListStyles } from "./GetListStyles";
+import GetNativeStyles from "./GetNativeStyles";
 
+const GetMicroComponent = (props: any) => {
+  const { childComponent, data, mappedFunctions, mainListIndex } = props;
+  switch (childComponent.type) {
+    case "RsContainer":
+      return (
+        <ViewComponent
+          styles={{
+            ...GetNativeStyles({
+              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+              objectStyles: childComponent?.css?.any?.object,
+              cssStringStyles: childComponent?.css?.any?.string || "",
+              wrapperObjectStringStyles:
+                childComponent?.wrapperCss?.any?.string || "",
+            }),
+            ...getAdditionalStyles({ data, childComponent }),
+            ...getListStyles({data,childComponent})
+          }}
+          childComponent={childComponent}
+          data={data}
+          mappedFunctions={mappedFunctions}
+          visible={
+            isComponentVisible(childComponent.key, data, childComponent) ??
+            childComponent?.props?.visible?.value
+          }
+          mainListIndex={mainListIndex}
+        />
+      );
+    case "RsLabel":
+      return (
+        <TextComponent
+          styles={{
+            ...GetNativeStyles({
+              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+              objectStyles: childComponent?.css?.any?.object,
+              cssStringStyles: childComponent?.css?.any?.string || "",
+              wrapperObjectStringStyles:
+                childComponent?.wrapperCss?.any?.string || "",
+            }),
+            ...getAdditionalStyles({ data, childComponent }),
+            ...getListStyles({data,childComponent})
+          }}
+          text={
+            FetchDataFromKey(childComponent.key, data, childComponent) || ""
+          }
+        />
+      );
+    case "RsImage":
+      return (
+        <ImageComponent
+          styles={{
+            ...GetNativeStyles({
+            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+            objectStyles: childComponent?.css?.any?.object,
+            cssStringStyles: childComponent?.css?.any?.string || "",
+            wrapperObjectStringStyles:
+              childComponent?.wrapperCss?.any?.string || "",
+          }),
+          ...getListStyles({data,childComponent})       
+        }}
+          source={childComponent?.key}
+        />
+      );
+    case "ButtonContainer":
+      return (
+        <TouchableOpacityComponent
+          styles={
+            {
+              ...GetNativeStyles({
+                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+                objectStyles: childComponent?.css?.any?.object,
+                cssStringStyles: childComponent?.css?.any?.string || "",
+                wrapperObjectStringStyles:
+                  childComponent?.wrapperCss?.any?.string || "",
+              }),
+            ...getAdditionalStyles({ data, childComponent }),
+            ...getListStyles({data,childComponent})
+            }}
+          childComponent={childComponent}
+          text={childComponent?.props?.children?.value}
+          data={data}
+          mappedFunctions={mappedFunctions}
+          label={childComponent?.key}
+          visible={
+            isComponentVisible(childComponent.key, data, childComponent) ??
+            childComponent?.props?.visible?.value
+          }
+          buttonState={childComponent?.props?.disabled?.value}
+          mainListIndex={mainListIndex}
+        />
+      );
+    case "List":
+      return (
+        <FlatListComponent
+          styles={{...GetNativeStyles({
+            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+            objectStyles: childComponent?.css?.any?.object,
+            cssStringStyles: childComponent?.css?.any?.string || "",
+            wrapperObjectStringStyles:
+              childComponent?.wrapperCss?.any?.string || "",
+          }),
+        ...getListStyles({data,childComponent})}}
+          data={GetListData(childComponent?.key, data)}
+          childComponent={childComponent?.children}
+          mappedFunctions={mappedFunctions}
+          visible={isComponentVisible(childComponent.key, data, childComponent) ??
+            childComponent.props.visible.value
+            }
+          mainListIndex={mainListIndex}
+        />
+      );
+    case "ListView":
+      return (
+        <ListViewComponent
+          styles={
+            {
+              ...GetNativeStyles({
+                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+                objectStyles: childComponent?.css?.any?.object,
+                cssStringStyles: childComponent?.css?.any?.string || "",
+                wrapperObjectStringStyles:
+                  childComponent?.wrapperCss?.any?.string || "",
+              }),
+            ...getAdditionalStyles({ data, childComponent }),
+            }}
+          childComponent={childComponent}
+          data={GetListData(childComponent?.key, data)}
+          mappedFunctions={mappedFunctions}
+          visible={
+            isComponentVisible(childComponent.key, data, childComponent) ??
+            childComponent.props.visible.value
+          }
+          mainListIndex={mainListIndex}
+        />
+      );
+    case 'RsProgressCircle':
+      return <PieChartComp value={FetchDataFromKey(childComponent.key,data) || ''}/>
+    case 'HorizontalLine':
+      return <HorizontalLine
+      styles={{
+        ...GetNativeStyles({
+          wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+          objectStyles: childComponent?.css?.any?.object,
+          cssStringStyles: childComponent?.css?.any?.string || "",
+          wrapperObjectStringStyles:
+            childComponent?.wrapperCss?.any?.string || "",
+        }),
+        ...getAdditionalStyles({ data, childComponent }),
+      }}
+      />
+    case'RsDropdown':
+    return <DropdownWidget
+    styles={{
+      ...GetNativeStyles({
+        wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
+        objectStyles: childComponent?.css?.any?.object,
+        cssStringStyles: childComponent?.css?.any?.string || "",
+        wrapperObjectStringStyles:childComponent?.wrapperCss?.any?.string || "",
+      }),
+    }}
+    childComponent={childComponent}
+    />
+  }
+};
 
-import {render, screen} from '@testing-library/react'
-import React from 'react'
-import App from '../src/App';
-import '@testing-library/jest-dom';
-import { configureStore } from "@reduxjs/toolkit";
-import { Provider } from 'react-redux';
-import {MemoryRouter} from 'react-router-dom'
-import { TextEncoder } from 'util';
-jest.mock('../src/screens/home/index',()=>()=><>Mocked home page</>)
-jest.mock('../src/screens/login/index',()=>()=><>Mocked Login page</>)
-// 
-
-
-global.TextEncoder = TextEncoder;
-
-describe('Testing App component', () => {
-  const  mockValues:any={
-    UserData:{isValidUserLoggedIn:true}
-  } 
-  const store = configureStore({reducer:mockValues});
-    it('should render the app component', async () => {
-
-      const { getByText}:any = 
-      render(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={["/"]}>
-          <App/>
-        </MemoryRouter>
-        </Provider>
-        )
-
-      expect(getByText("Mocked home page")).toBeDefined();
-    })
-})
-
-
-import './App.css';
-import Home from './screens/home/index';
-import Login from './screens/login/index'
-import { useDispatch, useSelector } from 'react-redux';
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-function App() {
-  // const dispatch = useDispatch()
-  const isloggedin = useSelector((state: any) => state?.UserData?.isValidUserLoggedIn)
-
-  return (
-    <>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Home />} />
-            <Route
-              path="/"
-              element={
-                isloggedin ?
-                  <Navigate to="/home" />
-                  : <Navigate to="/login" />
-              }
-            />
-          </Routes>
-        </BrowserRouter>
-        </>
-  )
-}
-
-export default App;
-
-
-test/app.test.tsx
-  ● Test suite failed to run
-
-    ReferenceError: TextEncoder is not defined
-
-      3 | import Login from './screens/login/index'
-      4 | import { useDispatch, useSelector } from 'react-redux';
-    > 5 | import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-        | ^
-      6 | function App() {
-      7 |   // const dispatch = useDispatch()
-      8 |   const isloggedin = useSelector((state: any) => state?.UserData?.isValidUserLoggedIn)
-
-      at Object.<anonymous> (node_modules/react-router/dist/development/index.js:8366:15)
-      at Object.<anonymous> (node_modules/react-router-dom/dist/index.js:39:38)
-      at Object.<anonymous> (src/App.tsx:5:1)
-      at Object.<anonymous> (test/app.test.tsx:5:1)
+export default GetMicroComponent;
