@@ -1,41 +1,18 @@
-'GetMicroComponent' cannot be used as a JSX component.
-      Its return type 'Element | undefined' is not a valid JSX element.
-        Type 'undefined' is not assignable to type 'Element | null'.
+import moment from "moment-timezone";
 
-    36     const { getByText } = render(<GetMicroComponent {...props} />);
-                                         ~~~~~~~~~~~~~~~~~
+export const getLocalTimeInHHmmFormat = (date:string, timeZone:string) => {
+    let localStringValue = new Date(date).toLocaleTimeString('en-GB',{
+        timeZone,
+        hour:'2-digit',
+        minute:'2-digit'
+    })
+    const utcOffset = moment.tz(new Date(date).toISOString(),timeZone).utcOffset();
+    const gmtHHString = parseInt(`${utcOffset/60}`).toString().padStart(2,'0');
+    const gmtmmString = (utcOffset%60).toString().padStart(2,'0')
+    return {localStringValue,gmtString:`${utcOffset>=0 ? '+' : ''}${gmtHHString}:${gmtmmString}`}
+}
 
-
-
-// import {View} from 'react-native';
-import GetMicroComponent from '../../utils/GetMicroComponent';
-const ViewComponent = (props: any) => {
-
-  if(props.styles.hasOwnProperty("border-bottom-width")){
-    // console.log("TextComponent", props);
-  }
-  const {
-    styles,
-    childComponent,
-    data,
-    mappedFunctions,
-    visible,
-    mainListIndex,
-  } = props;
-  return (
-    visible && (
-      <div style={styles}>
-        {childComponent?.children?.map((nextChildComponent: any) => {
-          return GetMicroComponent({
-            childComponent: nextChildComponent,
-            data: data,
-            mappedFunctions,
-            mainListIndex,
-          });
-        })}
-      </div>
-    )
-  );
-};
-
-export default ViewComponent;
+export const getLocalTimeAndGMT = (date:string) =>{
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return getLocalTimeInHHmmFormat(date,timeZone)
+}
