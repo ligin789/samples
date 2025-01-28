@@ -1,64 +1,14 @@
-import store from "../redux/store/store"
+Test suite failed to run
 
-export const fetchWidgetsWithTabData = (widgets:any) => {
-    const existingTaskTypeArray = store?.getState()?.FlightReducer?.taskTypeTabData || [];
-    const existingDeptTypeArray = store?.getState()?.FlightReducer?.deptTypeTabData || [];
-    if (existingTaskTypeArray.length) {
-        widgets[0]["widgetAttributes"]['#list'][0]['#taskCategoryTabList'] = existingTaskTypeArray
-    }
-    if(existingDeptTypeArray.length){
-        widgets[0]["widgetAttributes"]['#list'][0]['#percentage'] = existingDeptTypeArray
-    }
-    return widgets 
-}
+    Cannot find module '../redux/store/store' from 'test/utils/FetchWidgetForMonitor.test.ts'
 
-export const getWidgetsWithMappedProcess = (key:string, widgets:any) => {
-    const existingTaskTypeArray:any = store?.getState()?.FlightReducer?.taskTypeTabData || [];
-    const existingDeptTypeArray:any = store?.getState()?.FlightReducer?.deptTypeTabData || [];
-    
-    if (existingTaskTypeArray.length && key === '#taskCategoryTabList') {
-        const selectedTab = existingTaskTypeArray?.filter((item:any)=>item.taskCategoryTabSelected === true)
-        console.log("selectedTab",selectedTab)
-        if (selectedTab[0].taskType !== 'ALL') {
-            const filteredArray =  widgets[0].widgetAttributes['#list']?.[0]?.['#mappedProcess']?.filter((element: any) => {
-              if (selectedTab[0].taskType === 'Critical') {
-                return element?.isCritical === 'Y'
-              }
-              return element?.aboveOrBelowTheWing === selectedTab[0].taskType
-            })
-            widgets[0].widgetAttributes['#list'][0]['#mappedProcess'] = filteredArray
-        }
-        return widgets
-    }
-    
-    if(existingDeptTypeArray.length && key === '#percentage'){
-        const selectedTab = existingDeptTypeArray?.filter((item:any)=> item.isDepartmentTabSelected === true)
-        if(selectedTab[0].dept !== 'ALL'){
-            const filteredArray = widgets?.[0]?.widgetAttributes['#list']?.[0]?.['#mappedProcess']?.filter((element: any) => element.department === selectedTab[0].dept)
-            widgets[0].widgetAttributes['#list'][0]['#mappedProcess'] = filteredArray
-        }
-        return widgets
-    }
-    return widgets
-}
+      3 |  
+      4 |
+    > 5 | jest.mock('../redux/store/store', () => ({
+        |      ^
+      6 |   getState: jest.fn(),
+      7 | }));
+      8 |  
 
-
-
-store.tsx
-
-import { configureStore } from "@reduxjs/toolkit";
-import rootReducer from "../reducers/index";
-import { rootSaga } from "../saga/index";
-import createSagaMiddleware from "redux-saga";
-
-const sagaMiddleware = createSagaMiddleware()
-
-let middlewares = [sagaMiddleware]
-
- const store = configureStore({
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware:any) => getDefaultMiddleware({serializableCheck: false,immutableCheck: false,}).concat([...middlewares])
-})
-
-sagaMiddleware.run(rootSaga)
-export default store
+      at Resolver._throwModNotFoundError (node_modules/jest-runtime/node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (test/utils/FetchWidgetForMonitor.test.ts:5:6)
