@@ -1,14 +1,42 @@
-Test suite failed to run
-
-    Cannot find module '../redux/store/store' from 'test/utils/FetchWidgetForMonitor.test.ts'
-
-      3 |  
-      4 |
-    > 5 | jest.mock('../redux/store/store', () => ({
-        |      ^
-      6 |   getState: jest.fn(),
-      7 | }));
-      8 |  
-
-      at Resolver._throwModNotFoundError (node_modules/jest-runtime/node_modules/jest-resolve/build/resolver.js:427:11)
-      at Object.<anonymous> (test/utils/FetchWidgetForMonitor.test.ts:5:6)
+const GetImageSource = (source: string) => {
+  switch (source) {
+    // case 'timerIcon':
+    //     return require('../../src/assets/images/timer.png');
+    // case 'warningIcon':
+    //     return require('../../src/assets/images/warning.png');
+    // case 'noteIcon':
+    //     return require('../../src/assets/images/notes.png');
+    // case 'delayCodeIcon':
+    //     return require('../../src/assets/images/delaycode.png')
+    // case 'warningYellowIcon':
+    //     return require('../../src/assets/images/warning_yellow.png');
+    // case 'locationIcon':
+    //     return require('../../src/assets/images/location.png');
+    // case 'timerDotIcon':
+    //     return require('../../src/assets/images/timer_dot.png')
+    // case 'warningIconWhite':
+    //     return require('../../src/assets/images/warning_white.png');
+    // case 'arrowDownIcon':
+    //     return require('../../src/assets/images/arrow_down.png');
+    // case 'watchTimerIcon':
+    //     return require('../../src/assets/images/watch-timer.png');
+    case "locationImage":
+      return require("../assets/images/location.png");
+    case "criticalImage":
+      return require("../assets/images/criticalImage.png");
+    case "closeButton":
+      return require("../assets/images/closeButton.png");
+    case "snoozeIcon":
+      return require("../assets/images/snooze.png");
+    case "acknowledgeIconClicked":
+      return require("../assets/images/acknowledgeIconClicked.png");
+    case "acknowledgeIconNotClicked":
+      return require("../assets/images/acknowledgeNotClicked.png");
+    case "addImage":
+      return require("../assets/images/addImage.png");
+    default:
+      return null;
+    // return require('../../src/assets/images/warning_white.png')
+  }
+};
+export default GetImageSource;
