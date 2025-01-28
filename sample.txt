@@ -1,184 +1,41 @@
-import FlatListComponent from "../atoms/flatListComponent";
-import HorizontalLine from "../atoms/horizontalLineComponent";
-import ImageComponent from "../atoms/imageComponent";
-import ListViewComponent from "../atoms/listViewComponent";
-import PieChartComp from "../atoms/Piechart/PieChart";
-import TextComponent from "../atoms/textComponent";
-import TouchableOpacityComponent from "../atoms/touchableOpacityComponent";
-import ViewComponent from "../atoms/viewComponent";
-import DropdownWidget from "../components/dropDownWidget";
-import { getAdditionalStyles } from "./GetAdditionalStyles";
-import {
-  FetchDataFromKey,
-  GetListData,
-  getValuesForCountdownTimer,
-  isComponentVisible,
-} from "./GetListData";
-import { getListStyles } from "./GetListStyles";
-import GetNativeStyles from "./GetNativeStyles";
+'GetMicroComponent' cannot be used as a JSX component.
+      Its return type 'Element | undefined' is not a valid JSX element.
+        Type 'undefined' is not assignable to type 'Element | null'.
 
-const GetMicroComponent = (props: any) => {
-  const { childComponent, data, mappedFunctions, mainListIndex } = props;
-  switch (childComponent.type) {
-    case "RsContainer":
-      return (
-        <ViewComponent
-          styles={{
-            ...GetNativeStyles({
-              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-              objectStyles: childComponent?.css?.any?.object,
-              cssStringStyles: childComponent?.css?.any?.string || "",
-              wrapperObjectStringStyles:
-                childComponent?.wrapperCss?.any?.string || "",
-            }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-          }}
-          childComponent={childComponent}
-          data={data}
-          mappedFunctions={mappedFunctions}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent?.props?.visible?.value
-          }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "RsLabel":
-      return (
-        <TextComponent
-          styles={{
-            ...GetNativeStyles({
-              wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-              objectStyles: childComponent?.css?.any?.object,
-              cssStringStyles: childComponent?.css?.any?.string || "",
-              wrapperObjectStringStyles:
-                childComponent?.wrapperCss?.any?.string || "",
-            }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-          }}
-          text={
-            FetchDataFromKey(childComponent.key, data, childComponent) || ""
-          }
-        />
-      );
-    case "RsImage":
-      return (
-        <ImageComponent
-          styles={{
-            ...GetNativeStyles({
-            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-            objectStyles: childComponent?.css?.any?.object,
-            cssStringStyles: childComponent?.css?.any?.string || "",
-            wrapperObjectStringStyles:
-              childComponent?.wrapperCss?.any?.string || "",
-          }),
-          ...getListStyles({data,childComponent})       
-        }}
-          source={childComponent?.key}
-        />
-      );
-    case "ButtonContainer":
-      return (
-        <TouchableOpacityComponent
-          styles={
-            {
-              ...GetNativeStyles({
-                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-                objectStyles: childComponent?.css?.any?.object,
-                cssStringStyles: childComponent?.css?.any?.string || "",
-                wrapperObjectStringStyles:
-                  childComponent?.wrapperCss?.any?.string || "",
-              }),
-            ...getAdditionalStyles({ data, childComponent }),
-            ...getListStyles({data,childComponent})
-            }}
-          childComponent={childComponent}
-          text={childComponent?.props?.children?.value}
-          data={data}
-          mappedFunctions={mappedFunctions}
-          label={childComponent?.key}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent?.props?.visible?.value
-          }
-          buttonState={childComponent?.props?.disabled?.value}
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "List":
-      return (
-        <FlatListComponent
-          styles={{...GetNativeStyles({
-            wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-            objectStyles: childComponent?.css?.any?.object,
-            cssStringStyles: childComponent?.css?.any?.string || "",
-            wrapperObjectStringStyles:
-              childComponent?.wrapperCss?.any?.string || "",
-          }),
-        ...getListStyles({data,childComponent})}}
-          data={GetListData(childComponent?.key, data)}
-          childComponent={childComponent?.children}
-          mappedFunctions={mappedFunctions}
-          visible={isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent.props.visible.value
-            }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case "ListView":
-      return (
-        <ListViewComponent
-          styles={
-            {
-              ...GetNativeStyles({
-                wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-                objectStyles: childComponent?.css?.any?.object,
-                cssStringStyles: childComponent?.css?.any?.string || "",
-                wrapperObjectStringStyles:
-                  childComponent?.wrapperCss?.any?.string || "",
-              }),
-            ...getAdditionalStyles({ data, childComponent }),
-            }}
-          childComponent={childComponent}
-          data={GetListData(childComponent?.key, data)}
-          mappedFunctions={mappedFunctions}
-          visible={
-            isComponentVisible(childComponent.key, data, childComponent) ??
-            childComponent.props.visible.value
-          }
-          mainListIndex={mainListIndex}
-        />
-      );
-    case 'RsProgressCircle':
-      return <PieChartComp value={FetchDataFromKey(childComponent.key,data) || ''}/>
-    case 'HorizontalLine':
-      return <HorizontalLine
-      styles={{
-        ...GetNativeStyles({
-          wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-          objectStyles: childComponent?.css?.any?.object,
-          cssStringStyles: childComponent?.css?.any?.string || "",
-          wrapperObjectStringStyles:
-            childComponent?.wrapperCss?.any?.string || "",
-        }),
-        ...getAdditionalStyles({ data, childComponent }),
-      }}
-      />
-    case'RsDropdown':
-    return <DropdownWidget
-    styles={{
-      ...GetNativeStyles({
-        wrapperObjectStyles: childComponent?.wrapperCss?.any?.object,
-        objectStyles: childComponent?.css?.any?.object,
-        cssStringStyles: childComponent?.css?.any?.string || "",
-        wrapperObjectStringStyles:childComponent?.wrapperCss?.any?.string || "",
-      }),
-    }}
-    childComponent={childComponent}
-    />
+    36     const { getByText } = render(<GetMicroComponent {...props} />);
+                                         ~~~~~~~~~~~~~~~~~
+
+
+
+// import {View} from 'react-native';
+import GetMicroComponent from '../../utils/GetMicroComponent';
+const ViewComponent = (props: any) => {
+
+  if(props.styles.hasOwnProperty("border-bottom-width")){
+    // console.log("TextComponent", props);
   }
+  const {
+    styles,
+    childComponent,
+    data,
+    mappedFunctions,
+    visible,
+    mainListIndex,
+  } = props;
+  return (
+    visible && (
+      <div style={styles}>
+        {childComponent?.children?.map((nextChildComponent: any) => {
+          return GetMicroComponent({
+            childComponent: nextChildComponent,
+            data: data,
+            mappedFunctions,
+            mainListIndex,
+          });
+        })}
+      </div>
+    )
+  );
 };
 
-export default GetMicroComponent;
+export default ViewComponent;
