@@ -1,42 +1,30 @@
-const GetImageSource = (source: string) => {
-  switch (source) {
-    // case 'timerIcon':
-    //     return require('../../src/assets/images/timer.png');
-    // case 'warningIcon':
-    //     return require('../../src/assets/images/warning.png');
-    // case 'noteIcon':
-    //     return require('../../src/assets/images/notes.png');
-    // case 'delayCodeIcon':
-    //     return require('../../src/assets/images/delaycode.png')
-    // case 'warningYellowIcon':
-    //     return require('../../src/assets/images/warning_yellow.png');
-    // case 'locationIcon':
-    //     return require('../../src/assets/images/location.png');
-    // case 'timerDotIcon':
-    //     return require('../../src/assets/images/timer_dot.png')
-    // case 'warningIconWhite':
-    //     return require('../../src/assets/images/warning_white.png');
-    // case 'arrowDownIcon':
-    //     return require('../../src/assets/images/arrow_down.png');
-    // case 'watchTimerIcon':
-    //     return require('../../src/assets/images/watch-timer.png');
-    case "locationImage":
-      return require("../assets/images/location.png");
-    case "criticalImage":
-      return require("../assets/images/criticalImage.png");
-    case "closeButton":
-      return require("../assets/images/closeButton.png");
-    case "snoozeIcon":
-      return require("../assets/images/snooze.png");
-    case "acknowledgeIconClicked":
-      return require("../assets/images/acknowledgeIconClicked.png");
-    case "acknowledgeIconNotClicked":
-      return require("../assets/images/acknowledgeNotClicked.png");
-    case "addImage":
-      return require("../assets/images/addImage.png");
-    default:
-      return null;
-    // return require('../../src/assets/images/warning_white.png')
-  }
+const defaultChatReducerState = {
+    taskTypeTabData: [],
+    deptTypeTabData: [],
+    focusFlightData: [],
+    flightDetailData: [],
+    gridData:[]
 };
-export default GetImageSource;
+ 
+export default function FlightReducer(Istate = defaultChatReducerState, Iaction: any = null) {
+    let newState = { ...state }
+    switch (action.type) {
+        case 'UPDATE_TASK_TYPE_TAB_DATA':
+            newState.taskTypeTabData = action.payload
+            return newState
+        case 'UPDATE_DEPT_TYPE_TAB_DATA':
+            newState.deptTypeTabData = action.payload;
+            return newState
+        case 'UPDATE_FOCUS_FLIGHT_DATA':
+            newState.focusFlightData = action.payload
+            return newState
+        case 'UPDATE_FLIGHT_DETAIL_DATA':
+            newState.flightDetailData = action.payload
+            return newState
+        case 'SAVE_GRID_DATA':
+            newState.gridData = action.payload
+            return newState
+        default:
+            return newState;
+    }
+}
