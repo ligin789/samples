@@ -1,18 +1,65 @@
-import moment from "moment-timezone";
-
-export const getLocalTimeInHHmmFormat = (date:string, timeZone:string) => {
-    let localStringValue = new Date(date).toLocaleTimeString('en-GB',{
-        timeZone,
-        hour:'2-digit',
-        minute:'2-digit'
+const refArrayOfDates = ["ETA (IB)", "SCHED DEP (OB)", "ETD/ACT (OB)", "SCHED ARR (OB)", "ETA/ACT (OB)", "OUT (OB)", "OFF (OB)", "ON (OB)", "IN (OB)", "PRED ETD (OB)", "PRED ETA (OB)"];
+const refArrayForIcons = ["NOTES", "CRITICAL", "INDICATOR"]
+const refArrayForLink = ['FLIGHT (IB)','ORIG (IB)','FLIGHT (OB)','DEP (OB)', 'ARR (OB)']
+export const getFormatData = (arrayData: any, referenceColArray: any = [],isUTCToggled:boolean) => {
+    let columnDefinition: any = []
+    const array = JSON.parse(JSON.stringify(arrayData)) || []
+    const formatRows = array.map((row: any, rowIndex: number) => {
+        const newRow: any = {}
+        let lengthOfColumns = 0;
+        row.gridColumns = row.gridColumns.map((columnGroups: any) => {
+            columnGroups.columns = columnGroups.columns.filter((column: any) => {
+                return referenceColArray.includes(column.label.toLocaleUpperCase())
+            })
+            return columnGroups;
+        })
+        row.gridColumns.forEach((columnGroups: any, gridColumnIndex: number) => {
+            const lengthOfGroupCol = columnGroups.columns.length;
+            columnGroups.columns.forEach((column: any, colIndex: number) => {
+                if (rowIndex === 0) {
+                    const columnDef: any = {};
+                    columnDef['field'] = column.label + ".value";;
+                    columnDef['headerName'] = column.label.toLocaleUpperCase();
+                    columnDef['sortable'] = false;
+                    columnDef['type'] = column.type;
+                    if (refArrayOfDates.includes(column.label.toLocaleUpperCase())) {
+                        columnDef['cellRenderer'] = 'renderDateAndTime';
+                        if(!isUTCToggled){
+                            columnDef['field'] = column.label + ".valueLocal"
+                        }
+                    } else if(refArrayForLink.includes(column.label.toLocaleUpperCase())) {
+                        columnDef['cellRenderer'] = 'linkRenderer';
+                    }
+                    if (lengthOfGroupCol > 1 && lengthOfGroupCol - 1 === colIndex && gridColumnIndex !== row.gridColumns.length - 1) {
+                        columnDef['cellClass'] = 'separator';
+                        columnDef['headerClass'] = 'separator';
+                    }
+                    if (lengthOfColumns === 1 && lengthOfGroupCol > 1 && gridColumnIndex !== row.gridColumns.length - 1) {
+                        const object = columnDefinition[columnDefinition.length - 1]
+                        if (object.type === 'icon') {
+                            object['cellClass'] = 'icon_separator';
+                            object['headerClass'] = 'icon_separator';
+                        } else {
+                            object['cellClass'] = 'separator';
+                            object['headerClass'] = 'separator';
+                        }
+                        columnDefinition[columnDefinition.length - 1] = object;
+                    }
+                    columnDefinition.push(columnDef);
+                    lengthOfColumns = lengthOfGroupCol;
+                }
+                if (!refArrayForIcons.includes(column.label.toLocaleUpperCase())) {
+                    if (!column.value.length) {
+                        column.value = "—";
+                    }
+                }
+                newRow[column.label] = column
+            })
+        })
+        return newRow
     })
-    const utcOffset = moment.tz(new Date(date).toISOString(),timeZone).utcOffset();
-    const gmtHHString = parseInt(`${utcOffset/60}`).toString().padStart(2,'0');
-    const gmtmmString = (utcOffset%60).toString().padStart(2,'0')
-    return {localStringValue,gmtString:`${utcOffset>=0 ? '+' : ''}${gmtHHString}:${gmtmmString}`}
+    // console.log("column definition:", JSON.stringify(columnDefinition))
+    // console.log("data:", JSON.stringify(formatRows))
+    return { columnDefinition, formatRows }
 }
 
-export const getLocalTimeAndGMT = (date:string) =>{
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return getLocalTimeInHHmmFormat(date,timeZone)
-}
