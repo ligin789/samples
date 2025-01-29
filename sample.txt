@@ -1,23 +1,62 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
-import store from './redux/store/store';
-import { Provider } from 'react-redux';
- 
-const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-    <App />
-    </Provider>
-  </React.StrictMode>
-);
- 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+import axios from "axios";
+
+const getHeaders = () => ({
+    'Content-type': 'application/json',
+    // 'Access-Control-Allow-Origin': '*',
+    // 'token': localStorage.getItem('accessToken'),
+    // 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+    // 'Authorization': `my-secert-key`
+    // 'Authorization' : 'Tcsapi#1234'
+    // 'x-api-key':'7tB4xW5Nfo5YM0z6qPXC39j7uZwCLkEt9bDNNoY1'
+})
+
+class Service {
+    async request(options: any,requestOptions:any={}) {
+        try {
+            let response: any
+            await axios(options,requestOptions)
+                .then((res:any) => {
+                    response = res
+                })
+                .catch((error:any) => {
+                    console.log("get Data Error",error.message);
+                    response = error
+                })
+            return response
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    async get(url: any) {
+        const options = {
+            url,
+            method: 'GET',
+            headers: getHeaders()
+        }
+        return this.request(options,{})
+    }
+    async post(url: any, body: any, optional: any = '',requestOptions:any={}) {
+        const options: any = {
+            url,
+            method: 'POST',
+            headers: getHeaders(),
+            data: JSON.stringify(body)
+        }
+        if (optional?.toLowerCase() == 'blob') {
+            options.responseType = optional
+        }
+        return await this.request(options,requestOptions)
+    }
+}
+
+export default new Service()
+
+export async function APIcall( method: any, uri: any, payload = {}, responseType: any = '', requestOptions:any={}) {
+    const instance = new Service()
+    if (method.toUpperCase() == 'POST') {
+        return await instance.post(uri, payload, responseType,requestOptions)
+    }
+    else {
+        return await instance.get(uri)
+    }
+}
