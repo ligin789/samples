@@ -1,24 +1,20 @@
- Test suite failed to run
+Service API Calls › should make a GET request
 
-    test/environments/Service.test.tsx:13:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    13         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
-                                                    ~~~~~~~~~~~~~~~~~
-    test/environments/Service.test.tsx:27:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
+    Expected: {"headers": {"Content-type": "application/json"}, "method": "GET", "url": "/test-url"}
 
-    27         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
-                                                    ~~~~~~~~~~~~~~~~~
-    test/environments/Service.test.tsx:42:46 - error TS2339: Property 'mockRejectedValue' does not exist on type 'Mocked<AxiosStatic>'.
+    Number of calls: 0
 
-    42         (axios as jest.Mocked<typeof axios>).mockRejectedValue(mockError);
-                                                    ~~~~~~~~~~~~~~~~~
-    test/environments/Service.test.tsx:53:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
+      16 |         const response = await Service.get('/test-url');
+      17 |  
+    > 18 |         expect(axios.request).toHaveBeenCalledWith({
+         |                               ^
+      19 |             url: '/test-url',
+      20 |             method: 'GET',
+      21 |             headers: { 'Content-type': 'application/json' }
 
-    53         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
-                                                    ~~~~~~~~~~~~~~~~~
-    test/environments/Service.test.tsx:67:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
-
-    67         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
-                                                    ~~~~~~~~~~~~~~~~~
-
-Running coverage on untested files...(node:11340) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+      at test/environments/Service.test.tsx:18:31
+      at step (test/environments/Service.test.tsx:56:23)
+      at Object.next (test/environments/Service.test.tsx:37:53)
+      at fulfilled (test/environments/Service.test.tsx:28:58)
