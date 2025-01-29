@@ -1,19 +1,125 @@
-rvice API Calls › should make a GET request
+import { call, put, takeLatest } from "redux-saga/effects";
+import Constants from "../../global/Constants";
+import { APIcall } from "../../environments/Service";
 
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+export const referenceViewAction = {
+  referenceDataRequest: () => {
+    return {
+      type: Constants.GET_REFERENCE_DATA_REQUEST,
+    }
+  },
+  referenceDataSuccess: (payload: any) => ({
+    type: Constants.GET_REFERENCE_DATA_SUCCESS,
+    payload,
+  }),
+  referenceDataFailure: (error: string) => ({
+    type: Constants.GET_REFERENCE_DATA_FAILURE,
+    error,
+  }),
+  getGridData: (data: any) => {
+    return { type: "GET_GRID_DATA", data }
+  },
+  getGridByText: (data: any) => {
+    return { type: "GET_GRID_DATA_BY_TEXT", data }
+  },
+  clearPatternSearchError: () => {
+    return { type: 'UPDATE_SEARCH_BY_PATTERN_STATUS', payload: false }
+  },
+  updatePatternSearchStatus: () => {
+    return { type: 'UPDATE_SEARCH_BY_PATTERN_COMPLETE_STATUS', payload: false }
+  },
+  updateLoaderStatus: (value: boolean) => {
+    return { type: 'UPDATE_DATA_LOADER_STATUS', payload: value }
+  },
+  getCriticalWidgetDetails:()=>{
+    return {type:"GET_CRITICAL_WIDGET_DETAILS"}
+  }
+};
 
-    Expected number of calls: 1
-    Received number of calls: 0
+// Worker Saga: Handles the API call
+export function* fetchReferenceData(): Generator<any> {
+  try {
+    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/uireferencedata/getReferenceData", {
+      referenceDataType: [
+        "shortcut_keys",
+        "search_filters",
+        "grid_columns",
+        "arrivalStations",
+        "departureStations",
+        "period",
+      ],
+    });
+    console.log('fetch reference')
+    if (response.status === 200) {
+      yield put({ type: "SAVE_REFERENCE_DATA", payload: response.data });
+    } else {
+      throw new Error(`Error: ${response.status}`);
+    }
+  } catch (error: any) {
 
-      18 |         const response = await Service.get('/test-url');
-      19 |  
-    > 20 |         expect(axios.request).toHaveBeenCalledTimes(1);
-         |                               ^
-      21 |         expect(axios.request).toHaveBeenCalledWith({
-      22 |             url: '/test-url',
-      23 |             method: 'GET',
+  }
+}
 
-      at test/environments/Service.test.tsx:20:31
-      at step (test/environments/Service.test.tsx:56:23)
-      at Object.next (test/environments/Service.test.tsx:37:53)
-      at fulfilled (test/environments/Service.test.tsx:28:58)
+export function* fetchGridData({ data }: any): Generator<any> {
+  try {
+    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/gridview/searchbyfilters", data, '', { timeout: 10000 });
+    if (response.status === 200) {
+      yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
+    } else {
+      throw new Error(`Error: ${response.status}`);
+    }
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+export function* fetchGridDataFromSearchText({ data }: any): Generator<any> {
+  try {
+    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/gridview/searchbypattern", {
+      "searchBy": {
+        "pattern": data.text
+      },
+      "from": "0",
+      "to": "10000",
+      "orderBy": "scheduledDepartureUTC"
+    }, '', { timeout: 10000 });
+    if (response.status === 200) {
+      if (!response.data.length) {
+        yield put({ type: 'UPDATE_SEARCH_BY_PATTERN_STATUS', payload: true })
+        yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
+        return
+      }
+      yield put({ type: 'UPDATE_SEARCH_BY_PATTERN_COMPLETE_STATUS', payload: true })
+      yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
+    } else {
+      throw new Error(`Error: ${response.status}`);
+    }
+  } catch (err) {
+    yield put({ type: 'UPDATE_DATA_LOADER_STATUS', payload: false })
+  }
+}
+export function* getCriticalWidgetDetails({data}:any): Generator<any> {
+  try {
+    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/interaction/getFormWidget", {
+      "interactionName":"CRITICAL FLIGHT",
+      "filters":{}
+  });
+    if (response.status === 200) {
+      if(!response.data.length){
+        yield put({type:'SAVE_CRITICAL_WIDGET', payload:response?.data})
+      }
+    } else {
+      throw new Error(`Error: ${response.status}`);
+    }
+  } catch (err) {
+
+  }
+}
+
+// Watcher Saga: Listens for the request action
+export function* referenceDataSagaViewSaga() {
+  yield takeLatest(Constants.GET_REFERENCE_DATA_REQUEST, fetchReferenceData)
+  yield takeLatest("GET_GRID_DATA", fetchGridData)
+  yield takeLatest("GET_GRID_DATA_BY_TEXT", fetchGridDataFromSearchText)
+  yield takeLatest("GET_CRITICAL_WIDGET_DETAILS",getCriticalWidgetDetails)
+};
