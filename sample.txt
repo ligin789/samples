@@ -1,57 +1,24 @@
-import axios from "axios";
+ Test suite failed to run
 
-const getHeaders = () => ({
-    'Content-type': 'application/json',
-   
-})
+    test/environments/Service.test.tsx:13:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
 
-class Service {
-    async request(options: any,requestOptions:any={}) {
-        try {
-            let response: any
-            await axios(options,requestOptions)
-                .then((res:any) => {
-                    response = res
-                })
-                .catch((error:any) => {
-                    console.log("get Data Error",error.message);
-                    response = error
-                })
-            return response
-        } catch (err) {
-            console.log(err);
-        }
-    }
-    async get(url: any) {
-        const options = {
-            url,
-            method: 'GET',
-            headers: getHeaders()
-        }
-        return this.request(options,{})
-    }
-    async post(url: any, body: any, optional: any = '',requestOptions:any={}) {
-        const options: any = {
-            url,
-            method: 'POST',
-            headers: getHeaders(),
-            data: JSON.stringify(body)
-        }
-        if (optional?.toLowerCase() == 'blob') {
-            options.responseType = optional
-        }
-        return await this.request(options,requestOptions)
-    }
-}
+    13         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
+                                                    ~~~~~~~~~~~~~~~~~
+    test/environments/Service.test.tsx:27:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
 
-export default new Service()
+    27         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
+                                                    ~~~~~~~~~~~~~~~~~
+    test/environments/Service.test.tsx:42:46 - error TS2339: Property 'mockRejectedValue' does not exist on type 'Mocked<AxiosStatic>'.
 
-export async function APIcall( method: any, uri: any, payload = {}, responseType: any = '', requestOptions:any={}) {
-    const instance = new Service()
-    if (method.toUpperCase() == 'POST') {
-        return await instance.post(uri, payload, responseType,requestOptions)
-    }
-    else {
-        return await instance.get(uri)
-    }
-}
+    42         (axios as jest.Mocked<typeof axios>).mockRejectedValue(mockError);
+                                                    ~~~~~~~~~~~~~~~~~
+    test/environments/Service.test.tsx:53:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
+
+    53         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
+                                                    ~~~~~~~~~~~~~~~~~
+    test/environments/Service.test.tsx:67:46 - error TS2339: Property 'mockResolvedValue' does not exist on type 'Mocked<AxiosStatic>'.
+
+    67         (axios as jest.Mocked<typeof axios>).mockResolvedValue(mockData);
+                                                    ~~~~~~~~~~~~~~~~~
+
+Running coverage on untested files...(node:11340) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
