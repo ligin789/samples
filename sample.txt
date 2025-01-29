@@ -1,20 +1,19 @@
-Service API Calls › should make a GET request
+rvice API Calls › should make a GET request
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
 
-    Expected: {"headers": {"Content-type": "application/json"}, "method": "GET", "url": "/test-url"}
+    Expected number of calls: 1
+    Received number of calls: 0
 
-    Number of calls: 0
-
-      16 |         const response = await Service.get('/test-url');
-      17 |  
-    > 18 |         expect(axios.request).toHaveBeenCalledWith({
+      18 |         const response = await Service.get('/test-url');
+      19 |  
+    > 20 |         expect(axios.request).toHaveBeenCalledTimes(1);
          |                               ^
-      19 |             url: '/test-url',
-      20 |             method: 'GET',
-      21 |             headers: { 'Content-type': 'application/json' }
+      21 |         expect(axios.request).toHaveBeenCalledWith({
+      22 |             url: '/test-url',
+      23 |             method: 'GET',
 
-      at test/environments/Service.test.tsx:18:31
+      at test/environments/Service.test.tsx:20:31
       at step (test/environments/Service.test.tsx:56:23)
       at Object.next (test/environments/Service.test.tsx:37:53)
       at fulfilled (test/environments/Service.test.tsx:28:58)
