@@ -1,125 +1,36 @@
-import { call, put, takeLatest } from "redux-saga/effects";
 import Constants from "../../global/Constants";
-import { APIcall } from "../../environments/Service";
-
-export const referenceViewAction = {
-  referenceDataRequest: () => {
-    return {
-      type: Constants.GET_REFERENCE_DATA_REQUEST,
-    }
-  },
-  referenceDataSuccess: (payload: any) => ({
-    type: Constants.GET_REFERENCE_DATA_SUCCESS,
-    payload,
-  }),
-  referenceDataFailure: (error: string) => ({
-    type: Constants.GET_REFERENCE_DATA_FAILURE,
-    error,
-  }),
-  getGridData: (data: any) => {
-    return { type: "GET_GRID_DATA", data }
-  },
-  getGridByText: (data: any) => {
-    return { type: "GET_GRID_DATA_BY_TEXT", data }
-  },
-  clearPatternSearchError: () => {
-    return { type: 'UPDATE_SEARCH_BY_PATTERN_STATUS', payload: false }
-  },
-  updatePatternSearchStatus: () => {
-    return { type: 'UPDATE_SEARCH_BY_PATTERN_COMPLETE_STATUS', payload: false }
-  },
-  updateLoaderStatus: (value: boolean) => {
-    return { type: 'UPDATE_DATA_LOADER_STATUS', payload: value }
-  },
-  getCriticalWidgetDetails:()=>{
-    return {type:"GET_CRITICAL_WIDGET_DETAILS"}
+ 
+const initialState: any = {
+  loading: false,
+  data: null,
+  error: null,
+  isSearchByPatternError:false,
+  isSearchByPatternComplete:false,
+  showGridDataLoader:false,
+  criticalWidgetDetails:{}
+};
+ 
+const HomeScreenReducer = (state = initialState, action: any) => {
+  const newState = { ...state };
+  switch (action.type) {
+    case 'SAVE_REFERENCE_DATA':
+      newState.data = action.payload;
+      return newState
+    case 'UPDATE_SEARCH_BY_PATTERN_COMPLETE_STATUS':
+      newState.isSearchByPatternComplete = action.payload;
+      return newState
+    case 'UPDATE_SEARCH_BY_PATTERN_STATUS':
+      newState.isSearchByPatternError = action.payload
+      return newState
+    case 'UPDATE_DATA_LOADER_STATUS':
+    newState.showGridDataLoader = action.payload;
+    return newState
+    case 'SAVE_CRITICAL_WIDGET':
+      newState.criticalWidgetDetails=action.payload
+      return newState
+    default:
+      return state;
   }
 };
-
-// Worker Saga: Handles the API call
-export function* fetchReferenceData(): Generator<any> {
-  try {
-    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/uireferencedata/getReferenceData", {
-      referenceDataType: [
-        "shortcut_keys",
-        "search_filters",
-        "grid_columns",
-        "arrivalStations",
-        "departureStations",
-        "period",
-      ],
-    });
-    console.log('fetch reference')
-    if (response.status === 200) {
-      yield put({ type: "SAVE_REFERENCE_DATA", payload: response.data });
-    } else {
-      throw new Error(`Error: ${response.status}`);
-    }
-  } catch (error: any) {
-
-  }
-}
-
-export function* fetchGridData({ data }: any): Generator<any> {
-  try {
-    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/gridview/searchbyfilters", data, '', { timeout: 10000 });
-    if (response.status === 200) {
-      yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
-    } else {
-      throw new Error(`Error: ${response.status}`);
-    }
-  } catch (err) {
-    console.log(err)
-  }
-}
-
-export function* fetchGridDataFromSearchText({ data }: any): Generator<any> {
-  try {
-    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/gridview/searchbypattern", {
-      "searchBy": {
-        "pattern": data.text
-      },
-      "from": "0",
-      "to": "10000",
-      "orderBy": "scheduledDepartureUTC"
-    }, '', { timeout: 10000 });
-    if (response.status === 200) {
-      if (!response.data.length) {
-        yield put({ type: 'UPDATE_SEARCH_BY_PATTERN_STATUS', payload: true })
-        yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
-        return
-      }
-      yield put({ type: 'UPDATE_SEARCH_BY_PATTERN_COMPLETE_STATUS', payload: true })
-      yield put({ type: 'SAVE_GRID_DATA', payload: response.data })
-    } else {
-      throw new Error(`Error: ${response.status}`);
-    }
-  } catch (err) {
-    yield put({ type: 'UPDATE_DATA_LOADER_STATUS', payload: false })
-  }
-}
-export function* getCriticalWidgetDetails({data}:any): Generator<any> {
-  try {
-    const response: any = yield call(APIcall, "Post", "https://if6dd1lc88.execute-api.ap-south-1.amazonaws.com/demo/interaction/getFormWidget", {
-      "interactionName":"CRITICAL FLIGHT",
-      "filters":{}
-  });
-    if (response.status === 200) {
-      if(!response.data.length){
-        yield put({type:'SAVE_CRITICAL_WIDGET', payload:response?.data})
-      }
-    } else {
-      throw new Error(`Error: ${response.status}`);
-    }
-  } catch (err) {
-
-  }
-}
-
-// Watcher Saga: Listens for the request action
-export function* referenceDataSagaViewSaga() {
-  yield takeLatest(Constants.GET_REFERENCE_DATA_REQUEST, fetchReferenceData)
-  yield takeLatest("GET_GRID_DATA", fetchGridData)
-  yield takeLatest("GET_GRID_DATA_BY_TEXT", fetchGridDataFromSearchText)
-  yield takeLatest("GET_CRITICAL_WIDGET_DETAILS",getCriticalWidgetDetails)
-};
+ 
+export default HomeScreenReducer;
