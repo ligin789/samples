@@ -2,12 +2,7 @@ import axios from "axios";
 
 const getHeaders = () => ({
     'Content-type': 'application/json',
-    // 'Access-Control-Allow-Origin': '*',
-    // 'token': localStorage.getItem('accessToken'),
-    // 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-    // 'Authorization': `my-secert-key`
-    // 'Authorization' : 'Tcsapi#1234'
-    // 'x-api-key':'7tB4xW5Nfo5YM0z6qPXC39j7uZwCLkEt9bDNNoY1'
+   
 })
 
 class Service {
