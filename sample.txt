@@ -1,33 +1,5 @@
-test/screens/home/index.test.tsx
-  ● Test suite failed to run
-
-    test/screens/home/index.test.tsx:46:48 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    46     expect(screen.getByText("IOCC Discovery")).toBeInTheDocument(); // Menu item check
-                                                      ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:47:48 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    47     expect(screen.getByText("Reference Data")).toBeInTheDocument();
-                                                      ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:68:48 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    68     expect(screen.getByText("Reference Data")).toBeInTheDocument();
-                                                      ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:71:42 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    71     expect(screen.getByText("Settings")).toBeInTheDocument();
-                                                ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:110:37 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    110     expect(screen.getByText(/UTC/)).toBeInTheDocument();
-                                            ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:121:45 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    121     expect(screen.getByText("Flight Feed")).toBeInTheDocument();
-                                                    ~~~~~~~~~~~~~~~~~
-    test/screens/home/index.test.tsx:132:48 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    132     expect(screen.getByText("Critical Popup")).toBeInTheDocument();
-                                                       ~~~~~~~~~~~~~~~~~
-
-Running coverage on untested files...(node:27805) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+ERROR in src/screens/login/index.tsx:51:51
+TS2554: Expected 0 arguments, but got 1.
+    49 |         <div className="login-box-inner">
+    50 |           <div className="user-area">
+  > 51 |             <div className="header-user-title">{t("welcome")}</div>
