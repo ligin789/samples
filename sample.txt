@@ -1,5 +1,4 @@
-ERROR in src/screens/login/index.tsx:51:51
-TS2554: Expected 0 arguments, but got 1.
-    49 |         <div className="login-box-inner">
-    50 |           <div className="user-area">
-  > 51 |             <div className="header-user-title">{t("welcome")}</div>
+TS2344: Type '{ welcome: string; }' does not satisfy the constraint 'string | $Tuple<string> | undefined'.
+     8 |
+     9 | const Login = () => {
+  > 10 |   const { t, i18n } = useTranslation<{welcome:string;}>();
