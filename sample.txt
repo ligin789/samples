@@ -1,13 +1,21 @@
- renders the application without crashing (17 ms)
-
-  ● renders the application without crashing
-
-    Cannot find module './index' from 'test/indexMain.test.tsx'
-
-      17 |   document.body.appendChild(root);
-      18 |  
-    > 19 |   require('./index'); // Import the file to trigger execution
-         |   ^
-      20 |  
-      21 |   expect(ReactDOM.createRoot).toHaveBeenCalledWith(root);
-      22 | });
+import React from "react";
+import DynamicRender from "../dynamicrenderer";
+import AuditTrailPopUpJson from "../../assets/jsons/auditTrailPopUp.json"
+ 
+export const AuditTrailPopup = () => {
+    const mapFunctions = {
+        listStatus: (data: any) => {
+            console.log("listStatus")
+        }
+    }
+    return (
+        <div style={{ position: "absolute", zIndex: 10, left: "25%", top: "20%" }}>
+            <DynamicRender
+                data={AuditTrailPopUpJson}
+                mappedFunctions={mapFunctions}
+            />
+        </div>
+    )
+}
+ 
+export default AuditTrailPopup
