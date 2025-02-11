@@ -1,21 +1,85 @@
-import React from "react";
-import DynamicRender from "../dynamicrenderer";
-import AuditTrailPopUpJson from "../../assets/jsons/auditTrailPopUp.json"
+import { useEffect, useState } from "react";
+import FirstHeader from "./firstHeader/index";
+import SecondHeader from "./secondHeader/index";
+import ThirdHeader from "./thirdHeader/index";
+import ReferenceData from "../referenceData";
+import InfiniteScrollGrid from "../table";
  
-export const AuditTrailPopup = () => {
-    const mapFunctions = {
-        listStatus: (data: any) => {
-            console.log("listStatus")
-        }
+const Header = (props: any) => {
+  const [isSidebarVisible, setSidebarVisible] = useState(false);
+  const [selectedTab, setSelectedTab] = useState(0)
+  const [displayTime, setDisplayTime] = useState<any>(null)
+  const [isToggled, setIsToggled] = useState<boolean>(false);
+  const [menuModalDisplay, setMenuModalDisplay] = useState(false)
+ 
+  const [dropDownVisible, setDropdownVisible] = useState({
+    dropDownId: null,
+    status: false,
+  });
+  
+  useEffect(() => {
+    if (isToggled) {
+      setDisplayTime(`LIS UTC 20:15 (+00:00)`)
+    } else {
+      setDisplayTime(`LIS 20:15 (+00:00)`)
     }
-    return (
-        <div style={{ position: "absolute", zIndex: 10, left: "25%", top: "20%" }}>
-            <DynamicRender
-                data={AuditTrailPopUpJson}
-                mappedFunctions={mapFunctions}
-            />
-        </div>
-    )
-}
+  }, [isToggled])
  
-export default AuditTrailPopup
+  const selectedTabUpdate = (index: any) => {
+    console.log("index", index)
+    setSelectedTab(index)
+  }
+ 
+  const getTabScreenOnSelect = () => {
+    if (selectedTab === 0) {
+      return <>
+        <SecondHeader
+          isSidebarVisible={props?.focusClick}
+          setSidebarVisible={props?.setFocusClick}
+          dropDownVisible={dropDownVisible}
+          setDropdownVisible={setDropdownVisible}
+          isToggled={isToggled}
+          setIsToggled={setIsToggled}
+        />
+        <ThirdHeader
+          dropDownVisible={dropDownVisible}
+          setDropdownVisible={setDropdownVisible}
+          isSidebarVisible={isSidebarVisible}
+        />
+        <InfiniteScrollGrid />
+      </>
+    } else if (selectedTab === 1) {
+      return (
+        <ReferenceData />
+      )
+    } else if (selectedTab === 2) {
+      return (
+        <div>chrono</div>
+      )
+    } else if (selectedTab == 3) {
+      return (
+        <div>Settings</div>
+      )
+    } else return (<div>logout</div>)
+ 
+  }
+ 
+  return (
+    <div>
+      <FirstHeader
+        isSidebarVisible={props?.focusClick}
+        selectedTab={selectedTab}
+        setSidebarVisible={props?.setFocusClick}
+        setSelectedTab={selectedTabUpdate}
+        dropDownVisible={dropDownVisible}
+        setDropdownVisible={setDropdownVisible}
+        displayTime={displayTime}
+        menuModalDisplay={menuModalDisplay}
+        setMenuModalDisplay={setMenuModalDisplay}
+      />
+      { getTabScreenOnSelect() }
+    </div>
+ 
+  );
+};
+ 
