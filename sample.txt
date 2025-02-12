@@ -1,34 +1,15 @@
-import React, { useState } from "react"
-import SupplementaryPopUpJson from "../../assets/jsons/supplementaryPopUp.json"
-import DynamicRender from "../dynamicrenderer"
-import { data } from "react-router-dom"
-const SupplementaryPopUp = () => {
-  const [text, setText]: any = useState("")
-  const [jsonData, setJsonData] = useState(SupplementaryPopUpJson)
-  const [modalVisible, setModalVisible]: any = useState(true)
-  const mapFunctions: any = {
-    supplementaryComment: (data: any) => {
-      setText(data)
-    },
-    addButton: (data: any) => {
-      let widgetData: any = SupplementaryPopUpJson
-      let supplementaryInfo = { "supplementaryInfo": text }
-      widgetData.widgetAttributes["#list"].push(supplementaryInfo)
-      setJsonData(widgetData)
-    },
-    modalCloseButton: () => {
-      setModalVisible(false)
-    }
-  }
-  return (
-    jsonData &&
-    <div style={{ position: "absolute", zIndex: 10, left: "35%", top: "12%" }}>
-      <DynamicRender
-        data={jsonData}
-        mainListIndex={1}
-        mappedFunctions={mapFunctions}
-      />
-    </div>
-  )
-}
-export default SupplementaryPopUp
+test/components/SupplymentryPopup/index.test.tsx
+  ● Test suite failed to run
+
+    test/components/SupplymentryPopup/index.test.tsx:20:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
+
+    20     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
+                                                          ~~~~
+    test/components/SupplymentryPopup/index.test.tsx:32:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
+
+    32     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
+                                                          ~~~~
+    test/components/SupplymentryPopup/index.test.tsx:45:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
+
+    45     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
+                                                          ~~~~
