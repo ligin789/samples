@@ -1,46 +1,238 @@
-import React, { useState } from "react";
-import "./index.css"
-import { t } from "i18next";
- 
-export const HyperLinkPopup = (props: any) => {
-  const { flightNoValue, setCriticalPopupVisible, setFlightLinkModel, setFlightFeedClick, setCreateAlertClicked, carrierCodeValue } = props
- 
-  const handleMarkCriticalHandler = () => {
-    setCriticalPopupVisible(true)
-    setFlightLinkModel(false)
+import React, { useEffect, useState } from 'react'
+import "./FocusFlight.css"
+import DynamicRender from '../dynamicrenderer';
+import focusFlightJson1 from "../../assets/jsons/focusFlight.json"
+import detailJson from "../../assets/jsons/detailView.json"
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { getWidgetsWithMappedProcess } from '../../utils/FetchWidgetsForMonitor';
+import cross from "../../assets/images/cross.png"
+import whiteBack from "../../assets/images/whiteBack.png"
+import FlightFeedJson from "../../assets/jsons/flightFeed.json";
+import { t } from 'i18next';
+
+const FocusFlight = (props: any) => {
+  const dispatch = useDispatch()
+  const [detailView, setDetailView] = useState(false)
+  const [flightJson, setFlightJson] = useState<any>([]);
+  const [flightJsonTabData, setFlightJsonTabData] = useState<any>([]);
+  const [focusFlightJson, setFocusFlightJson] = useState<any>([])
+  const [selectedCard, setSelectedCard] = useState<any>()
+  //const [widgetTemplate,setWidgetTemplate] = useState<any>({})
+
+  const taskTypeTabData = useSelector(
+    (state: any) => state.FlightReducer.taskTypeTabData
+  );
+  const deptTypeTabData = useSelector(
+    (state: any) => state.FlightReducer.deptTypeTabData
+  );
+  // useEffect(() => {
+  //   setFlightJson(detailJson);
+  //   let filteredData = JSON.parse(JSON.stringify(detailJson));
+  //   if (taskTypeTabData?.length) {
+  //     filteredData = getWidgetsWithMappedProcess('#taskCategoryTabList', JSON.parse(JSON.stringify(detailJson)))
+  //   }
+  //   if (deptTypeTabData?.length) {
+  //     filteredData = getWidgetsWithMappedProcess('#percentage', filteredData)
+  //   }
+  //   setFlightJsonTabData(filteredData)
+
+  // }, [detailJson]);
+  useEffect(() => {
+    if (selectedCard) {
+      setFlightJson([selectedCard])
+      setFlightJsonTabData([selectedCard])
+      dispatch({ type: 'UPDATE_FLIGHT_DETAIL_DATA', payload: [selectedCard] })
+    }
+
+
+  }, [selectedCard])
+
+  useEffect(() => {
+    if (props?.focusFlightData?.length) {
+      //setWidgetTemplate(props?.focusFlightData?.[0]?.widgetTemplate)
+      setFocusFlightJson(props?.focusFlightData)
+    } else {
+      //setWidgetTemplate(focusFlightJson1?.[0]?.widgetTemplate)
+      setFocusFlightJson(focusFlightJson1)
+    }
+  }, [props?.focusFlightData])
+
+  useEffect(() => {
+    if (props?.flightDetailData?.length) {
+      //setWidgetTemplate(props?.focusFlightData?.[0]?.widgetTemplate)
+      setFlightJson(props?.flightDetailData)
+      setFlightJsonTabData(props?.flightDetailData)
+    }
+  }, [props?.flightDetailData])
+
+
+
+
+  const mapFunctions = {
+    currTabSelected: function (data: any) {
+      const { widgetAttributes, mainListIndex } = data;
+      const existingWidgetData = JSON.parse(JSON.stringify(detailView ? flightJsonTabData : focusFlightJson));
+      const newData = existingWidgetData?.map((widget: any, index: number) => {
+        if (index === mainListIndex) {
+          widget.widgetAttributes.defaltSelected = "curr"
+          return widget
+        }
+        return widget
+      })
+      //setFocusFlightJson(newData) 
+      detailView ? dispatch({ type: 'UPDATE_FLIGHT_DETAIL_DATA', payload: newData }) :
+        dispatch({ type: 'UPDATE_FOCUS_FLIGHT_DATA', payload: newData })
+
+    },
+    PrevTabSelected: function (data: any) {
+      const { widgetAttributes, mainListIndex } = data;
+      const existingWidgetData = JSON.parse(JSON.stringify(detailView ? flightJsonTabData : focusFlightJson));
+      const newData = existingWidgetData?.map((widget: any, index: number) => {
+        if (index === mainListIndex) {
+          widget.widgetAttributes.defaltSelected = "prev"
+          return widget
+        }
+        return widget
+      })
+      //setFocusFlightJson(newData) 
+      detailView ? dispatch({ type: 'UPDATE_FLIGHT_DETAIL_DATA', payload: newData }) :
+        dispatch({ type: 'UPDATE_FOCUS_FLIGHT_DATA', payload: newData })
+    },
+    nextTabSelected: function (data: any) {
+      const { widgetAttributes, mainListIndex } = data;
+      const existingWidgetData = JSON.parse(JSON.stringify(detailView ? flightJsonTabData : focusFlightJson));
+      const newData = existingWidgetData?.map((widget: any, index: number) => {
+        if (index === mainListIndex) {
+          widget.widgetAttributes.defaltSelected = "next"
+          return widget
+        }
+        return widget
+      })
+      //setFocusFlightJson(newData) 
+      detailView ? dispatch({ type: 'UPDATE_FLIGHT_DETAIL_DATA', payload: newData }) :
+        dispatch({ type: 'UPDATE_FOCUS_FLIGHT_DATA', payload: newData })
+    },
+    addNotesClicked: function (data: any) {
+      alert('notesClicked')
+    },
+    flightfeedCLicked: function (data: any) {
+      props.setFlightFeedClick(true)
+      props.setFocusClick(false)
+    },
+    criticalFlagClicked: function (data: any) {
+      alert('crticalClicked')
+    },
+    taskTypeTabClickHandler: (data: any) => {
+      const { widgetAttributes, mainListIndex } = data;
+      const existingWidgetData = JSON.parse(JSON.stringify(flightJson));
+      const newData = existingWidgetData?.map((widget: any, index: number) => {
+        if (index === mainListIndex) {
+          widget.widgetAttributes?.[widget?.widgetAttributes?.defaltSelected]?.['#activityList']?.map((element: any) => {
+            element?.activityTabSelected && element?.['#taskCategoryTabList'].map((ele: any) => {
+              ele.taskCategoryTabSelected = ele.taskType === widgetAttributes.taskType;
+              return ele
+            })
+          })
+          widget.widgetAttributes?.[widget?.widgetAttributes?.defaltSelected]?.['#activityList']?.map((element: any) => {
+            if (element?.activityTabSelected === true) {
+              //dispatch({type:'UPDATE_TASK_TYPE_TAB_DATA', payload:element?.['#taskCategoryTabList']})
+            }
+          })
+        }
+        if (widgetAttributes.taskType !== 'ALL') {
+          let filteredArray: any = []
+          widget.widgetAttributes?.[widget?.widgetAttributes?.defaltSelected]?.['#activityList']?.map((element: any) => {
+            if (element?.activityTabSelected === true) {
+              filteredArray = element?.['#mappedProcess']?.filter((ele: any) => {
+                if (widgetAttributes.taskType === 'Critical') {
+                  return ele?.isCritical === 'Y'
+                }
+                return ele?.aboveOrBelowTheWing === widgetAttributes.taskType
+              })
+            }
+            return element
+          })
+          widget.widgetAttributes?.[widget?.widgetAttributes?.defaltSelected]?.['#activityList']?.map((element: any) => {
+            if (element?.activityTabSelected === true) {
+              return element['#mappedProcess'] = filteredArray
+            }
+            return element
+          })
+        }
+        return widget
+      })
+      setFlightJsonTabData(newData)
+    },
+    activityTypeTabClickHandler: (data: any) => {
+      const { widgetAttributes, mainListIndex } = data;
+      const existingWidgetData = JSON.parse(JSON.stringify(flightJson));
+      const newData = existingWidgetData?.map((widget: any, index: number) => {
+        if (index === mainListIndex) {
+          widget.widgetAttributes?.[widget?.widgetAttributes?.defaltSelected]?.['#activityList']?.map((element: any) => {
+            element.activityTabSelected = element?.activityLabel === widgetAttributes?.activityLabel
+
+            return element
+          })
+        }
+        return widget
+      })
+      setFlightJson(newData)
+      setFlightJsonTabData(newData)
+    }
   }
- 
-  const handleFlightFeedHandler = () => {
-    setFlightFeedClick(true)
-    setFlightLinkModel(false)
-  }
- 
-  const createAlertHandler = () => {
-    setCreateAlertClicked(true)
-    setFlightLinkModel(false)
-  }
- 
+
   return (
-    <div style={{ position: "absolute", zIndex: 10, right: "20%", top: "50%" }} >
-      <div className="hyperlink-header">
-        <span>
-          <label className="headerLabel" style={{ paddingRight: "3px" }}>{carrierCodeValue}</label>
-          <label className="headerLabel">{flightNoValue}</label>
-        </span>
-        <img src={require("../../assets/images/closeButton.png")} style={{ height: "29px", width: "29px" }} onClick={() => setFlightLinkModel(false)} />
+    <div className='focus-flightContainer'>
+      <div className='focus-flight-title-container'>
+        {detailView ? <div className='focus-flight-title' onClick={() => setDetailView(false)}>
+          <img src={whiteBack} style={{ width: 15, height: 15, alignSelf: 'center', paddingRight: 5 }} />
+          <div>Back</div>
+        </div>
+          : <div className='focus-flight-title'>{t("focusFlights")}</div>}
+        <div className='focus-flight-close' onClick={() => props.setFocusClick(!props.focusClick)}>{!detailView && <img src={cross} style={{ width: 29, height: 29 }} />}</div>
       </div>
-      <div className="popup-Container" >
-        <div className="popup-label" onClick={createAlertHandler} >{t("createAlert")}</div>
-        <div className="popup-label" onClick={handleMarkCriticalHandler}>{t("markCritical")}</div>
-        <div className="popup-label" onClick={handleFlightFeedHandler}>{t("flightFeed")}</div>
-        <div className="popup-label">{t("addFlightCard")}</div>
-        <div className="popup-label">{t("addGateCard")}</div>
-        <div className="popup-label-crew">{t("Crew")}</div>
-      </div>
+      {detailView ?
+        flightJsonTabData?.map((detailData: any, index: any) => {
+          return (
+            <DynamicRender
+              mappedFunctions={mapFunctions}
+              //data={flightJsonTabData[0]}
+              data={{
+                "widgetAttributes": detailData?.widgetAttributes?.[detailData?.widgetAttributes?.defaltSelected],
+                "widgetTemplate": detailData?.widgetTemplate?.["detailView"]
+              }}
+              mainListIndex={index}
+            />
+          )
+        }) :
+        focusFlightJson.map((flightCard: any, index: any) => {
+          return (
+            <div style={{}} onClick={() => { setDetailView(true); setSelectedCard(flightCard) }}>
+              <DynamicRender
+                mappedFunctions={mapFunctions}
+                data={{
+                  "widgetAttributes": flightCard?.widgetAttributes?.[flightCard?.widgetAttributes?.defaltSelected],
+                  "widgetTemplate": flightCard?.widgetTemplate?.["cardView"]
+                }}
+                mainListIndex={index}
+              />
+            </div>
+          );
+        })
+      }
     </div>
- 
- 
   )
 }
- 
-export default HyperLinkPopup
+const mapDispatchToProps = {
+
+};
+
+const mapStateToProps = (state: any) => {
+  return {
+    taskTypeTabData: state?.FlightReducer?.taskTypeTabData,
+    deptTypeTabData: state?.FlightReducer?.deptTypeTabData,
+    focusFlightData: state?.FlightReducer?.focusFlightData,
+    flightDetailData: state?.FlightReducer?.flightDetailData
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(FocusFlight);
