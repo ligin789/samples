@@ -1,7 +1,8 @@
 ● Test suite failed to run
 
-    test/components/focusFlights/FocusFlight.test.tsx:17:39 - error TS2322: Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' is not assignable to type 'Middleware<{}, any, Dispatch<AnyAction>>'.
-      Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' provides no match for the signature '(api: MiddlewareAPI<Dispatch<AnyAction>, any>): (next: Dispatch<AnyAction>) => (action: any) => any'.
+    test/components/focusFlights/FocusFlight.test.tsx:20:38 - error TS2345: Argument of type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")[]' is not assignable to parameter of type 'Middleware<{}, any, Dispatch<AnyAction>>[]'.
+      Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' is not assignable to type 'Middleware<{}, any, Dispatch<AnyAction>>'.
+        Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' provides no match for the signature '(api: MiddlewareAPI<Dispatch<AnyAction>, any>): (next: Dispatch<AnyAction>) => (action: any) => any'.
 
-    17 const mockStore = configureMockStore([thunk]);
-                                             ~~~~~
+    20 const mockStore = configureMockStore(middlewares);
+                                            ~~~~~~~~~~~
