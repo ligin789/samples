@@ -1,27 +1,46 @@
-Notification Component › should update snoozeIconClicked when snoozeIconClick is called
-
-    TypeError: Cannot read properties of undefined (reading 'snoozeIconClicked')
-
-      46 | (item: any) => item.id === 1
-      47 |     );
-    > 48 |     expect(updatedItem.snoozeIconClicked).toBe(true);
-         |                        ^
-      49 |   });
-      50 |  
-      51 |   it("should update time selection when timeButton is clicked", () => {
-
-      at Object.<anonymous> (test/components/Notification/index.test.tsx:48:24)
-
-  ● Notification Component › should update time selection when timeButton is clicked
-
-    TypeError: Cannot read properties of undefined (reading 'snoozeIconClicked')
-
-      57 | (item: any) => item.id === 1
-      58 |     );
-    > 59 |     expect(updatedItem.snoozeIconClicked).toBe(false);
-         |                        ^
-      60 |  
-      61 |     const selectedReminder = updatedItem.reminderList.find(
-      62 |       (reminder: any) => reminder.timeValue === "10:00 AM"
-
-      at Object.<anonymous> (test/components/Notification/index.test.tsx:59:24)
+import React, { useState } from "react";
+import "./index.css"
+import { t } from "i18next";
+ 
+export const HyperLinkPopup = (props: any) => {
+  const { flightNoValue, setCriticalPopupVisible, setFlightLinkModel, setFlightFeedClick, setCreateAlertClicked, carrierCodeValue } = props
+ 
+  const handleMarkCriticalHandler = () => {
+    setCriticalPopupVisible(true)
+    setFlightLinkModel(false)
+  }
+ 
+  const handleFlightFeedHandler = () => {
+    setFlightFeedClick(true)
+    setFlightLinkModel(false)
+  }
+ 
+  const createAlertHandler = () => {
+    setCreateAlertClicked(true)
+    setFlightLinkModel(false)
+  }
+ 
+  return (
+    <div style={{ position: "absolute", zIndex: 10, right: "20%", top: "50%" }} >
+      <div className="hyperlink-header">
+        <span>
+          <label className="headerLabel" style={{ paddingRight: "3px" }}>{carrierCodeValue}</label>
+          <label className="headerLabel">{flightNoValue}</label>
+        </span>
+        <img src={require("../../assets/images/closeButton.png")} style={{ height: "29px", width: "29px" }} onClick={() => setFlightLinkModel(false)} />
+      </div>
+      <div className="popup-Container" >
+        <div className="popup-label" onClick={createAlertHandler} >{t("createAlert")}</div>
+        <div className="popup-label" onClick={handleMarkCriticalHandler}>{t("markCritical")}</div>
+        <div className="popup-label" onClick={handleFlightFeedHandler}>{t("flightFeed")}</div>
+        <div className="popup-label">{t("addFlightCard")}</div>
+        <div className="popup-label">{t("addGateCard")}</div>
+        <div className="popup-label-crew">{t("Crew")}</div>
+      </div>
+    </div>
+ 
+ 
+  )
+}
+ 
+export default HyperLinkPopup
