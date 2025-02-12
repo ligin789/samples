@@ -1,13 +1,7 @@
-import React from "react";
-import WeatherPopUpJson from "../../assets/jsons/weatherPopup.json"
-import DynamicRender from "../dynamicrenderer";
-export const WeatherPopup = () => {
-    return (
-        <div style={{ position: "absolute", zIndex: 3, left: "20%", top: "12%" }}>
-            <DynamicRender
-                data={WeatherPopUpJson}
-            />
-        </div>
-    )
-}
-export default WeatherPopup
+
+    test/components/weatherPopup/index.test.tsx:3:26 - error TS1149: File name '/Users/u2155446/Documents/iocc_dashboard/src/components/WeatherPopup/index.tsx' differs from already included file name '/Users/u2155446/Documents/iocc_dashboard/src/components/weatherPopup/index.tsx' only in casing.
+      The file is in the program because:
+        Root file specified for compilation
+        Imported via "../../../src/components/WeatherPopup" from file '/Users/u2155446/Documents/iocc_dashboard/test/components/weatherPopup/index.test.tsx'
+
+    3 import WeatherPopup from "../../../src/components/WeatherPopup"
