@@ -1,64 +1,27 @@
-import React, {useState } from "react";
-import DynamicRender from "../dynamicrenderer";
-import NotificationJson from "../../assets/jsons/notification.json";
+Notification Component › should update snoozeIconClicked when snoozeIconClick is called
 
-const Notification = (props: any) => {
-  const [jsonData, setJsonData] = useState(NotificationJson);
-  const mapFunctions = {
-    closeButtonClick: () => {
-      props.setNotificationClick(false);
-    },
-    acknowledgeIconClick: (data: any) => {
-      let { widgetAttributes } = data;
-      widgetAttributes.acknowledgeIconClicked = true;
-      setJsonData(widgetAttributes);
-    },
-    snoozeIconClick: (data: any) => {
-      let { widgetAttributes } = data;
-      let array: any = jsonData;
-      const arrayWidgetAttributes = array.widgetAttributes.list.map(
-        (element: any) => {
-          if (element.id === widgetAttributes.id) {
-            element.snoozeIconClicked = true;
-          }
-          return element;
-        }
-      );
-      array.widgetAttributes.list = arrayWidgetAttributes;
-      setJsonData({ ...array });
-    },
-    timeButton: (data: any) => {
-      let { widgetAttributes } = data;
-      let array: any = jsonData;
-      const arrayWidgetAttributes = array.widgetAttributes.list.map(
-        (element: any) => {
-          if (element.id === widgetAttributes.id) {
-            element.snoozeIconClicked = false;
-          }
-          element.reminderList = element.reminderList.map(
-            (remainderElement: any) => {
-              remainderElement.isSelected =
-                remainderElement.timeValue === widgetAttributes.timeValue;
-              return remainderElement;
-            }
-          );
-          return element;
-        }
-      );
-      array.widgetAttributes.list = arrayWidgetAttributes;
-      setJsonData({ ...array });
-    },
-    resolveButton: () => {
-      console.log("resolveButtonClicked");
-    },
-  };
-  return (
-    <div style={{ position: "absolute", zIndex: 5, top: "18%", right: 0 }}>
-      {jsonData && (
-        <DynamicRender data={NotificationJson} mappedFunctions={mapFunctions} />
-      )}
-    </div>
-  );
-};
+    TypeError: Cannot read properties of undefined (reading 'snoozeIconClicked')
 
-export default Notification;
+      46 | (item: any) => item.id === 1
+      47 |     );
+    > 48 |     expect(updatedItem.snoozeIconClicked).toBe(true);
+         |                        ^
+      49 |   });
+      50 |  
+      51 |   it("should update time selection when timeButton is clicked", () => {
+
+      at Object.<anonymous> (test/components/Notification/index.test.tsx:48:24)
+
+  ● Notification Component › should update time selection when timeButton is clicked
+
+    TypeError: Cannot read properties of undefined (reading 'snoozeIconClicked')
+
+      57 | (item: any) => item.id === 1
+      58 |     );
+    > 59 |     expect(updatedItem.snoozeIconClicked).toBe(false);
+         |                        ^
+      60 |  
+      61 |     const selectedReminder = updatedItem.reminderList.find(
+      62 |       (reminder: any) => reminder.timeValue === "10:00 AM"
+
+      at Object.<anonymous> (test/components/Notification/index.test.tsx:59:24)
