@@ -1,6 +1,6 @@
- Test suite failed to run
+est suite failed to run
 
-    test/components/focusFlights/FocusFlight.test.tsx:10:34 - error TS2345: Argument of type '{}' is not assignable to parameter of type 'ConfigureStoreOptions<any, UnknownAction, Tuple<[ThunkMiddleware<any, UnknownAction, undefined>]>, Tuple<[StoreEnhancer<{ dispatch: ThunkDispatch<any, undefined, UnknownAction>; }, {}>, StoreEnhancer<...>]>, any>'.
-      Property 'reducer' is missing in type '{}' but required in type 'ConfigureStoreOptions<any, UnknownAction, Tuple<[ThunkMiddleware<any, UnknownAction, undefined>]>, Tuple<[StoreEnhancer<{ dispatch: ThunkDispatch<any, undefined, UnknownAction>; }, {}>, StoreEnhancer<...>]>, any>'.
+    test/components/focusFlights/FocusFlight.test.tsx:15:39 - error TS2322: Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' is not assignable to type 'Middleware<{}, any, Dispatch<AnyAction>>'.
+      Type 'typeof import("/Users/u2155446/Documents/iocc_dashboard/node_modules/redux-thunk/dist/redux-thunk")' provides no match for the signature '(api: MiddlewareAPI<Dispatch<AnyAction>, any>): (next: Dispatch<AnyAction>) => (action: any) => any'.
 
-    10 const mockStore = configureStore({});
+    15 const mockStore = configureMockStore([thunk]);
