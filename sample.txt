@@ -1,15 +1,13 @@
-test/components/SupplymentryPopup/index.test.tsx
-  ● Test suite failed to run
-
-    test/components/SupplymentryPopup/index.test.tsx:20:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
-
-    20     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
-                                                          ~~~~
-    test/components/SupplymentryPopup/index.test.tsx:32:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
-
-    32     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
-                                                          ~~~~
-    test/components/SupplymentryPopup/index.test.tsx:45:52 - error TS2339: Property 'mock' does not exist on type '(props: any) => any'.
-
-    45     const { mappedFunctions }: any = DynamicRender.mock.calls[0][0]
-                                                          ~~~~
+import React from "react";
+import WeatherPopUpJson from "../../assets/jsons/weatherPopup.json"
+import DynamicRender from "../dynamicrenderer";
+export const WeatherPopup = () => {
+    return (
+        <div style={{ position: "absolute", zIndex: 3, left: "20%", top: "12%" }}>
+            <DynamicRender
+                data={WeatherPopUpJson}
+            />
+        </div>
+    )
+}
+export default WeatherPopup
