@@ -1,71 +1,64 @@
-import React, { useState } from "react";
+import React, {useState } from "react";
 import DynamicRender from "../dynamicrenderer";
-import alertJson from "../../assets/jsons/createAlert.json"
-const CreateAlert = (props: any) => {
- 
-  const [createAlertJson, setCreateAlertJson] = useState(alertJson)
-  const [categeorySelected, setCategorySelected] = useState("")
-  const [CustomCategory, setCustomCategory] = useState("")
-  const [description, setDescription] = useState("")
- 
+import NotificationJson from "../../assets/jsons/notification.json";
+
+const Notification = (props: any) => {
+  const [jsonData, setJsonData] = useState(NotificationJson);
   const mapFunctions = {
-    alertCloseButtonClick: () => {
-      props.setCreateAlertClicked((false))
+    closeButtonClick: () => {
+      props.setNotificationClick(false);
     },
-    categorySelected: (data: any) => {
-      setCategorySelected(data)
-      if (data.toLowerCase() === "others") {
-        let existJson = JSON.parse(JSON.stringify(createAlertJson))
-        existJson.widgetAttributes.categoryOthersSelected = true
-        setCreateAlertJson(existJson)
-      } else {
-        let existJson = JSON.parse(JSON.stringify(createAlertJson))
-        existJson.widgetAttributes.categoryOthersSelected = false
-        setCreateAlertJson(existJson)
-      }
- 
+    acknowledgeIconClick: (data: any) => {
+      let { widgetAttributes } = data;
+      widgetAttributes.acknowledgeIconClicked = true;
+      setJsonData(widgetAttributes);
     },
-    customCategory: (data: any) => {
-      setCustomCategory(data)
+    snoozeIconClick: (data: any) => {
+      let { widgetAttributes } = data;
+      let array: any = jsonData;
+      const arrayWidgetAttributes = array.widgetAttributes.list.map(
+        (element: any) => {
+          if (element.id === widgetAttributes.id) {
+            element.snoozeIconClicked = true;
+          }
+          return element;
+        }
+      );
+      array.widgetAttributes.list = arrayWidgetAttributes;
+      setJsonData({ ...array });
     },
-    descriptionTyped: (data: any) => {
-      setDescription(data)
+    timeButton: (data: any) => {
+      let { widgetAttributes } = data;
+      let array: any = jsonData;
+      const arrayWidgetAttributes = array.widgetAttributes.list.map(
+        (element: any) => {
+          if (element.id === widgetAttributes.id) {
+            element.snoozeIconClicked = false;
+          }
+          element.reminderList = element.reminderList.map(
+            (remainderElement: any) => {
+              remainderElement.isSelected =
+                remainderElement.timeValue === widgetAttributes.timeValue;
+              return remainderElement;
+            }
+          );
+          return element;
+        }
+      );
+      array.widgetAttributes.list = arrayWidgetAttributes;
+      setJsonData({ ...array });
     },
-    highSelected: (data: any) => {
-      let existJson = JSON.parse(JSON.stringify(createAlertJson))
-      existJson.widgetAttributes.selectedHighSeverity = true
-      existJson.widgetAttributes.selectedMediumSeverity = false
-      existJson.widgetAttributes.selectedLowSeverity = false
-      setCreateAlertJson(existJson)
+    resolveButton: () => {
+      console.log("resolveButtonClicked");
     },
-    meadiumSelected: (data: any) => {
-      let existJson = JSON.parse(JSON.stringify(createAlertJson))
-      existJson.widgetAttributes.selectedHighSeverity = false
-      existJson.widgetAttributes.selectedMediumSeverity = true
-      existJson.widgetAttributes.selectedLowSeverity = false
-      setCreateAlertJson(existJson)
- 
-    },
-    lowSelected: (data: any) => {
-      let existJson = JSON.parse(JSON.stringify(createAlertJson))
-      existJson.widgetAttributes.selectedHighSeverity = false
-      existJson.widgetAttributes.selectedMediumSeverity = false
-      existJson.widgetAttributes.selectedLowSeverity = true
-      setCreateAlertJson(existJson)
-    },
-    doneClicked: (data: any) => {
-      alert("doneClicked")
-    },
-    cancelClicked: (data: any) => {
-      props.setCreateAlertClicked((false))
-    }
-  }
+  };
   return (
-    <div style={{ position: "absolute", zIndex: 10, left: "30%", top: "28%" }} >
-      <DynamicRender data={createAlertJson}
-        mappedFunctions={mapFunctions} />
+    <div style={{ position: "absolute", zIndex: 5, top: "18%", right: 0 }}>
+      {jsonData && (
+        <DynamicRender data={NotificationJson} mappedFunctions={mapFunctions} />
+      )}
     </div>
   );
 };
- 
-export default CreateAlert;
+
+export default Notification;
