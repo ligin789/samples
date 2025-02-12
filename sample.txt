@@ -1,21 +1,71 @@
-import React from "react";
+import React, { useState } from "react";
 import DynamicRender from "../dynamicrenderer";
-import AuditTrailPopUpJson from "../../assets/jsons/auditTrailPopUp.json"
+import alertJson from "../../assets/jsons/createAlert.json"
+const CreateAlert = (props: any) => {
  
-export const AuditTrailPopup = () => {
-    const mapFunctions = {
-        listStatus: (data: any) => {
-            console.log("listStatus")
-        }
+  const [createAlertJson, setCreateAlertJson] = useState(alertJson)
+  const [categeorySelected, setCategorySelected] = useState("")
+  const [CustomCategory, setCustomCategory] = useState("")
+  const [description, setDescription] = useState("")
+ 
+  const mapFunctions = {
+    alertCloseButtonClick: () => {
+      props.setCreateAlertClicked((false))
+    },
+    categorySelected: (data: any) => {
+      setCategorySelected(data)
+      if (data.toLowerCase() === "others") {
+        let existJson = JSON.parse(JSON.stringify(createAlertJson))
+        existJson.widgetAttributes.categoryOthersSelected = true
+        setCreateAlertJson(existJson)
+      } else {
+        let existJson = JSON.parse(JSON.stringify(createAlertJson))
+        existJson.widgetAttributes.categoryOthersSelected = false
+        setCreateAlertJson(existJson)
+      }
+ 
+    },
+    customCategory: (data: any) => {
+      setCustomCategory(data)
+    },
+    descriptionTyped: (data: any) => {
+      setDescription(data)
+    },
+    highSelected: (data: any) => {
+      let existJson = JSON.parse(JSON.stringify(createAlertJson))
+      existJson.widgetAttributes.selectedHighSeverity = true
+      existJson.widgetAttributes.selectedMediumSeverity = false
+      existJson.widgetAttributes.selectedLowSeverity = false
+      setCreateAlertJson(existJson)
+    },
+    meadiumSelected: (data: any) => {
+      let existJson = JSON.parse(JSON.stringify(createAlertJson))
+      existJson.widgetAttributes.selectedHighSeverity = false
+      existJson.widgetAttributes.selectedMediumSeverity = true
+      existJson.widgetAttributes.selectedLowSeverity = false
+      setCreateAlertJson(existJson)
+ 
+    },
+    lowSelected: (data: any) => {
+      let existJson = JSON.parse(JSON.stringify(createAlertJson))
+      existJson.widgetAttributes.selectedHighSeverity = false
+      existJson.widgetAttributes.selectedMediumSeverity = false
+      existJson.widgetAttributes.selectedLowSeverity = true
+      setCreateAlertJson(existJson)
+    },
+    doneClicked: (data: any) => {
+      alert("doneClicked")
+    },
+    cancelClicked: (data: any) => {
+      props.setCreateAlertClicked((false))
     }
-    return (
-        <div style={{ position: "absolute", zIndex: 10, left: "25%", top: "20%" }} data-testId="dynamic-render">
-            <DynamicRender
-                data={AuditTrailPopUpJson}
-                mappedFunctions={mapFunctions}
-            />
-        </div>
-    )
-}
+  }
+  return (
+    <div style={{ position: "absolute", zIndex: 10, left: "30%", top: "28%" }} >
+      <DynamicRender data={createAlertJson}
+        mappedFunctions={mapFunctions} />
+    </div>
+  );
+};
  
-export default AuditTrailPopup
+export default CreateAlert;
