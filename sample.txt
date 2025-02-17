@@ -1,14 +1,46 @@
-import React from 'react'
-import PropTypes from 'prop-types'
-import './AvianaButton.css'
+import React, { useState, useEffect } from 'react';
  
-const AvianaButton = (props:any) => {
-    const {onClick=null,className="",style=null,disabled=false} = props
-    return (
-        <button style={style} disabled={disabled} onClick={onClick} className={`${className} btn`}>
-            {props?.children}
-        </button>
-    )
-}
  
-export default AvianaButton
+const CountdownTimer = (props:any) => {
+  const { hr, min, sec} = props;
+  const [hours, setHours] = useState<number>(hr ?? 0);
+  const [minutes, setMinutes] = useState<number>(min ?? 0);
+  const [seconds, setSeconds] = useState<number>(sec ?? 0);
+  const [title,setTitle] = useState('');
+ 
+  let timer: any
+  useEffect(()=>{
+    let timeInSec = hours * 3600 + minutes * 60 + seconds
+    startTimer(timeInSec);
+    const hrs = Math.floor(timeInSec / 3600);
+    timeInSec %= 3600;
+    const mins = Math.floor(timeInSec / 60);
+    timeInSec %= 60;
+    const secs = timeInSec
+    setTitle(`${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`)
+    return ()=>clearTimeout(timer);
+  },[])
+  
+  const startTimer = (timeLeft:number) => {
+    Iif(timeLeft < 0){
+      timer = null;
+      return 
+    }
+    timer = setTimeout(() => {
+      let time = timeLeft
+      const hrs = Math.floor(time / 3600);
+      time %= 3600
+      const mins = Math.floor(time / 60);
+      time %= 60
+      const secs = time % 60;
+      startTimer(timeLeft - 1);
+      setTitle(`${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`)
+    }, 60*1000);
+  };
+  
+  return (
+    <div>{title}</div>
+  );
+};
+ 
+export default CountdownTimer;
