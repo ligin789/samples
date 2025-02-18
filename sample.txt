@@ -1,47 +1,44 @@
-import React, { useState } from "react";
-import "./index.css"
-import { t } from "i18next";
-import Colors from "../../global/Color";
+import React, { useEffect, useState } from "react";
+import CriticalJson from "../../assets_Air_India/jsons/criticalFlight.json";
+import DynamicRender from "../dynamicrenderer";
+import "../../screens/home/styles.css";
+import { connect } from "react-redux";
+import { referenceViewAction } from "../../redux/referenceData/action";
  
-export const HyperLinkPopup = (props: any) => {
-  const { flightNoValue, setCriticalPopupVisible, setFlightLinkModel, setFlightFeedClick, setCreateAlertClicked, carrierCodeValue } = props
+const CriticalPopUp = (props: any) => {
+  const [jsonData, setJsonData] = useState({})
+  useEffect(() => {
+    props.getWidgetDetails()
+  }, [])
  
-  const handleMarkCriticalHandler = () => {
-    setCriticalPopupVisible(true)
-    setFlightLinkModel(false)
-  }
+  useEffect(() => {
+    setJsonData(props?.criticalWidgetDetails)
+  }, [props?.criticalWidgetDetails])
  
-  const handleFlightFeedHandler = () => {
-    setFlightFeedClick(true)
-    setFlightLinkModel(false)
-  }
- 
-  const createAlertHandler = () => {
-    setCreateAlertClicked(true)
-    setFlightLinkModel(false)
-  }
- 
+  const mapFunctions = {
+    closeButtonClick: () => {
+      props.setCriticalPopupVisible(false);
+    },
+    cancelButtonClick: () => {
+      props.setCriticalPopupVisible(false);
+    },
+    doneButtonClick: () => {
+      props.setCriticalPopupVisible(false);
+    },
+  };
   return (
-    <div style={{ position: "absolute", zIndex: 10, right: "40%", top: "40%" }} >
-      <div className="hyperlink-header" style={{background:Colors.alertHeaderBackgroundColor}}>
-        <span>
-          <label className="headerLabel" style={{ paddingRight: "3px" }}>{carrierCodeValue}</label>
-          <label className="headerLabel">{flightNoValue}</label>
-        </span>
-        <img src={require("../../assets_Air_India/images/closeButton.png")} style={{ height: "29px", width: "29px" }} onClick={() => setFlightLinkModel(false)} />
-      </div>
-      <div className="popup-Container" >
-        <div className="popup-label" onClick={createAlertHandler} style={{color:Colors.langLabel}}>{t("createAlert")}</div>
-        <div className="popup-label" onClick={handleMarkCriticalHandler} style={{color:Colors.langLabel}}>{t("markCritical")}</div>
-        <div className="popup-label" onClick={handleFlightFeedHandler} style={{color:Colors.langLabel}}>{t("flightFeed")}</div>
-        <div className="popup-label" style={{color:Colors.langLabel}}>{t("addFlightCard")}</div>
-        <div className="popup-label" style={{color:Colors.langLabel}}>{t("addGateCard")}</div>
-        <div className="popup-label-crew" style={{color:Colors.langLabel}}>{t("crew")}</div>
-      </div>
+    <div style={{ position: "absolute", zIndex: 10, left: "35%", top: "28%" }}>
+      <DynamicRender data={CriticalJson} mappedFunctions={mapFunctions} />
     </div>
+  );
  
+}
+const mapStateToProps = (state: any) => ({
+  criticalWidgetDetails: state?.HomeScreenReducer?.criticalWidgetDetails
  
-  )
+})
+const mapDispatchToProps = {
+  getWidgetDetails: referenceViewAction.getCriticalWidgetDetails
 }
  
-export default HyperLinkPopup
+export default connect(mapStateToProps, mapDispatchToProps)(CriticalPopUp);
