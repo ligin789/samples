@@ -1,47 +1,12 @@
-import { t } from "i18next";
-import React, { useState } from "react";
 
-export const DropdownWidget = (props: any) => {
-  const {
-    styles,
-    childComponent,
-    data,
-    mappedFunctions,
-  } = props;
-  const [selectedOption, setSelectedOption] = useState("");
-  const handleChange = (event: any) => {
-    setSelectedOption(event.target.value);
-    if (childComponent.extrakey === "catogoryList") {
-      mappedFunctions?.categorySelected(event.target.value)
-    } else if (childComponent.extrakey === "addNoteCatogoryList") {
-      mappedFunctions?.addNotesCategorySelected(event.target.value)
-    }
+ 
+ 
+ 
+ 
+ 	
+const FontFamily = {
+    normalText:"",
+    headerTitle : "",
   };
-  return (
-    <div style={styles}>
-      <label htmlFor="dropdown" style={childComponent?.props?.label?.styles}>
-        {t(childComponent?.props?.label?.tKey)||childComponent?.props?.label?.value}
-      </label>
-      <select
-        id="dropdown"
-        value={selectedOption}
-        onChange={handleChange}
-        aria-placeholder="Select"
-        style={childComponent?.props?.select?.styles}
-      >
-        <option value="" disabled selected hidden>
-          {t("select")}
-        </option>
-        {data?.map((item: any, index: any) => {
-          return (
-            <option key={index} value={item?.value}>
-              {item?.value}
-            </option>
-          );
-        })}
-      </select>
-    </div>
-  );
-};
-
-export default DropdownWidget;
+   
+  export default FontFamily;
