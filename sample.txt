@@ -1,12 +1,47 @@
-
+import React, { useState } from "react";
+import "./index.css"
+import { t } from "i18next";
+import Colors from "../../global/Color";
+ 
+export const HyperLinkPopup = (props: any) => {
+  const { flightNoValue, setCriticalPopupVisible, setFlightLinkModel, setFlightFeedClick, setCreateAlertClicked, carrierCodeValue } = props
+ 
+  const handleMarkCriticalHandler = () => {
+    setCriticalPopupVisible(true)
+    setFlightLinkModel(false)
+  }
+ 
+  const handleFlightFeedHandler = () => {
+    setFlightFeedClick(true)
+    setFlightLinkModel(false)
+  }
+ 
+  const createAlertHandler = () => {
+    setCreateAlertClicked(true)
+    setFlightLinkModel(false)
+  }
+ 
+  return (
+    <div style={{ position: "absolute", zIndex: 10, right: "40%", top: "40%" }} >
+      <div className="hyperlink-header" style={{background:Colors.alertHeaderBackgroundColor}}>
+        <span>
+          <label className="headerLabel" style={{ paddingRight: "3px" }}>{carrierCodeValue}</label>
+          <label className="headerLabel">{flightNoValue}</label>
+        </span>
+        <img src={require("../../assets_Air_India/images/closeButton.png")} style={{ height: "29px", width: "29px" }} onClick={() => setFlightLinkModel(false)} />
+      </div>
+      <div className="popup-Container" >
+        <div className="popup-label" onClick={createAlertHandler} style={{color:Colors.langLabel}}>{t("createAlert")}</div>
+        <div className="popup-label" onClick={handleMarkCriticalHandler} style={{color:Colors.langLabel}}>{t("markCritical")}</div>
+        <div className="popup-label" onClick={handleFlightFeedHandler} style={{color:Colors.langLabel}}>{t("flightFeed")}</div>
+        <div className="popup-label" style={{color:Colors.langLabel}}>{t("addFlightCard")}</div>
+        <div className="popup-label" style={{color:Colors.langLabel}}>{t("addGateCard")}</div>
+        <div className="popup-label-crew" style={{color:Colors.langLabel}}>{t("crew")}</div>
+      </div>
+    </div>
  
  
+  )
+}
  
- 
- 	
-const FontFamily = {
-    normalText:"",
-    headerTitle : "",
-  };
-   
-  export default FontFamily;
+export default HyperLinkPopup
