@@ -1,54 +1,17 @@
-FocusFlight Component › should render the correct title when in detail view
+should trigger flight feed click when the flight feed tab is clicked
 
-    TestingLibraryElementError: Unable to find an element with the text: /back/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
+    Expected: true
 
-      90 |  
-      91 |     // Check the title based on the current view
-    > 92 |     expect(screen.getByText(/back/i)).toBeInTheDocument();
-         |                   ^
-      93 |   });
-      94 |  
-      95 |   it('should render DynamicRender with correct data', () => {
+    Number of calls: 0
 
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:92:19)
+      141 | fireEvent.click(flightFeedTab);
+      142 |  
+    > 143 |     expect(setFlightFeedClickMock).toHaveBeenCalledWith(true);
+          |                                    ^
+      144 |     expect(setFocusClickMock).toHaveBeenCalledWith(false);
+      145 |   });
+      146 | });
+
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:143:36)
