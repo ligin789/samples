@@ -1,44 +1,19 @@
-import React, { useEffect, useState } from "react";
-import CriticalJson from "../../assets_Air_India/jsons/criticalFlight.json";
-import DynamicRender from "../dynamicrenderer";
-import "../../screens/home/styles.css";
-import { connect } from "react-redux";
-import { referenceViewAction } from "../../redux/referenceData/action";
+import React from 'react';
+import './index.css'; // External CSS file for styles (optional)
+import Colors from '../../global/Color';
+import AvianaDiv from '../microComponents/avianaDiv';
+import AvianaLabel from '../microComponents/avianaLabel';
  
-const CriticalPopUp = (props: any) => {
-  const [jsonData, setJsonData] = useState({})
-  useEffect(() => {
-    props.getWidgetDetails()
-  }, [])
- 
-  useEffect(() => {
-    setJsonData(props?.criticalWidgetDetails)
-  }, [props?.criticalWidgetDetails])
- 
-  const mapFunctions = {
-    closeButtonClick: () => {
-      props.setCriticalPopupVisible(false);
-    },
-    cancelButtonClick: () => {
-      props.setCriticalPopupVisible(false);
-    },
-    doneButtonClick: () => {
-      props.setCriticalPopupVisible(false);
-    },
-  };
+const LangDropdown = (props:any) => {
   return (
-    <div style={{ position: "absolute", zIndex: 10, left: "35%", top: "28%" }}>
-      <DynamicRender data={CriticalJson} mappedFunctions={mapFunctions} />
-    </div>
+    <AvianaDiv className='lang-drodown-container' style={{backgroundColor:Colors.white,boxShadow:`0px 0px 60px ${Colors.langDropDownContainerShadow}`}}>
+      {props?.langArray.map((option, index) => (
+        <AvianaDiv key={index} className='lang-label-container' style={{borderBottomColor:Colors.langDropDownBorder}} onClick={()=>props.changeLanguage(option)}>
+          <AvianaLabel className='lang-name' style={{color:Colors.themeText}} text={option?.name}/>
+        </AvianaDiv>
+      ))}
+  </AvianaDiv>
   );
+};
  
-}
-const mapStateToProps = (state: any) => ({
-  criticalWidgetDetails: state?.HomeScreenReducer?.criticalWidgetDetails
- 
-})
-const mapDispatchToProps = {
-  getWidgetDetails: referenceViewAction.getCriticalWidgetDetails
-}
- 
-export default connect(mapStateToProps, mapDispatchToProps)(CriticalPopUp);
+export default LangDropdown;
