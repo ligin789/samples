@@ -1,19 +1,106 @@
-import React from 'react';
-import './index.css'; // External CSS file for styles (optional)
-import Colors from '../../global/Color';
-import AvianaDiv from '../microComponents/avianaDiv';
-import AvianaLabel from '../microComponents/avianaLabel';
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import "./login.css";
+import tcsAvianaLogo from "../../assets_Air_India/images/tcsAvianaLogo.png";
+import { useNavigate } from "react-router-dom";
+import warningIcon from "../../assets_Air_India/images/warningIcon.png";
+import { useTranslation } from "react-i18next";
+import "../../i18n"; // Import i18n configuration
+import Colors from "../../global/Color";
+const Login = () => {
+  const username = useRef<any>();
+  const pwd = useRef<any>();
+  const dispatch = useDispatch();
+  const isloggedin = useSelector(
+    (state: any) => state?.UserData?.isValidUserLoggedIn
+  );
+  const navigate = useNavigate();
+  const [incorrectDetail, setIncorrectDetail] = useState(false);
+  type TranslationKey=''
+  const { t, i18n } = useTranslation<TranslationKey>();
+  const changeLanguage = (lng:string) => {
+    i18n.changeLanguage(lng);
+  };
+  const loginApi = () => {
+    //for incorrect username and password below if condition
  
-const LangDropdown = (props:any) => {
+    // if (username.current.value.length == 0 || pwd.current.value.length == 0) {
+    //   alert("Please enter username and password");
+    // }
+    // else if (username.current.value == "n1234" &&pwd.current.value == "Aviana@123") {
+    //   setIncorrectDetail(false);
+    //   navigate("/home");
+    // } else {
+    //   setIncorrectDetail(true);
+    // }
+    navigate("/home");
+  };
+  const handleKeypress = (e: any) => {
+    if (e.keyCode === 13) {
+      loginApi();
+    }
+  };
   return (
-    <AvianaDiv className='lang-drodown-container' style={{backgroundColor:Colors.white,boxShadow:`0px 0px 60px ${Colors.langDropDownContainerShadow}`}}>
-      {props?.langArray.map((option, index) => (
-        <AvianaDiv key={index} className='lang-label-container' style={{borderBottomColor:Colors.langDropDownBorder}} onClick={()=>props.changeLanguage(option)}>
-          <AvianaLabel className='lang-name' style={{color:Colors.themeText}} text={option?.name}/>
-        </AvianaDiv>
-      ))}
-  </AvianaDiv>
+    <div className="loginContainer">
+      <div className="login-box">
+        <div className="logo-container">
+          <div className="logo-container-inner">
+            <img className="logo-img" alt="logo" src={tcsAvianaLogo} />
+          </div>
+        </div>
+        <div className="login-box-inner">
+          <div className="user-area">
+            <div className="header-user-title">{t("userName")}</div>
+            <input
+              onKeyDown={handleKeypress}
+              ref={username}
+              className="user-name"
+              title="user-name"
+              placeholder=""
+            />
+            <div className="password-area">
+              <div className="header-user-title">{t("password")}</div>
+              <input
+                onKeyDown={handleKeypress}
+                type="password"
+                ref={pwd}
+                className="password-name"
+                title="password"
+                placeholder=""
+              />
+            </div>
+            {incorrectDetail && (
+              <div className="IncorrectDetailArea">
+                <img className="warningImage" alt="logo" src={warningIcon} />
+                <span className="IncorrectText">
+                {t("incorrectUserNamePassword")}
+                </span>
+              </div>
+            )}
+            <div className="submit-area">
+              <button
+                onClick={() => {
+                  loginApi();
+                }}
+                className="submit-button"
+                style={{backgroundColor:Colors.loginButtonBg,borderColor:Colors.loginButtonBg}}
+              >
+                {t("login")}
+              </button>
+            </div>
+            {/* <div className="forgot-pwd">Forgot Password?</div> */}
+ 
+            {/* <SocketHandler connectionFor='boardingcard' station='ord' terminal='t1' zone={['Z4','Z5','Z6']} closeConnection={false}/> */}
+          </div>
+        </div>
+        <div className="copyText">
+        {t("copyRight")}
+        </div>
+        {/* <button onClick={() => changeLanguage("en")}>English</button>
+        <button onClick={() => changeLanguage("pt")}>Portuguese</button> */}
+      </div>
+    </div>
   );
 };
- 
-export default LangDropdown;
+
+export default Login;
