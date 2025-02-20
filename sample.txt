@@ -1,330 +1,68 @@
 import React, { useEffect, useState } from "react";
-import "./index.css"; // Move the CSS into an external file
-import SearchfilterData from "../../assets_Air_India/jsons/data.json";
+import "./index.css"; // Extract the CSS into a separate file or use inline styles
+import ArrowBack from "../../assets_Air_India/images/arrowBack.svg";
+import CloseImg from '../../assets_Air_India/images/close.svg'
 import { useTranslation } from "react-i18next";
 import Colors from "../../global/Color";
-
-const Dropdown = (prop: any) => {
-  const { handleResetFlightsBy, setUserPreference, userPreference,selectedDepartureStation,handleDropDownIndex } = prop
-  const [activeMenu, setActiveMenu] = useState("Market");
-  const [filterOptions, setFilterOptions] = useState<any>([])
-  const [selectedTerminnal,setSelectedTerminal] = useState<any>(["T1"])
+ 
+const Dropdown5 = (prop:any) => {
+  const {userPreference,handleDropDownIndex,searchPatternText} = prop
+  const [userPreferenceData,setUserPreferenceData] = useState(userPreference?.shorcut_keys)
+  const [activeIndex, setActiveIndex] = useState(userPreferenceData.map(()=>true));
   type TranslationKey=''
   const { t, i18n } = useTranslation<TranslationKey>();
-  useEffect(()=>{
-    setFilterOptions(userPreference?.search_filters)
-  },[userPreference])
-
-  const handleMenuClick = (menuId: any) => {
-    setActiveMenu(menuId);
+  const togglePanel = (index:any) => {
+    // setActiveIndex(activeIndex === index ? null : index);
+    setActiveIndex((prev)=>
+      prev.map((isOpen,i)=>(i===index?!isOpen:isOpen)))
   };
+  useEffect(()=>{
+    let filteredData = userPreference
+    filteredData = userPreference?.shorcut_keys.filter(category =>
+      category.items.some(item => item.keyword.charAt(0) === searchPatternText.charAt(0).toUpperCase())
+    )
+    filteredData.length>0 ? setUserPreferenceData(filteredData):
+    setUserPreferenceData(userPreference?.shorcut_keys)
+  },[searchPatternText])
 
-  const handleSelect = (clickItem:any) => {
-   let filterArray = JSON.parse(JSON.stringify(filterOptions));
-    filterArray = filterArray?.map((item:any)=>{
-      if(item.name === activeMenu){
-        item.options = item.options.map((option:any)=>{
-          if(option.name === clickItem.name){
-            option.isSelected = !option.isSelected
-          }
-          option = handleTerminalGateSelection(option,clickItem)
-          return option
-        })
-      }
-      return item
-    })
-    setFilterOptions(filterArray)
-  }
-
-  const handleTerminalGateSelection = (option:any,clickItem:any) =>{
-    let selectedTerminal:any = []
-    option?.terminals?.map((ter:any) =>{
-        if(ter.name === clickItem.name){
-          ter.isSelected = !ter.isSelected
-          ter?.gates?.map((gatselect:any) =>{
-            gatselect.isSelected = ter.isSelected
-        })
-        }
-        if(ter.isSelected){
-           selectedTerminal.push(ter.name)
-        }
-        ter?.gates?.map((gat:any) =>{
-          if(gat.name === clickItem.name){
-            gat.isSelected = !gat.isSelected
-          }
-        })
-      })
-      setSelectedTerminal(selectedTerminal)
-      return option
-  }
-
-  const setFiltersTouserPreference = () => {
-    setUserPreference((prevState:any)=>({...prevState,search_filters:filterOptions}))
-    handleDropDownIndex(-1)
-  }
-
-  const getGateCount = (opt:any) =>{
-    let gateCount:any = 0
-    selectedTerminnal?.map((selectedTer:any,index:any)=>{
-       opt?.terminals?.find((ter: any) =>  ter.name === selectedTer)?.gates.forEach((selectedgate:any) => {
-        if(selectedgate.isSelected){
-          gateCount ++
-        }  
-      });
-    })
-    return gateCount || 0
-  }
-  const isDepArrStationAll = (item:any) =>{
-    if(selectedDepartureStation !== "LIS" && item.name.includes("Terminal")) {
-      return false
-    }else return true
-  }
-  
+  useEffect(()=>{
+    setActiveIndex(userPreferenceData.map(()=>true))
+  },[userPreferenceData])
+ 
   return (
-    <div className="dropdownCustomView">
-      <div className="dropdown-contentCustomView">
-        <div className="container">
-          <div className="outerWrapper">
-            <p>Filter</p>
-            <div className="innnerWrapper" style={{borderColor:Colors.filterBorder}}>
-              <div className="menu" style={{backgroundColor:Colors.filtersBg}}>
-                <ul>
-                  {filterOptions?.map((item: any) => (
-                    <li key={item.name} className={`menu-item ${activeMenu === item.name ? "active" : !isDepArrStationAll(item) ? "disable" : "" }`} style={{color:isDepArrStationAll(item) ? Colors.themeText : Colors.filterOptionNotClickable}} onClick={() => isDepArrStationAll(item) && handleMenuClick(item.name)} >
-                      {item.tKey?t(item.tKey):item.name}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="options">
-                {filterOptions&&filterOptions?.map((item: any, index: any) => ( 
-                  <div key={index} className={`option ${item} ${activeMenu === item.name ? "active" : ""}`} >
-                    {filterOptions&&filterOptions?.find((filter: any) => filter.name === item.name)?.options?.map((opt: any, index: any) => (
-                      item.name.includes("Terminal") ?
-                        <div className="terminal-gate-maincontainer">
-                          <div className="terminal-gate-label" >{item.tKey?t(item.tKey):item.name}</div>
-                          <div className="terminal-gate-container">
-                            <div className="terminal-labels">
-                              <label className="terminal-label-view">{`Terminal (${selectedTerminnal.length})`}</label>
-                              {opt&&opt?.terminals?.map((termi: any, index: any) => (
-                                <label className="checkItem" key={index}>
-                                  <input type="checkbox" className="filterSearchbox" data-testid="MenuDropdown4 first input"  style={{accentColor:termi.isSelected?Colors.common:Colors.white}} checked={termi.isSelected} onChange={(e) => handleSelect(termi)} />
-                                  {termi.tKey?t(termi.tKey):termi.name}
-                                </label>
-                              ))
-                              }
-                            </div>
-                            <div className="gate-labels" >
-                              <label className="gate-label-view">{`Gate (${getGateCount(opt)})`}</label>
-                              {selectedTerminnal&&selectedTerminnal?.map((selectedTer: any, index: any) => {
-                                return opt&& opt?.terminals?.find((ter: any) => ter.name === selectedTer)?.gates.map((gat: any, index: any) => (
-                                  <label className="checkItem" key={index}>
-                                    <input data-testid="MenuDropdown4 gate input" type="checkbox" className="filterSearchbox"  style={{accentColor:gat.isSelected?Colors.common:Colors.white}} checked={gat.isSelected} onChange={(e) => handleSelect(gat)} />
-                                    {gat.name}
-                                  </label>
-                                ))
-                              })}
-                            </div>
-                          </div>
-                        </div>
-                        :
-                        <label className="checkItem" key={index}>
-                          <input type="checkbox" className="filterSearchbox" style={{accentColor:opt.isSelected?Colors.common:Colors.white}} checked={opt.isSelected} onChange={(e) => handleSelect(opt)} />
-                          {opt.tKey?t(opt.tKey):opt.name}
-                        </label>
-                    )
-                    )}
-                  </div>
-                  )
-                )}
-              </div>
+    <div className="searchFlightDropdown">
+      <header className="dropDownHeader" style={{backgroundColor:Colors.common}}>
+        <label className="keyboard-label">{t("keyword")}</label>
+        <img src={CloseImg} onClick={() => handleDropDownIndex(1)} className="closeBtn" alt="closeimg" />
+      </header>
+      {userPreferenceData?.map((section:any, index:any) => (
+        <div key={index}>
+          <button
+            className={`accordion ${
+              activeIndex[index]===index  ? "accordionActive" : ""
+            }`}
+            onClick={() => togglePanel(index)}
+          >
+            {section.tKey?t(section.tKey):section.type} {<img src={ArrowBack} className={activeIndex[index]?"rotate180":"rotate360"} alt="Arrow" /> }
+          </button>
+          <div
+            className="panel"
+             style={{ display: activeIndex[index] ? "block" : 'none'}}
+            //style={{ display:"block"}}
+          >
+            <div >
+              {section.items.map((item:any, itemIndex:any) => (
+                <div key={itemIndex} className={section?.items?.length-1 === itemIndex ? "accordionContent": "accordionContent1"}>
+                  <label>{item.keyword}</label>
+                  <label style={{paddingRight:5}}>{item.tKey?t(item.tKey):item.description}</label>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-        <div className="button-group">
-          <button className="resetBtn2" style={{borderColor:Colors.cancelButtonBorder, color:Colors.themeText}} onClick={() => handleResetFlightsBy()}>RESET</button>
-          <button className="doneBtn" style={{backgroundColor:Colors.common}} onClick={setFiltersTouserPreference}>DONE</button>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };
-
-export default Dropdown;
-
-
-
-
-import {getByAltText, getByTestId, render, screen,fireEvent, getByText,waitFor} from '@testing-library/react'
-import React from 'react'
-import Dropdown from '../../../src/components/Dropdown4'
-import '@testing-library/jest-dom';
-
-describe('Testing Dropdown component', () => {
-    it('should Dropdown', async () => {
-        const mockOnChange=jest.fn()
-        const props={
-            setColSearchText:mockOnChange,
-            userPreference:{
-                grid_columns:[{name:"sample"}]
-            },
-            referenceData:{
-                search_filters:[{name:"sample",options:[{terminals:[{name:"Sample"}]}]}]
-            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-        }
-         render(<Dropdown {...props}/>)
-        // expect(getByText('Default View')).toBeInTheDocument();
-        // const textarea:any = screen.getByTestId('Search');
-        // fireEvent.change(textarea, { target: { value: 'Hello, world!' } });
-        expect(screen.getByText("Filter")).toBeInTheDocument();
-    })
-    it('should Dropdown', async () => {
-        const mockOnChange=jest.fn()
-        let props={
-            setColSearchText:mockOnChange,
-            userPreference:{
-                grid_columns:[{name:"sample"}]
-            },
-            referenceData:{
-                search_filters:[{name:"Terminal",options:[{terminals:[{name:"Sample"}]}]}]
-            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-        }
-       const {rerender}=  render(<Dropdown {...props}/>)
-        // expect(getByText('Default View')).toBeInTheDocument();
-         props={
-            setColSearchText:mockOnChange,
-            userPreference:{
-                grid_columns:[{name:"sample"}]
-            },
-            referenceData:{
-                search_filters:[{name:"Terminal",options:[{terminals:[{name:"Sample"}]}]}]
-            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-        }
-        rerender(<Dropdown {...props} />);
-       
-        
-        await waitFor(() => {
-            const textarea:any = screen.getByTestId('MenuDropdown4 first input');
-            fireEvent.click(textarea);
-            // expect(screen.getByText("Terminal")).toBeInTheDocument();
-          });
-        
-    })  
-    it('should Dropdown', async () => {
-        const mockOnChange=jest.fn()
-        let props={
-            setColSearchText:mockOnChange,
-            userPreference:{
-                grid_columns:[{name:"sample"}]
-            },
-            referenceData:{
-                search_filters:[{name:"sample",options:[{terminals:[{name:"T1",gates:[{name:"T1"}]}]}]}]
-            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-        }
-       const {rerender}=  render(<Dropdown {...props}/>)
-        // expect(getByText('Default View')).toBeInTheDocument();
-         props={
-            setColSearchText:mockOnChange,
-            userPreference:{
-                grid_columns:[{name:"sample"}]
-            },
-            referenceData:{
-                search_filters:[{name:"Market",options:[{terminals:[{name:"T1",gates:[{name:"T1"}]}]}]}]
-            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Market"
-        }
-        rerender(<Dropdown {...props} />);
-       
-        
-        await waitFor(() => {
-            const textarea:any = screen.getByTestId('MenuDropdown4 gate input');
-            fireEvent.click(textarea);
-            // expect(screen.getByText("Terminal")).toBeInTheDocument();
-          });
-        
-    })  
-    // it('should render the Default View button', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"ALL"}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('inputhandleselect');
-    //     fireEvent.click(textarea);
-    //     // expect(mockOnChange).toHaveBeenCalledTimes(1);
-    // })
-    // it('should inputhandleselect input method has been checked with sample data', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"sample",isMandatory:true}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('inputhandleselect');
-    //     fireEvent.click(textarea);
-    //     expect(textarea.checked).toBe(true);
-    // })
-    // it('should inputhandleselect input method has been checked with sample data and isMandatory:false', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"sample",isMandatory:false}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('inputhandleselect');
-    //     fireEvent.click(textarea);
-    //     expect(textarea.checked).toBe(true);
-    // })
-    // it('should inputhandleselect input method has been checked with sample data and isMandatory:true', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"sample",isMandatory:true,columns:[{key:"sample",isMandatory:false}]}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('inputhandleselect');
-    //     fireEvent.click(textarea);
-    //     expect(textarea.checked).toBe(true);
-    // })
-    // it('should inputhandleselect input method has been checked with sample data', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"sample",isMandatory:true}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('toggleSubOptions');
-    //     fireEvent.click(textarea);
-    //     expect(screen.getByText('SAMPLE')).toBeInTheDocument()
-    // })
-    // it('should inputhandleselect input method has been checked with sample data', async () => {
-    //     const mockOnChange=jest.fn()
-    //     const props={
-    //         setColSearchText:mockOnChange,
-    //         userPreference:{
-    //             grid_columns:[{name:"sample",isMandatory:true}]
-    //         }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
-    //     }
-    //      render(<Dropdown2 {...props}/>)
-    //     // expect(getByText('Default View')).toBeInTheDocument();
-    //     const textarea:any = screen.getByTestId('inputhandleselectsub');
-    //     fireEvent.click(textarea);
-    //     expect(screen.getByText('SAMPLE')).toBeInTheDocument()
-    // })
-})
-
+ 
+export default Dropdown5;
