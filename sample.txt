@@ -1,17 +1,9 @@
-› selects and deselects rows correctly
+ InfiniteScrollGrid Component › updates selected rows when a row is clicked
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: Any<Number>
+    Expected: 1
 
     Number of calls: 0
 
-      86 |     });
-      87 |  
-    > 88 |     expect(mockProps.setNoOfRowsSelected).toHaveBeenCalledWith(expect.any(Number));
-         |                                           ^
-      89 |   });
-      90 |  
-      91 |   it("updates columns when user preferences change", () => {
-
-      at Object.<anonymous> (test/components/table/index.test.tsx:88:43)
+    Ignored nodes: comments, script, style
