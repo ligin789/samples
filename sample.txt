@@ -1,68 +1,148 @@
-import React, { useEffect, useState } from "react";
-import "./index.css"; // Extract the CSS into a separate file or use inline styles
-import ArrowBack from "../../assets_Air_India/images/arrowBack.svg";
-import CloseImg from '../../assets_Air_India/images/close.svg'
-import { useTranslation } from "react-i18next";
-import Colors from "../../global/Color";
- 
-const Dropdown5 = (prop:any) => {
-  const {userPreference,handleDropDownIndex,searchPatternText} = prop
-  const [userPreferenceData,setUserPreferenceData] = useState(userPreference?.shorcut_keys)
-  const [activeIndex, setActiveIndex] = useState(userPreferenceData.map(()=>true));
-  type TranslationKey=''
-  const { t, i18n } = useTranslation<TranslationKey>();
-  const togglePanel = (index:any) => {
-    // setActiveIndex(activeIndex === index ? null : index);
-    setActiveIndex((prev)=>
-      prev.map((isOpen,i)=>(i===index?!isOpen:isOpen)))
-  };
-  useEffect(()=>{
-    let filteredData = userPreference
-    filteredData = userPreference?.shorcut_keys.filter(category =>
-      category.items.some(item => item.keyword.charAt(0) === searchPatternText.charAt(0).toUpperCase())
-    )
-    filteredData.length>0 ? setUserPreferenceData(filteredData):
-    setUserPreferenceData(userPreference?.shorcut_keys)
-  },[searchPatternText])
+import {getByAltText, getByTestId, render, screen,fireEvent} from '@testing-library/react'
+import React from 'react'
+import Dropdown2 from '../../../src/components/Dropdown2'
+import '@testing-library/jest-dom';
 
-  useEffect(()=>{
-    setActiveIndex(userPreferenceData.map(()=>true))
-  },[userPreferenceData])
- 
-  return (
-    <div className="searchFlightDropdown">
-      <header className="dropDownHeader" style={{backgroundColor:Colors.common}}>
-        <label className="keyboard-label">{t("keyword")}</label>
-        <img src={CloseImg} onClick={() => handleDropDownIndex(1)} className="closeBtn" alt="closeimg" />
-      </header>
-      {userPreferenceData?.map((section:any, index:any) => (
-        <div key={index}>
-          <button
-            className={`accordion ${
-              activeIndex[index]===index  ? "accordionActive" : ""
-            }`}
-            onClick={() => togglePanel(index)}
-          >
-            {section.tKey?t(section.tKey):section.type} {<img src={ArrowBack} className={activeIndex[index]?"rotate180":"rotate360"} alt="Arrow" /> }
-          </button>
-          <div
-            className="panel"
-             style={{ display: activeIndex[index] ? "block" : 'none'}}
-            //style={{ display:"block"}}
-          >
-            <div >
-              {section.items.map((item:any, itemIndex:any) => (
-                <div key={itemIndex} className={section?.items?.length-1 === itemIndex ? "accordionContent": "accordionContent1"}>
-                  <label>{item.keyword}</label>
-                  <label style={{paddingRight:5}}>{item.tKey?t(item.tKey):item.description}</label>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
- 
-export default Dropdown5;
+describe('Testing Dropdown2 component', () => {
+    it('should search input field had been changed one time', async () => {
+        const mockOnChange=jest.fn()
+        let props={
+            colSearchText:"Sample",
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"Sample",
+                columns:[{
+                    key:"Sample"
+                }]}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn()
+        }
+       const {rerender}=  render(<Dropdown2 {...props}/>)
+        props={
+        colSearchText:"Test",
+        setColSearchText:mockOnChange,
+        userPreference:{
+            grid_columns:[{name:"Test",
+            columns:[{
+                key:"Test"
+            }]}]
+        }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn()
+    }
+        // expect(getByText('Default View')).toBeInTheDocument();
+        rerender(<Dropdown2 {...props}/>)
+      
+        expect(screen.getByText("nwjdn")).toBeDefined();
+    })
+    it('should search input field had been changed one time', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample"}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByPlaceholderText('Search');
+        fireEvent.change(textarea, { target: { value: 'Hello, world!' } });
+        expect(mockOnChange).toHaveBeenCalledTimes(1);
+    })
+    it('should render the Default View button', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"ALL"}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('inputhandleselect');
+        fireEvent.click(textarea);
+        // expect(mockOnChange).toHaveBeenCalledTimes(1);
+    })
+    it('should inputhandleselect input method has been checked with sample data', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:true}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('inputhandleselect');
+        fireEvent.click(textarea);
+        expect(textarea.checked).toBe(true);
+    })
+    it('should inputhandleselect input method has been checked with sample data and isMandatory:false', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:false}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('inputhandleselect');
+        fireEvent.click(textarea);
+        expect(textarea.checked).toBe(true);
+    })
+    it('should inputhandleselect input method has been checked with sample data and isMandatory:true', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:true,columns:[{key:"sample",isMandatory:false}]}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('inputhandleselect');
+        fireEvent.click(textarea);
+        expect(textarea.checked).toBe(true);
+    })
+    it('should inputhandleselect input method has been checked with sample data', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:true}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('toggleSubOptions');
+        fireEvent.click(textarea);
+        expect(screen.getByText('SAMPLE')).toBeInTheDocument()
+    })
+    it('should inputhandleselect input method has been checked with sample data', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:true}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('MenuDropdown2 input');
+        fireEvent.click(textarea);
+        expect(screen.getByText('SAMPLE')).toBeInTheDocument()
+    }),
+    it('should inputhandleselect input method has been checked with sample data', async () => {
+        const mockOnChange=jest.fn()
+        const props={
+            setColSearchText:mockOnChange,
+            userPreference:{
+                grid_columns:[{name:"sample",isMandatory:true,columns :[{key:1}]}]
+            }, setUserPreference:jest.fn(), setSelectedColumnsArray:jest.fn(),colSearchText:"Search"
+        }
+         render(<Dropdown2 {...props}/>)
+        // expect(getByText('Default View')).toBeInTheDocument();
+        const textarea:any = screen.getByTestId('MenuDropdown2 input');
+        fireEvent.click(textarea);
+        expect(screen.getByText('SAMPLE')).toBeInTheDocument()
+    })
+})
+
