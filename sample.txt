@@ -1,9 +1,178 @@
- InfiniteScrollGrid Component › updates selected rows when a row is clicked
+ InfiniteScrollGrid Component › opens flight link modal on click
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-    Expected: 1
-
-    Number of calls: 0
+    TestingLibraryElementError: Unable to find an element with the text: AI101. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
 
     Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="tablecontaine-view"
+        >
+          <div
+            class="ag-theme-params-5 ag-theme-checkboxStyle-1 ag-theme-iconSet-2 ag-theme-tabStyle-3 ag-theme-inputStyle-4"
+            style="height: 100%; --ag-internal-row-border-width: 1px;"
+          >
+            <div
+              class="ag-measurement-container"
+            >
+              <div />
+              <div />
+              <div />
+              <div
+                class="ag-measurement-element-border"
+                style="--ag-internal-measurement-border: var(--ag-row-border, solid 15538px;"
+              />
+            </div>
+            <div
+              aria-atomic="true"
+              aria-live="polite"
+              aria-relevant="additions text"
+              class="ag-aria-description-container"
+            />
+            <div
+              class="ag-root-wrapper ag-ltr ag-layout-normal"
+              grid-id="5"
+              role="presentation"
+            >
+              <div
+                class="ag-root-wrapper-body ag-focus-managed ag-layout-normal"
+                role="presentation"
+              >
+                <div
+                  class="ag-tab-guard ag-tab-guard-top"
+                  role="presentation"
+                  tabindex="0"
+                />
+                <div
+                  aria-colcount="0"
+                  class="ag-root ag-unselectable ag-layout-normal ag-body-vertical-content-no-gap ag-body-horizontal-content-no-gap"
+                  role="grid"
+                >
+                  <div
+                    class="ag-header ag-pivot-off"
+                    role="presentation"
+                    style="height: 49px; min-height: 49px;"
+                  >
+                    <div
+                      aria-hidden="false"
+                      class="ag-pinned-left-header "
+                      role="rowgroup"
+                    />
+                    <div
+                      class="ag-header-viewport "
+                      role="presentation"
+                    >
+                      <div
+                        class="ag-header-container"
+                        role="rowgroup"
+                        style="width: 0px;"
+                      />
+                    </div>
+                    <div
+                      aria-hidden="false"
+                      class="ag-pinned-right-header "
+                      role="rowgroup"
+                    />
+                  </div>
+                  <div
+                    class="ag-floating-top"
+                    role="presentation"
+                    style="height: 0px; min-height: 0; display: none;"
+                  >
+                    <div
+                      class="ag-pinned-left-floating-top"
+                      role="rowgroup"
+                    />
+                    <div
+                      class="ag-floating-top-viewport"
+                      role="presentation"
+                    >
+                      <div
+                        class="ag-floating-top-container"
+                        role="rowgroup"
+                        style="width: 0px;"
+                      />
+                    </div>
+                    <div
+                      class="ag-pinned-right-floating-top"
+                      role="rowgroup"
+                    />
+                    <div
+                      class="ag-floating-top-full-width-container"
+                      role="rowgroup"
+                    />
+                  </div>
+                  <div
+                    class="ag-body ag-layout-normal"
+                    role="presentation"
+                  >
+                    <div
+                      class="ag-body-viewport ag-row-no-animation ag-layout-normal"
+                      role="presentation"
+                    >
+                      <div
+                        class="ag-pinned-left-cols-container"
+                        role="rowgroup"
+                      />
+                      <div
+                        class="ag-center-cols-viewport"
+                        role="presentation"
+                      >
+                        <div
+                          class="ag-center-cols-container"
+                          role="rowgroup"
+                          style="width: 0px;"
+                        />
+                      </div>
+                      <div
+                        class="ag-pinned-right-cols-container"
+                        role="rowgroup"
+                      />
+                      <div
+                        class="ag-full-width-container"
+                        role="rowgroup"
+                      />
+                    </div>
+                    <div
+                      aria-hidden="true"
+                      class="ag-body-vertical-scroll"
+                    >
+                      
+                
+                      <div
+                        class="ag-body-vertical-scroll-viewport"
+                        data-ref="eViewport"
+                      >
+                        
+                    
+                        <div
+                          class="ag-body-vertical-scroll-container"
+                          data-ref="eContainer"
+                        />
+                        
+                
+                      </div>
+                      
+            
+                    </div>
+                  </div>
+                  
+
+      209 |   it("opens flight link modal on click", async () => {
+      210 |     render(<InfiniteScrollGrid {...props} />);
+    > 211 |     const flightCell = screen.getByText("AI101");
+          |                               ^
+      212 |  
+      213 | fireEvent.click(flightCell);
+      214 |  
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at test/components/table/index.test.tsx:211:31
+      at step (test/components/table/index.test.tsx:44:23)
+      at Object.next (test/components/table/index.test.tsx:25:53)
+      at test/components/table/index.test.tsx:19:71
+      at Object.<anonymous>.__awaiter (test/components/table/index.test.tsx:15:12)
+      at Object.<anonymous> (test/components/table/index.test.tsx:209:42)
