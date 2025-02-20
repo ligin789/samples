@@ -1,9 +1,17 @@
-Test suite failed to run
+› selects and deselects rows correctly
 
-    test/components/table/index.test.tsx:40:19 - error TS2339: Property 'mockReturnValue' does not exist on type '(arrayData: any, referenceColArray: any, isUTCToggled: boolean) => { columnDefinition: any; formatRows: any[]; }'.
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    40     getFormatData.mockReturnValue({
-                         ~~~~~~~~~~~~~~~
+    Expected: Any<Number>
 
-(node:57727) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
+    Number of calls: 0
+
+      86 |     });
+      87 |  
+    > 88 |     expect(mockProps.setNoOfRowsSelected).toHaveBeenCalledWith(expect.any(Number));
+         |                                           ^
+      89 |   });
+      90 |  
+      91 |   it("updates columns when user preferences change", () => {
+
+      at Object.<anonymous> (test/components/table/index.test.tsx:88:43)
