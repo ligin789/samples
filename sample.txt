@@ -1,1 +1,6 @@
-ncaught SyntaxError: The requested module '/node_modules/.vite/deps/@deck__gl_core.js?v=571271a9' does not provide an export named 'ArcLayer' (at App.tsx:4:28)
+App.tsx:51 deck: initialization of ScatterplotLayer({id: 'scatterplot-layer'}): Unknown GL type
+
+App.tsx:51 deck: loading data of ScatterplotLayer({id: 'scatterplot-layer'}): Failed to fetch
+App.tsx:51 deck: drawing ScatterplotLayer({id: 'scatterplot-layer'}) to screen: Cannot read properties of undefined (reading 'shaderInputs')
+App.tsx:51 deck: drawing ScatterplotLayer({id: 'scatterplot-layer'}) to screen: Cannot read properties of undefined (reading 'shaderInputs')
+
