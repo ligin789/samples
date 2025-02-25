@@ -1,1 +1,8 @@
-deck: drawing ScatterplotLayer({id: 'scatterplot-layer'}) to screen: Cannot read properties of undefined (reading 'shaderInputs')
+[
+    {
+      "source": [76.391948,10.155136],
+      "destination": [76.921474,8.482045]
+    }
+    
+  ]
+  
