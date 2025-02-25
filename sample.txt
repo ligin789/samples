@@ -1,1 +1,1 @@
-App.tsx:4 Uncaught SyntaxError: The requested module '/node_modules/.vite/deps/deck__gl.js?v=613fce33' does not provide an export named 'MapboxLayer' (at App.tsx:4:10)
+Uncaught SyntaxError: The requested module '/node_modules/.vite/deps/@deck__gl_mapbox.js?t=1740449477056&v=613fce33' does not provide an export named 'MapboxLayer' (at App.tsx:4:10)
