@@ -1,8 +1,10 @@
-[
-    {
-      "source": [76.391948,10.155136],
-      "destination": [76.921474,8.482045]
-    }
-    
-  ]
-  
+App.tsx:51 deck: initialization of ScatterplotLayer({id: 'scatterplot-layer'}): Unknown GL type
+
+App.tsx:23 deck: drawing ScatterplotLayer({id: 'scatterplot-layer'}) to screen: Cannot read properties of undefined (reading 'shaderInputs')
+App.tsx:51 Error: Layer with id "scatterplot-layer" already exists on this map
+    at To.addLayer (mapbox-gl.js?v=ad54fde0:22463:65)
+    at Map.addLayer (mapbox-gl.js?v=ad54fde0:29192:85)
+    at Map.<anonymous> (App.tsx:51:19)
+    at Map.fire (mapbox-gl.js?v=ad54fde0:1838:39)
+    at Map._render (mapbox-gl.js?v=ad54fde0:29430:957)
+    at mapbox-gl.js?v=ad54fde0:29534:76
