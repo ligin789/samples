@@ -1,1 +1,11 @@
-Uncaught SyntaxError: The requested module '/node_modules/.vite/deps/@deck__gl_mapbox.js?v=3c69a7d4' does not provide an export named 'ArcLayer' (at App.tsx:3:41)Understand this errorAI client:865
+deck: initialization of ArcLayer({id: 'arc-layer'}): deck.gl: assertion failed. Error: deck.gl: assertion failed.
+    at assert8 (chunk-MHEB3I7B.js?v=ba1273cb:28775:11)
+    at ArcLayer._initialize (chunk-MHEB3I7B.js?v=ba1273cb:40902:5)
+    at LayerManager._initializeLayer (chunk-MHEB3I7B.js?v=ba1273cb:28367:13)
+    at LayerManager._updateSublayersRecursively (chunk-MHEB3I7B.js?v=ba1273cb:28338:16)
+    at LayerManager._updateLayers (chunk-MHEB3I7B.js?v=ba1273cb:28310:10)
+    at LayerManager.setLayers (chunk-MHEB3I7B.js?v=ba1273cb:28259:10)
+    at LayerManager.updateLayers (chunk-MHEB3I7B.js?v=ba1273cb:28266:12)
+    at Deck._onRenderFrame (chunk-MHEB3I7B.js?v=ba1273cb:37501:23)
+    at AnimationLoop._renderFrame (chunk-MHEB3I7B.js?v=ba1273cb:24577:16)
+    at AnimationLoop.redraw (chunk-MHEB3I7B.js?v=ba1273cb:24493:10)
