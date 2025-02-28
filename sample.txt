@@ -1,141 +1,92 @@
-import React, { useEffect, useRef, useState } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-import "./login.css";
-import TcsAvianaLogo from "../../assets/images/login/tcsAvianaLogo.svg";
-import { useNavigate } from "react-router";
-import warningIcon from "../../assets/images/login/warningIcon.png";
-import { useTranslation } from "react-i18next";
-import "../../i18n"; // Import i18n configuration
-import Colors from "../../globals/Color";
-const Login = () => {
-  const username = useRef<any>(null);
-  const pwd = useRef<any>(null);
-  // const dispatch = useDispatch();
-  // const isloggedin = useSelector(
-  //   (state: any) => state?.UserData?.isValidUserLoggedIn
-  // );
-  const navigate = useNavigate();
-  const [incorrectDetail, setIncorrectDetail] = useState(false);
-  type TranslationKey=''
-  const { t, i18n } = useTranslation<TranslationKey>();
-  const changeLanguage = (lng:string) => {
-    i18n.changeLanguage(lng);
-  };
-  const loginApi = () => {
-    //for incorrect username and password below if condition
+import React, { useEffect, useRef } from "react";
+import mapboxgl from "mapbox-gl";
+import { ScatterplotLayer, ArcLayer } from "@deck.gl/layers";
+import { MapboxOverlay } from "@deck.gl/mapbox";
+import "mapbox-gl/dist/mapbox-gl.css";
+import "./App.css";
  
-    // if (username.current.value.length == 0 || pwd.current.value.length == 0) {
-    //   alert("Please enter username and password");
-    // }
-    // else if (username.current.value == "n1234" &&pwd.current.value == "Aviana@123") {
-    //   setIncorrectDetail(false);
-    //   navigate("/home");
-    // } else {
-    //   setIncorrectDetail(true);
-    // }
-    navigate("/home");
-  };
-  const handleKeypress = (e: any) => {
-    if (e.keyCode === 13) {
-      loginApi();
-    }
-  };
-  alert('hihh')
+const arcData = [
+  {
+    source: [76.391948, 10.155136],
+    destination: [76.921474, 8.482045],
+  },
+  {
+    source: [76.391948, 10.155136],
+    destination: [78.634644, 15.082732],
+  },
+];
+ 
+const MapWithDeckGL: React.FC = () => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const overlayRef = useRef<MapboxOverlay | null>(null);
+ 
+  useEffect(() => {
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkyd3FlazgwOXpuM2puMGFjZjJxNTg2In0.AmDB8VR5ARnytVldY_dZdQ";
+ 
+    const map = new mapboxgl.Map({
+      container: mapContainer.current as HTMLDivElement,
+      style: "mapbox://styles/mapbox/streets-v10",
+      zoom: 11,
+      center: [76.391948, 10.155136],
+      maxZoom: 21,
+      pitch: 60,
+    });
+ 
+    mapRef.current = map;
+    const text=document.createElement("div");
+    text.innerText="my location";
+    text.style.fontSize="20px";
+    text.style.color="red";
+    // Add marker at a specific location
+    new mapboxgl.Marker(text)
+      .setLngLat([-285.115282,12.956160]) // Change coordinates as needed
+      // .setPopup(new mapboxgl.Popup().setHTML("<h3>Marker Location</h3>")) // Optional popup
+      .addTo(map);
+ 
+    const scatterLayer = new ScatterplotLayer({
+      id: "scatterplot-layer",
+      data: arcData,
+      opacity: 0.8,
+      stroked: true,
+      filled: true,
+      radiusScale: 6,
+      radiusMinPixels: 1,
+      radiusMaxPixels: 100,
+      lineWidthMinPixels: 3,
+      getPosition: (d: any) => d.destination,
+      getRadius: () => 6,
+      getFillColor: () => [184, 134, 11],
+      getLineColor: () => [222, 0, 130],
+    });
+ 
+    const arcLayer = new ArcLayer({
+      id: "arc-layer",
+      data: arcData,
+      getWidth: 10,
+      getSourcePosition: (d: any) => d.source,
+      getTargetPosition: (d: any) => d.destination,
+      getSourceColor: () => [220, 20, 60],
+      getTargetColor: () => [0, 0, 139],
+    });
+ 
+// Initialize Deck.gl overlay
+    const overlay = new MapboxOverlay({
+      layers: [scatterLayer, arcLayer],
+    });
+ 
+    overlayRef.current = overlay;
+    map.addControl(overlay);
+ 
+    return () => map.remove();
+  }, []);
+ 
   return (
-    <div className="loginContainer">
-      <div className="login-box">
-        <div className="logo-container">
-          <div className="logo-container-inner">
-            <img className="logo-img" alt="logo" src={tcsAvianaLogo} />
-          </div>
-        </div>
-        <div className="login-box-inner">
-          <div className="user-area">
-            <div className="header-user-title">{t("userName")}</div>
-            <input
-              onKeyDown={handleKeypress}
-              ref={username}
-              className="user-name"
-              title="user-name"
-              placeholder=""
-            />
-            <div className="password-area">
-              <div className="header-user-title">{t("password")}</div>
-              <input
-                onKeyDown={handleKeypress}
-                type="password"
-                ref={pwd}
-                className="password-name"
-                title="password"
-                placeholder=""
-              />
-            </div>
-            {incorrectDetail && (
-              <div className="IncorrectDetailArea">
-                <img className="warningImage" alt="logo" src={warningIcon} />
-                <span className="IncorrectText">
-                {t("incorrectUserNamePassword")}
-                </span>
-              </div>
-            )}
-            <div className="submit-area">
-              <button
-                onClick={() => {
-                  loginApi();
-                }}
-                className="submit-button"
-                style={{backgroundColor:Colors.loginButtonBg,borderColor:Colors.loginButtonBg}}
-              >
-                {t("login")}
-              </button>
-            </div>
-            {/* <div className="forgot-pwd">Forgot Password?</div> */}
- 
-            {/* <SocketHandler connectionFor='boardingcard' station='ord' terminal='t1' zone={['Z4','Z5','Z6']} closeConnection={false}/> */}
-          </div>
-        </div>
-        <div className="copyText">
-        {t("copyRight")}
-        </div>
-        {/* <button onClick={() => changeLanguage("en")}>English</button>
-        <button onClick={() => changeLanguage("pt")}>Portuguese</button> */}
-      </div>
+    <div>
+      <div ref={mapContainer} style={{ width: "100%", height: "100vh" }} />
     </div>
   );
 };
-
-export default Login;
-
-
-
-// import './App.css';
-import Home from './screens/home/index';
-import Login from './screens/login/index'
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import "./i18n";
-function App() {
-  return (
-    <>
-    <Login/>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Home />} />
-            {/* <Route
-              path="/"
-              element={
-                isloggedin ?
-                  <Navigate to="/home" />
-                  : <Navigate to="/login" />
-              }
-            /> */}
-          </Routes>
-        </BrowserRouter>
-        </>
-  )
-}
-
-export default App;
-
-
-Uncaught Error: useNavigate() may be used only in the context of a <Router> component.
+ 
+export default MapWithDeckGL;
