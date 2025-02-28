@@ -105,3 +105,37 @@ const Login = () => {
 };
 
 export default Login;
+
+
+
+// import './App.css';
+import Home from './screens/home/index';
+import Login from './screens/login/index'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import "./i18n";
+function App() {
+  return (
+    <>
+    <Login/>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/home" element={<Home />} />
+            {/* <Route
+              path="/"
+              element={
+                isloggedin ?
+                  <Navigate to="/home" />
+                  : <Navigate to="/login" />
+              }
+            /> */}
+          </Routes>
+        </BrowserRouter>
+        </>
+  )
+}
+
+export default App;
+
+
+Uncaught Error: useNavigate() may be used only in the context of a <Router> component.
