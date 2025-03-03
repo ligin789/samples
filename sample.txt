@@ -16,24 +16,9 @@ const MapboxMap = () => {
     const [disabled, setDisabled] = useState(false);
  
     const flights = [
-        {
-            id: "flight1",
-            origin: [-122.414, 37.776],
-            destination: [-77.032, 38.913],
-            speed: 500   
-        },
-        {
-            id: "flight2",
-            origin: [-80.1918, 25.7617], // Miami
-            destination: [-73.935242, 40.73061], // New York
-            speed: 700
-        },
-        {
-            id: "flight3",
-            origin: [-118.2437, 34.0522], // Los Angeles
-            destination: [-95.3698, 29.7604], // Houston
-            speed: 400
-        }
+        { id: "flight1", origin: [-122.414, 37.776], destination: [-77.032, 38.913], speed: 500 },
+        { id: "flight2", origin: [-80.1918, 25.7617], destination: [-73.935242, 40.73061], speed: 700 },
+        { id: "flight3", origin: [-118.2437, 34.0522], destination: [-95.3698, 29.7604], speed: 400 }
     ];
  
     function handleClick() {
@@ -77,12 +62,14 @@ const route = routesRef.current.find(f => f.id === flightId);
  
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/satellite-streets-v12',
+            style: 'mapbox://styles/mapbox/standard-satellite',
             center: [-96, 37.8],
             zoom: 4,
             pitch: 40,
             bearing: 172.5,
-            antialias: true
+            antialias: true,
+            projection: 'naturalEarth'
+
         });
  
         map.current.on('load', () => {
@@ -92,16 +79,12 @@ const route = routesRef.current.find(f => f.id === flightId);
                     type: 'FeatureCollection',
                     features: [{
                         type: 'Feature',
-                        geometry: {
-                            type: 'LineString',
-                            coordinates: [origin, destination]
-                        }
+                        geometry: { type: 'LineString', coordinates: [origin, destination] }
                     }]
                 };
  
                 const lineDistance = turf.length(route.features[0]);
                 const arc = [];
- 
                 for (let i = 0; i < lineDistance; i += lineDistance / speed) {
                     const segment = turf.along(route.features[0], i);
                     arc.push(segment.geometry.coordinates);
@@ -112,15 +95,11 @@ const route = routesRef.current.find(f => f.id === flightId);
                 speedsRef.current[id] = { speed };
  
                 map.current.addSource(id + "-route", { type: 'geojson', data: route });
- 
                 map.current.addLayer({
                     id: id + "-route",
                     source: id + "-route",
                     type: 'line',
-                    paint: {
-                        'line-width': 8,
-                        'line-color': '#FF2424'
-                    }
+                    paint: { 'line-width': 6, 'line-color': '#FF2424' }
                 });
  
                 const point = {
@@ -128,10 +107,7 @@ const route = routesRef.current.find(f => f.id === flightId);
                     features: [{
                         type: 'Feature',
                         properties: {},
-                        geometry: {
-                            type: 'Point',
-                            coordinates: origin
-                        }
+                        geometry: { type: 'Point', coordinates: origin }
                     }]
                 };
  
@@ -139,8 +115,7 @@ const route = routesRef.current.find(f => f.id === flightId);
                 countersRef.current[id] = 0;
  
                 map.current.addSource(id, { type: 'geojson', data: point });
- 
-                map.current.add Layer({
+                map.current.addLayer({
                     id: id,
                     source: id,
                     type: 'symbol',
@@ -153,9 +128,33 @@ const route = routesRef.current.find(f => f.id === flightId);
                         'icon-ignore-placement': true
                     }
                 });
- 
-                animate(id);
             });
+ 
+            // **ADDING RED DOTS FOR ORIGINS & DESTINATIONS**
+            const redDotFeatures = flights.flatMap(({ origin, destination }) => [
+                { type: "Feature", geometry: { type: "Point", coordinates: origin }, properties: {} },
+                { type: "Feature", geometry: { type: "Point", coordinates: destination }, properties: {} }
+            ]);
+ 
+            map.current.addSource("red-dots", {
+                type: "geojson",
+                data: { type: "FeatureCollection", features: redDotFeatures }
+            });
+ 
+            map.current.addLayer({
+                id: "red-dots-layer",
+                type: "circle",
+                source: "red-dots",
+                paint: {
+                    "circle-radius": 6,
+                    "circle-color": "#ff0000",
+                    "circle-stroke-width": 1,
+                    "circle-stroke-color": "#ff0000"
+                }
+            });
+ 
+            // Start animation
+            flights.forEach(({ id }) => animate(id));
         });
  
     }, []);
@@ -164,7 +163,20 @@ const route = routesRef.current.find(f => f.id === flightId);
         <div style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100vh", zIndex: 0 }}>
             <div ref={mapContainer} className="map-container" />
             <div style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 9 }}>
-                
+                <button
+                    disabled={disabled}
+                    style={{
+                        backgroundColor: disabled ? '#f5f5f5' : '#3386c0',
+                        color: disabled ? '#c3c3c3' : '#fff',
+                        padding: '10px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '3px'
+                    }}
+                    onClick={handleClick}
+                >
+                    Replay
+                </button>
             </div>
         </div>
     );
