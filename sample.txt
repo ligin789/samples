@@ -1,171 +1,195 @@
-import React, { useEffect, useRef } from "react";
-import mapboxgl from "mapbox-gl";
-import { ScatterplotLayer, ArcLayer } from "@deck.gl/layers";
-import { MapboxOverlay } from "@deck.gl/mapbox";
-import "mapbox-gl/dist/mapbox-gl.css";
-import "./styles.css";
+import "./style.css";
+import React, { useRef, useEffect, useState } from "react";
+import mapboxgl from "mapbox-gl"; // eslint-disable-line import/no-webpack-loader-syntax
+import 'mapbox-gl/dist/mapbox-gl.css';
+import * as turf from '@turf/turf';
+mapboxgl.accessToken =
+  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
+let allMarkers = [];
+const MapboxMap = () => {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const pointRef = useRef(null);
+  const originRef = useRef(null);
+  const routeRef = useRef(null);
+  const [disabled, setDisabled] = useState(false);
+  const steps = 500;
+  let counter = 0;
  
-const arcData = [
-  {
-    source: [76.391948, 10.155136],
-    destination: [-81.328697,29.021050],
-  },
-  {
-    source: [76.391948, 10.155136],
-    destination: [78.634644, 15.082732],
-  },
-];
+  function handleClick() {
+    pointRef.current.features[0].geometry.coordinates = originRef.current;
+    map.current.getSource('point').setData(pointRef.current);
+    animate(0);
+    setDisabled(true);
+  }
  
-const MapWithDeckGL: React.FC = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
-  const overlayRef = useRef<MapboxOverlay | null>(null);
+  function animate() {
+    const start =
+      routeRef.current.features[0].geometry.coordinates[
+        counter >= steps ? counter - 1 : counter
+      ];
+    const end =
+      routeRef.current.features[0].geometry.coordinates[
+        counter >= steps ? counter : counter + 1
+      ];
+      if (!start || !end) {
+        setDisabled(false);
+        return;
+      }
  
-  useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkyd3FlazgwOXpuM2puMGFjZjJxNTg2In0.AmDB8VR5ARnytVldY_dZdQ";
+    pointRef.current.features[0].geometry.coordinates =
+      routeRef.current.features[0].geometry.coordinates[counter];
+    pointRef.current.features[0].properties.bearing = turf.bearing(
+      turf.point(start),
+      turf.point(end)
+    );
  
-    const map = new mapboxgl.Map({
-      container: mapContainer.current as HTMLDivElement,
-      style: "mapbox://styles/mapbox/dark-v10",
-      zoom: 3,
-      center: [76.391948, 10.155136],
-      maxZoom: 21,
-      pitch: 60,
+    map.current.getSource('point').setData(pointRef.current);
+ 
+    if (counter < steps) {
+      requestAnimationFrame(animate);
+    }
+ 
+    counter = counter + 1;
+  }
+useEffect(() => {
+    if (map.current) return; // initialize map only once
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+    style: 'mapbox://styles/mapbox/satellite-streets-v12',
+    center: [-96, 37.8],
+    zoom: 4,
+    pitch: 40,
+    bearing: 172.5,
+    antialias: true
+    });
+    const origin = [-122.414, 37.776];
+    originRef.current = origin;
+ 
+    const destination = [-77.032, 38.913];
+ 
+    const route = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'LineString',
+            coordinates: [origin, destination]
+          }
+        }
+      ]
+    };
+    routeRef.current = route;
+ 
+    const point = {
+      type: 'FeatureCollection',
+      features: [
+        {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'Point',
+            coordinates: origin
+          }
+        }
+      ]
+    };
+    pointRef.current = point;
+ 
+    const lineDistance = turf.length(route.features[0]);
+    const arc = [];
+ 
+    for (let i = 0; i < lineDistance; i += lineDistance / steps) {
+      const segment = turf.along(route.features[0], i);
+      arc.push(segment.geometry.coordinates);
+    }
+ 
+    route.features[0].geometry.coordinates = arc;
+   
+    map.current.on('load', () => {
+      map.current.addSource('route', {
+        type: 'geojson',
+        data: route
+      });
+ 
+      map.current.addSource('point', {
+        type: 'geojson',
+        data: point
+      });
+ 
+      map.current.addLayer({
+        id: 'route',
+        source: 'route',
+        type: 'line',
+        paint: {
+          'line-width': 2,
+          'line-color': '#007cbf'
+        }
+      });
+ 
+      map.current.addLayer({
+        id: 'point',
+        source: 'point',
+        type: 'symbol',
+        layout: {
+          'icon-image': 'airport',
+          'icon-size': 1.5,
+          'icon-rotate': ['get', 'bearing'],
+          'icon-rotation-alignment': 'map',
+          'icon-allow-overlap': true,
+          'icon-ignore-placement': true
+        }
+      });
+ 
+      animate(counter);
     });
  
-    mapRef.current = map;
- 
-//     const text = document.createElement("div");
-//     text.innerText = "My Location";
-// text.style.fontSize = "20px";
-// text.style.color = "red";
- 
-//     new mapboxgl.Marker(text)
-//       .setLngLat([76.391948, 10.155136])
-//       .addTo(map);
- 
-    const scatterLayer = new ScatterplotLayer({
-      id: "scatterplot-layer",
-      data: arcData,
-      opacity: 0.8,
-      stroked: true,
-      filled: true,
-      radiusScale: 6,
-      radiusMinPixels: 1,
-      radiusMaxPixels: 100,
-      lineWidthMinPixels: 3,
-      getPosition: (d: any) => d.destination,
-      getRadius: () => 6,
-      getFillColor: () => [184, 134, 11],
-      getLineColor: () => [222, 0, 130],
-    });
- 
-    const arcLayer = new ArcLayer({
-      id: "arc-layer",
-      data: arcData,
-      getWidth: 4,
-      getSourcePosition: (d: any) => d.source,
-      getTargetPosition: (d: any) => d.destination,
-      getSourceColor: () => [220, 20, 60],
-      getTargetColor: () => [0, 0, 139],
-    });
- 
-    const overlay = new MapboxOverlay({
-      layers: [scatterLayer, arcLayer],
-    });
- 
-    overlayRef.current = overlay;
-    map.addControl(overlay);
- 
-    return () => map.remove();
+    // Cleanup function
+    //return () => map.current.remove();
   }, []);
  
-  return (
-    <div style={{ position: "relative", height: "100vh" }}>
-      {/* Header */}
-      <header
-       className="first-header"
-      >
-       <div className="inner-header">
-        <i className="inner-text">00:01 UTC 14 NOV 23 | 08:01 SGT 14 NOV 23</i>
-       </div>
-      </header>
  
-      {/* Map Container */}
+ 
+ 
+  return (
+    <div style={{position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100vh",
+      zIndex: 0,
+      opacity: 0.7,}}>
+       <div ref={mapContainer} className="map-container" />
       <div
-        ref={mapContainer}
         style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100vh",
-          zIndex: 0,
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          zIndex:9
         }}
-      />
+      >
+        <button
+          disabled={disabled}
+          style={{
+            backgroundColor: disabled ? '#f5f5f5' : '#3386c0',
+            color: disabled ? '#c3c3c3' : '#fff',
+            display: 'inline-block',
+            margin: '0',
+            padding: '10px 20px',
+            border: 'none',
+            cursor: 'pointer',
+            borderRadius: '3px',
+            zIndex:9
+          }}
+          onClick={handleClick}
+          id="replay"
+        >
+          Replay
+        </button>
+      </div>
     </div>
   );
 };
  
-export default MapWithDeckGL;
-
-
-@font-face {
-  font-family: "SF Pro";
-  src: url("../../assets/fonts/SF-Pro.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
-input[type="checkbox"]:checked {
-  accent-color: #00185f;
-}
-
-@font-face {
-  font-family: "SF Pro";
-  src: url("../../assets/fonts/SFPro-Medium.ttf") format("truetype");
-  font-weight: medium;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "SF Pro Display";
-  src: url("../../assets/fonts/SFPro-Medium.ttf") format("truetype");
-  font-weight: medium;
-  font-style: normal;
-}
-html,
-body,
-#root,
-#map {
-  width: 100%;
-  height: 100vh;
-  margin: 0;
-  padding: 0;
-  background: #ccc; /* Add background to see if container is there */
-}
-.first-header {
-  position: "absolute";
-  top: 0;
-  left: 0;
-  z-index: 1000;
-  width: 100%;
-  height: 40px;
-}
-
-.inner-header {
-  background: transparent linear-gradient(90deg, #ffffffcc 0%, #ffffff00 100%)
-    0% 0% no-repeat padding-box;
-  opacity: 1;
-  
-}
-.inner-text {
-  color: #000000;
-  text-align: right;
-  font: normal normal normal 13px/15px SF Pro;
-  letter-spacing: 0px;
-  color: #000000;
-  text-transform: uppercase;
-  opacity: 1;
-}
+export default MapboxMap;
