@@ -1,4 +1,90 @@
+import './referenceData.css';
+import { useEffect, useState } from 'react';
+import ViewDomain from './view';
+import DomainAddEdit from './addEdit';
+import DummyData from './data.json';
+import Colors from '../../global/Color';
+import { connect } from 'react-redux';
+import { referenceViewAction } from '../../redux/referenceData/action';
 
-    test/components/referenceData/addEdit/DomainAddEdit.test.tsx:68:56 - error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+const ReferenceData = (props: any) => {
+    // let items = ['MGT','Airport'];
+    // const [items, setItems] = React.useState<any[]>([])
+    const [referenceData, setReferenceData] = useState<any[]>([]);
+    const [selectedItem, setSelectedItem] = useState('');
+    const [selectedObject, setSelectedObject] = useState({});
+    const [showDetail, setShowDetail] = useState(false);
+    const [detailType, setDetailType] = useState('');
+    let tempItems: any[] = ["MGT", "Airports", "PAX MCT", "Crew MCT"]
+    // setItems(tempItems);
+    selectedItem === '' && setSelectedItem(tempItems[0]);
+    console.log("props?.crewDataUpdated",props?.crewDataUpdated)
+    useEffect(() => {
+        if (selectedItem == "MGT") {
+            props?.retrieveMgtData()
+            props?.retrievedMgtData?.length > 0 && setReferenceData(props?.retrievedMgtData)
+        } else if (selectedItem == "Airports") {
+            props?.retrieveAirportData()
+            props?.retrievedAirportData?.length > 0 && setReferenceData(props?.retrievedAirportData)
+        }else if(selectedItem =="PAX MCT"){
+            props?.retrievePaxMctData()
+            props?.retrievedPaxMctData?.length>0 && setReferenceData(props?.retrievedPaxMctData)
+        } else if(selectedItem =="Crew MCT"){
+            props?.retrieveCrewMctData()
+            props?.retrievedCrewMctData?.length>0 && setReferenceData(props?.retrievedCrewMctData)
+        }
+    }, [selectedItem, props.retrievedMgtData!==null , props?.retrievedAirportData!==null, props?.retrievedPaxMctData!==null,props?.retrievedCrewMctData!==null,props?.mgtDataUpdated,props?.airportDataUpdated,props?.paxDataUpdated,props?.crewDataUpdated])
 
-    68         expect(screen.getByTestId('AircraftTypeInput').value).toBe('Boeing 737');
+    return (
+        <div style={{ width: 'calc((100vw / var(--zoom))-10)', height: 'calc(100vw / var(--zoom))', display: 'flex' }}>
+            <div className='referenceData_left_box' style={{ backgroundColor: Colors.menuItemHover, borderRightColor: Colors.ReferenceDataleftItemBorder }}>
+                <div className="referenceData_header" style={{ background: Colors.tableColumnHeader, color: Colors.black }}>
+                    <div className='referenceData_header_text' style={{ color: Colors.secondHeaderLabels }}>Items</div>
+                </div>
+                <div style={{ margin: '20px 20px 20px 20px' }}>
+                    {tempItems.length > 0 && tempItems.map((list: any) => {
+                        return (
+                            <div style={{ backgroundColor: list === selectedItem ? Colors.common : Colors.white, color: list === selectedItem ? Colors.whiteText : Colors.themeText }} className='referenceData_item_box' onClick={() => { setSelectedItem(list); setShowDetail(false); setDetailType('') }}>
+                                <div>{list}</div>
+                                <div>&#10095;</div>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+            <div className='referenceData_right_box'>
+                <div className="referenceData_header" style={{ justifyContent: 'space-between', background: Colors.tableColumnHeader, color: Colors.black }}>
+                    <div className='referenceData_header_text' style={{ color: Colors.secondHeaderLabels }}>{`${showDetail === true ? `${detailType}   ` : ''}${selectedItem}`}</div>
+                    <div className='referenceData_header_add_button' style={{ color: Colors.secondHeaderLabels, borderColor: Colors.secondHeaderLabels }} onClick={() => { setShowDetail(true); setDetailType('Add') }}>
+                        <div>&#43; Add</div>
+                    </div>
+                </div>
+                {/* <div style={{width:selectedItem==='PAX MCT'?`${(window.innerWidth/100)*100}px`:'100%',overflow:selectedItem==='PAX MCT'?'scroll':'',height:`${window.innerHeight-50-50}px`}}> */}
+                <div style={{ width: '100%', overflowX: 'auto' }}>
+                    {showDetail === false ? <ViewDomain referenceData={referenceData} domain={selectedItem} handelDetail={(el: any) => { setShowDetail(true); setDetailType('Edit'); setSelectedObject(el) }} /> : <DomainAddEdit selectedObject={detailType === 'Add' ? {} : selectedObject} selectedType={detailType === "Add" ? "Add" : "Edit"} domain={selectedItem} cancelHandel={() => { setDetailType(''); setShowDetail(false); }} setShowDetail={setShowDetail} />}
+                </div>
+            </div>
+        </div>
+    )
+}
+const mapStateToProps = (state: any) => {
+    return {
+        retrievedMgtData: state?.HomeScreenReducer?.refMgtData,
+        retrievedAirportData: state?.HomeScreenReducer?.retrievedAirportData,
+        mgtDataUpdated:state?.HomeScreenReducer?.mgtDataUpdated,
+        airportDataUpdated:state?.HomeScreenReducer?.airportDataUpdated,
+        retrievedPaxMctData:state?.HomeScreenReducer?.retrievedPaxMctData,
+        retrievedCrewMctData:state?.HomeScreenReducer?.retrievedCrewMctData,
+        paxDataUpdated:state?.HomeScreenReducer?.paxDataUpdated,
+        crewDataUpdated:state?.HomeScreenReducer?.crewDataUpdated
+    }
+
+}
+const mapDispatchToProps = {
+    retrieveMgtData: referenceViewAction.retrieveMgtData,
+    retrieveAirportData: referenceViewAction.retrieveAirportData,
+    retrievePaxMctData:referenceViewAction.retrievePaxMctData,
+    retrieveCrewMctData:referenceViewAction.retrieveCrewMctData
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ReferenceData);
