@@ -1,150 +1,546 @@
- <section id="portfolio" class="portfolio section">
+import moment from 'moment';
+import './addEdit.css';
+import React from 'react';
+import Colors from '../../../global/Color';
+import { referenceViewAction } from '../../../redux/referenceData/action';
+import { connect } from 'react-redux';
 
-      <!-- Section Title -->
-      <div class="container section-title" data-aos="fade-up">
-        <h2>Projects</h2>
-        <div class="title-shape">
-          <svg viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg">
-            <path d="M 0,10 C 40,0 60,20 100,10 C 140,0 160,20 200,10" fill="none" stroke="currentColor" stroke-width="2"></path>
-          </svg>
+const DomainAddEdit = (props: any) => {
+    let { domain, cancelHandel, selectedObject, selectedType } = props;
+    const origList = ['LIS', 'FAO', 'FNC', 'LIS', 'PDL', 'OPD', 'PXO', 'TER'];
+    const destList = ['LIS', 'FAO', 'FNC', 'LIS', 'PDL', 'OPD', 'PXO', 'TER'];
+    const countryList = ['Portugal', 'India'];
+    const cityList = ['Faro', 'Funchal', 'Lisbon'];
+    const airportList = ['Gago Coutinho Airport', 'Cristiano Ronaldo International Airport', 'Humberto Delgado Airport'];
+    const regions = ['Europe', 'America', 'Asia'];
+    const crewTypeList = ['Cabin Crew', 'Flight Crew'];
+    const CONX_STATUS = ['II', 'DD', 'DI', 'ALL'];
+    const countryCodeList = ['GB', 'BR'];
+    const codeShare = ['Y', 'N'];
+
+    // for MGT domain state
+    const [aircraftType, setAircraftType] = React.useState('');
+    const [fSeatsCapacity, setfSeatsCapacity] = React.useState(0);
+    const [bSeatsCapacity, setbSeatsCapacity] = React.useState(0);
+    const [eSeatsCapacity, seteSeatsCapacity] = React.useState(0);
+    const [overallPayload, setOverallPayload] = React.useState(0);
+    const [cargoPayload, setCargoPayload] = React.useState(0);
+    const [MGT, setMGT] = React.useState(0);
+
+    // for Airport domain state 
+    const [iata, setIata] = React.useState('');
+    const [icao, setIcao] = React.useState('');
+    const [country, setCountry] = React.useState('');
+    const [region, setRegion] = React.useState('');
+    const [city, setCity] = React.useState('');
+    const [airport, setAirport] = React.useState('');
+
+    // for Crew MCT domain state
+    const [mct, setMct] = React.useState(0);
+    const [crewType, setCrewType] = React.useState('');
+    const [arrStn, setArrStn] = React.useState('');
+    const [depStn, setDepStn] = React.useState('');
+    const [conxStatus, setConxStatus] = React.useState('');
+    const [rangeStart, setRangeStart] = React.useState(0);
+    const [rangeEnd, setRangeEnd] = React.useState(0);
+    const [effFrom, setEffFrom] = React.useState('');
+    const [effTo, setEffTo] = React.useState('');
+    const [arrTerminal, setArrTerminal] = React.useState('');
+    const [depTerminal, setDepTerminal] = React.useState('');
+
+    // for PAX MCT domain state
+    const [arrCarrier, setArrCarrier] = React.useState('');
+    const [arrCodeShareIND, setArrCodeShareIND] = React.useState('');
+    const [arrCodeShareOP, setArrCodeShareOP] = React.useState('');
+    const [arrFltRangeStart, setArrFltRangeStart] = React.useState('');
+    const [arrFltRangeEnd, setArrFltRangeEnd] = React.useState('');
+    const [depCarrier, setDepCarrier] = React.useState('');
+    const [depCodeShareIND, setDepCodeShareIND] = React.useState('');
+    const [depCodeShareOP, setDepCodeShareOP] = React.useState('');
+    const [depFltRangeStart, setDepFltRangeStart] = React.useState('');
+    const [depFltRangeEnd, setDepFltRangeEnd] = React.useState('');
+    const [prevCountry, setPrevCountry] = React.useState('');
+    const [nextCountry, setNextCountry] = React.useState('');
+    const [paxId, setPaxId] = React.useState("")
+    const [crewId, setCrewId] = React.useState("")
+
+    const doneHandle: any = () => {
+        if (domain === 'MGT') {
+            console.log("selectedType",selectedType)
+            if (aircraftType == '' || fSeatsCapacity == 0 || bSeatsCapacity == 0 || eSeatsCapacity == 0 || overallPayload == 0 || cargoPayload == 0 || MGT == 0) {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertMgtData({ aircraftType: aircraftType, fSeatsCapacity: fSeatsCapacity, bSeatsCapacity: bSeatsCapacity, eSeatsCapacity: eSeatsCapacity, overallPayload: overallPayload, cargoPayload: cargoPayload, MGT: MGT })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            } else if (selectedType == "Edit") {
+                props.updateMgtData({ aircraftType: aircraftType, fSeatsCapacity: fSeatsCapacity, bSeatsCapacity: bSeatsCapacity, eSeatsCapacity: eSeatsCapacity, overallPayload: overallPayload, cargoPayload: cargoPayload, MGT: MGT })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            }
+        }
+        else if (domain === 'Airports') {
+            if (iata == '' || country == '' || city == '' || airport == '' || icao == '') {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertAirportData({ iata: iata, country: country, city: city, airport: airport, icao: icao })
+                props.setShowDetail(false)
+                // props.retrieveAirportData()
+            } else if (selectedType == "Edit") {
+                props.updateAirportData({ iata: iata, country: country, city: city, airport: airport, icao: icao })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            }
+        } else if (domain === 'PAX MCT') {
+            if (mct == 0 || arrStn == '' || depStn == '' || conxStatus == '' || arrCarrier == '' || arrCodeShareIND == '' || arrCodeShareOP == '' || arrFltRangeStart == '' || arrFltRangeEnd == '' || depCarrier == '' || depCodeShareIND == '' || depCodeShareOP == '' || depFltRangeStart == '' || depFltRangeEnd == '' || prevCountry == '' || nextCountry == '' || effFrom == '' || effTo == ''||arrTerminal==''||depTerminal=='' ) {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertPaxData({ id:selectedObject.id,mct: mct, arrStn: arrStn, depStn: depStn, conxStatus: conxStatus, arrCarrier: arrCarrier, arrCodeShareIND: arrCodeShareIND, arrCodeShareOP: arrCodeShareOP, arrFltRangeStart: arrFltRangeStart, arrFltRangeEnd: arrFltRangeEnd, depCarrier: depCarrier, depCodeShareIND: depCodeShareIND, depCodeShareOP: depCodeShareOP, depFltRangeStart: depFltRangeStart, depFltRangeEnd: depFltRangeEnd, prevCountry: prevCountry, nextCountry: nextCountry, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            } else if (selectedType == "Edit") {
+                props.updatePaxData({ id:selectedObject.id,mct: mct, arrStn: arrStn, depStn: depStn, conxStatus: conxStatus, arrCarrier: arrCarrier, arrCodeShareIND: arrCodeShareIND, arrCodeShareOP: arrCodeShareOP, arrFltRangeStart: arrFltRangeStart, arrFltRangeEnd: arrFltRangeEnd, depCarrier: depCarrier, depCodeShareIND: depCodeShareIND, depCodeShareOP: depCodeShareOP, depFltRangeStart: depFltRangeStart, depFltRangeEnd: depFltRangeEnd, prevCountry: prevCountry, nextCountry: nextCountry, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            }
+        }
+        else if (domain === 'Crew MCT') {
+            if (mct == 0 || crewType == '' || arrStn == '' || conxStatus == '' || depStn == '' || rangeStart == 0 || rangeEnd==0 || effFrom == '' || effTo == '' || arrTerminal== '' || depTerminal == '') {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertCrewData({mct: mct,crewType:crewType,arrStn:arrStn,conxStatus:conxStatus,depStn:depStn,rangeStart:rangeStart,rangeEnd:rangeEnd,effFrom:effFrom,effTo:effTo,arrTerminal:arrTerminal,depTerminal:depTerminal})
+                props.setShowDetail(false)
+            } else if (selectedType == "Edit") {
+                props.updateCrewData({ id:selectedObject.id,mct: mct,crewType:crewType,arrStn:arrStn,conxStatus:conxStatus,depStn:depStn,rangeStart:rangeStart,rangeEnd:rangeEnd,effFrom:effFrom,effTo:effTo,arrTerminal:arrTerminal,depTerminal:depTerminal})
+                props.setShowDetail(false)
+            }
+        }
+    }
+    if (Object.keys(selectedObject)?.length > 0) {
+        if (domain === 'MGT' && aircraftType === '') {
+            setAircraftType(selectedObject?.aircraftType);
+            setfSeatsCapacity(selectedObject?.fseatCapacity);
+            setbSeatsCapacity(selectedObject?.bseatCapacity);
+            seteSeatsCapacity(selectedObject?.eseatCapacity);
+            setOverallPayload(selectedObject?.overallpayload);
+            setCargoPayload(selectedObject?.cargoPayload);
+            setMGT(selectedObject?.mgt);
+        }
+        if (domain === 'Airports' && iata === '' && country === '' && city === '' && airport === '' && region === '' && icao === '') {
+            setIata(selectedObject?.iataCode);
+            setIcao(selectedObject?.icaoCode);
+            setCountry(selectedObject?.Country);
+            setRegion(selectedObject?.region);
+            setCity(selectedObject?.City);
+            setAirport(selectedObject?.Airport);
+        }
+        if (domain === 'Crew MCT' && crewType === '' && arrStn === '' && depStn === '' && conxStatus === '' && effFrom === '' && effTo === '' && arrTerminal === '' && depTerminal === '') {
+            setMct(Number(selectedObject?.mct));
+            setCrewType(selectedObject?.crewtype);
+            setArrStn(selectedObject?.arrstn);
+            setDepStn(selectedObject?.depstn);
+            setConxStatus(selectedObject?.conxstatus);
+            setRangeStart(Number(selectedObject?.rangestart));
+            setRangeEnd(Number(selectedObject?.rangeend));
+            setEffFrom(moment(selectedObject?.efffrom, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setEffTo(moment(selectedObject?.effto, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setArrTerminal(selectedObject?.arrterminal);
+            setDepTerminal(selectedObject?.depterminal);
+        }
+        if (domain === 'PAX MCT' && arrStn === '' && depStn === '') {
+            // {"mct","arrStn","depStn","conxStatus","arrCarrier","arrCodeShareIND","arrCodeShareOP","arrFltRangeStart","arrFltRangeEnd","depCarrier","depCodeShareIND","depCodeShareOP","depFltRangeStart","depFltRangeEnd","prevCountry","nextCountry","effFrom","effTo","arrTerminal","depTerminal"}
+            setMct(selectedObject?.mct);
+            setArrStn(selectedObject?.arrstn);
+            setDepStn(selectedObject?.depstn);
+            setConxStatus(selectedObject?.conxstatus);
+            setArrCarrier(selectedObject?.arrcarrier);
+            setArrCodeShareIND(selectedObject?.arrcodeshareind);
+            setArrCodeShareOP(selectedObject?.arrcodeshareop);
+            setArrFltRangeStart(selectedObject?.arrfltrangestart);
+            setArrFltRangeEnd(selectedObject?.arrfltrangeend);
+            setDepCarrier(selectedObject?.depcarrier);
+            setDepCodeShareIND(selectedObject?.depcodeshareind);
+            setDepCodeShareOP(selectedObject?.depcodeshareop);
+            setDepFltRangeStart(selectedObject?.depfltrangestart);
+            setDepFltRangeEnd(selectedObject?.depfltrangeend);
+            setPrevCountry(selectedObject?.prevcountry);
+            setNextCountry(selectedObject?.nextcountry);
+            setEffFrom(moment(selectedObject?.efffrom, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setEffTo(moment(selectedObject?.effto, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setArrTerminal(selectedObject?.arrterminal);
+            setDepTerminal(selectedObject?.depterminal);
+        }
+    }
+    return (
+        <div style={{ margin: '20px' }}>
+            {domain === 'MGT' ?
+                <div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>Aircraft Type</div>
+                            <input data-testid='AircraftTypeInput' value={aircraftType} disabled={selectedType == "Edit"} placeholder='Enter' onChange={(e) => { setAircraftType(e.target.value) }} className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>F Seats Capacity</div>
+                            <input data-testid='FSeatsCapacityInput' value={fSeatsCapacity} placeholder='Enter' onChange={(e) => { setfSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>B Seats Capacity</div>
+                            <input data-testid='BSeatsCapacityInput' value={bSeatsCapacity} placeholder='Enter' onChange={(e) => { setbSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>E Seats Capacity</div>
+                            <input data-testid='ESeatsCapacityInput' value={eSeatsCapacity} placeholder='Enter' onChange={(e) => { seteSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>Overall Payload</div>
+                            <input data-testid='overallPayloadInput' value={overallPayload} placeholder='Enter' onChange={(e) => { setOverallPayload(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>Cargo Payload</div>
+                            <input data-testid='cargoPayloadInput' value={cargoPayload} placeholder='Enter' onChange={(e) => { setCargoPayload(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>MGT</div>
+                            <input data-testid='MGTInput' value={MGT} placeholder='Enter' onChange={(e) => { setMGT(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <div className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                        <div className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                    </div>
+                </div>
+                : domain === 'Airports' ?
+                    <div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {/* <div>
+                            <div className='addEdit_label_text'>Region</div>
+                            <select data-testid='Select Region' value={region} onChange={(e) => { setRegion(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px',borderColor:Colors.searchBoxBorder }}>
+                                <option>Select Region</option>
+                                {regions?.length > 0 && regions.map((el: any) => {
+                                    return (
+                                        <option value={el}>{el}</option>
+                                    )
+                                })}
+                            </select>
+                        </div> */}
+                            <div>
+                                <div className='addEdit_label_text'>IATA Code</div>
+                                <input value={iata} disabled={selectedType == "Edit"} type='text' placeholder='Enter' className='addEdit_iata_input' onChange={(e: any) => setIata(e.target.value)} style={{ borderColor: Colors.searchBoxBorder }} />
+                            </div>
+                            <div>
+                                <div className='addEdit_label_text'>ICAO Code</div>
+                                <input value={icao} type='text' className='addEdit_iata_input' placeholder='Enter' onChange={(e: any) => setIcao(e.target.value)} style={{ borderColor: Colors.searchBoxBorder }} />
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                            <div>
+                                <div className='addEdit_label_text'>Country</div>
+                                <select data-testid='Select Country' value={country} onChange={(e) => { setCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px', borderColor: Colors.searchBoxBorder }}>
+                                    <option>Select Country</option>
+                                    {countryList?.length > 0 && countryList.map((el: any) => {
+                                        return (
+                                            <option value={el}>{el}</option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                            <div>
+                                <div className='addEdit_label_text'>City</div>
+                                <select value={city} onChange={(e) => { setCity(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px', borderColor: Colors.searchBoxBorder }}>
+                                    <option>Select City</option>
+                                    {cityList?.length > 0 && cityList.map((el: any) => {
+                                        return (
+                                            <option value={el}>{el}</option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '20px', marginBottom: '30px' }}>
+                            <div className='addEdit_label_text'>Airport</div>
+                            <select value={airport} onChange={(e) => { setAirport(e.target.value) }} className='addEdit_drop_down' style={{ width: '600px', borderColor: Colors.searchBoxBorder }}>
+                                <option>Select Airport</option>
+                                {airportList?.length > 0 && airportList.map((el: any) => {
+                                    return (
+                                        <option value={el}>{el}</option>
+                                    )
+                                })}
+                            </select>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <div className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                            <div className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                        </div>
+                    </div>
+                    : domain === 'Crew MCT' ?
+                        <div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>MCT</div>
+                                    <input value={mct} placeholder='Enter' onChange={(e) => { setMct(Number(e.target.value)) }} type='number' className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>Crew Type</div>
+                                    <select value={crewType} onChange={(e) => { setCrewType(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }} >
+                                        <option value={''}>Select</option>
+                                        {crewTypeList?.length > 0 && crewTypeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR STATION</div>
+                                    <select value={arrStn} onChange={(e) => { setArrStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''}>Select</option>
+                                        {origList?.length > 0 && origList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP STATION</div>
+                                    <select value={depStn} onChange={(e) => { setDepStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {destList?.length > 0 && destList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>CONX STATUS</div>
+                                    <select value={conxStatus} onChange={(e) => { setConxStatus(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {CONX_STATUS?.length > 0 && CONX_STATUS.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>RANGE START</div>
+                                    <input value={rangeStart} placeholder='Enter' onChange={(e) => { setRangeStart(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>RANGE END</div>
+                                    <input value={rangeEnd} placeholder='Enter' onChange={(e) => { setRangeEnd(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF FROM</div>
+                                    <input value={effFrom} onChange={(e) =>setEffFrom(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF TO</div>
+                                    <input value={effTo} onChange={(e) => setEffTo(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', marginTop: '10px' }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR TERMINAL</div>
+                                    <input value={arrTerminal} placeholder='Enter' onChange={(e) => { setArrTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP TERMINAL</div>
+                                    <input value={depTerminal} placeholder='Enter' onChange={(e) => { setDepTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                                <div className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                            </div>
+                        </div>
+                        : domain === 'PAX MCT' &&
+                        <div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>MCT</div>
+                                    <input value={mct} placeholder='Enter' onChange={(e) => { setMct(Number(e.target.value)) }} type='number' className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR STN</div>
+                                    <select value={arrStn} onChange={(e) => { setArrStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''} >Select</option>
+                                        {origList?.length > 0 && origList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP STN</div>
+                                    <select value={depStn} onChange={(e) => { setDepStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {destList?.length > 0 && destList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>CONX STATUS</div>
+                                    <select value={conxStatus} onChange={(e) => { setConxStatus(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {CONX_STATUS?.length > 0 && CONX_STATUS.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CARRIER</div>
+                                    <input value={arrCarrier} placeholder='Enter' onChange={(e) => { setArrCarrier(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CODESHARE IND</div>
+                                    <select value={arrCodeShareIND} onChange={(e) => { setArrCodeShareIND(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CODESHARE OP</div>
+                                    <select value={arrCodeShareOP} onChange={(e) => { setArrCodeShareOP(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR FLT RANGE START</div>
+                                    <input value={arrFltRangeStart} placeholder='Enter' onChange={(e) => { setArrFltRangeStart(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR FLT RANGE END</div>
+                                    <input value={arrFltRangeEnd} placeholder='Enter' onChange={(e) => { setArrFltRangeEnd(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CARRIER</div>
+                                    <input value={depCarrier} placeholder='Enter' onChange={(e) => { setDepCarrier(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CODESHARE IND</div>
+                                    <select value={depCodeShareIND} onChange={(e) => { setDepCodeShareIND(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CODESHARE OP</div>
+                                    <select value={depCodeShareOP} onChange={(e) => { setDepCodeShareOP(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP FLT RANGE START</div>
+                                    <input value={depFltRangeStart} placeholder='Enter' onChange={(e) => { setDepFltRangeStart(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP FLT RANGE END</div>
+                                    <input value={depFltRangeEnd} placeholder='Enter' onChange={(e) => { setDepFltRangeEnd(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>PREV COUNTRY</div>
+                                    <select value={prevCountry} onChange={(e) => { setPrevCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '200px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''}>Select</option>
+                                        {countryCodeList?.length > 0 && countryCodeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>NEXT COUNTRY</div>
+                                    <select value={nextCountry} onChange={(e) => { setNextCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '200px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {countryCodeList?.length > 0 && countryCodeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF FROM</div>
+                                    <input value={effFrom} onChange={(e) => setEffFrom(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF TO</div>
+                                    <input value={effTo} onChange={(e) => setEffTo(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>TERMINAL ARR</div>
+                                    <input value={arrTerminal} placeholder='Enter' onChange={(e) => { setArrTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>TERMINAL DEP</div>
+                                    <input value={depTerminal} placeholder='Enter' onChange={(e) => { setDepTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                                <div className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                            </div>
+                        </div>
+            }
         </div>
-        <p>Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur vel illum qui dolorem</p>
-      </div><!-- End Section Title -->
+    )
+}
+const mapStateToProps = (state: any) => { }
+const mapDispatchToProps = {
+    insertMgtData: referenceViewAction.insertMgtData,
+    updateMgtData: referenceViewAction.updateMgtData,
+    retrieveMgtData: referenceViewAction.retrieveMgtData,
+    insertAirportData: referenceViewAction.insertAirportData,
+    updateAirportData: referenceViewAction.updateAirportData,
+    insertPaxData: referenceViewAction.insertPaxData,
+    insertCrewData:referenceViewAction.insertCrewData,
+    updateCrewData:referenceViewAction.updateCrewData,
+    updatePaxData:referenceViewAction.updatePaxData
+}
 
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="isotope-layout" data-default-filter="*" data-layout="masonry" data-sort="original-order">
-
-          <div class="portfolio-filters-container" data-aos="fade-up" data-aos-delay="200">
-            <ul class="portfolio-filters isotope-filters">
-              <li data-filter="*" class="filter-active">All Work</li>
-              <li data-filter=".filter-web">Web Design</li>
-              <li data-filter=".filter-graphics">Graphics</li>
-              <li data-filter=".filter-motion">Motion</li>
-              <li data-filter=".filter-brand">Branding</li>
-            </ul>
-          </div>
-
-          <div class="row g-4 isotope-container" data-aos="fade-up" data-aos-delay="300">
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-web">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-1.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-1.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-web"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Web Design</span>
-                  <h3>Modern Dashboard Interface</h3>
-                  <p>Maecenas faucibus mollis interdum sed posuere consectetur est at lobortis.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-graphics">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-10.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-10.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-graphics"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Graphics</span>
-                  <h3>Creative Brand Identity</h3>
-                  <p>Vestibulum id ligula porta felis euismod semper at vulputate.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-motion">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-7.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-7.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-motion"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Motion</span>
-                  <h3>Product Animation Reel</h3>
-                  <p>Donec ullamcorper nulla non metus auctor fringilla dapibus.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-brand">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-4.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-4.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-brand"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Branding</span>
-                  <h3>Luxury Brand Package</h3>
-                  <p>Aenean lacinia bibendum nulla sed consectetur elit.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-web">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-2.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-2.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-web"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Web Design</span>
-                  <h3>E-commerce Platform</h3>
-                  <p>Nullam id dolor id nibh ultricies vehicula ut id elit.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-            <div class="col-lg-6 col-md-6 portfolio-item isotope-item filter-graphics">
-              <div class="portfolio-card">
-                <div class="portfolio-image">
-                  <img src="assets/img/portfolio/portfolio-11.webp" class="img-fluid" alt="" loading="lazy">
-                  <div class="portfolio-overlay">
-                    <div class="portfolio-actions">
-                      <a href="assets/img/portfolio/portfolio-11.webp" class="glightbox preview-link" data-gallery="portfolio-gallery-graphics"><i class="bi bi-eye"></i></a>
-                      <a href="portfolio-details.html" class="details-link"><i class="bi bi-arrow-right"></i></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="portfolio-content">
-                  <span class="category">Graphics</span>
-                  <h3>Digital Art Collection</h3>
-                  <p>Cras mattis consectetur purus sit amet fermentum.</p>
-                </div>
-              </div>
-            </div><!-- End Portfolio Item -->
-
-          </div><!-- End Portfolio Container -->
-
-        </div>
-
-      </div>
-
-    </section>
+export default connect(mapStateToProps, mapDispatchToProps)(DomainAddEdit);
