@@ -1,3 +1,5 @@
+hh
+
 import moment from 'moment';
 import './addEdit.css';
 import React from 'react';
@@ -214,4 +216,333 @@ const DomainAddEdit = (props: any) => {
                 </div>
                 : domain === 'Airports' ?
                     <div>
-                        <div style={{ display: 'flex', gap
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            {/* <div>
+                            <div className='addEdit_label_text'>Region</div>
+                            <select data-testid='Select Region' value={region} onChange={(e) => { setRegion(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px',borderColor:Colors.searchBoxBorder }}>
+                                <option>Select Region</option>
+                                {regions?.length > 0 && regions.map((el: any) => {
+                                    return (
+                                        <option value={el}>{el}</option>
+                                    )
+                                })}
+                            </select>
+                        </div> */}
+                            <div>
+                                <div className='addEdit_label_text'>IATA Code</div>
+                                <input data-testid='iataInput' value={iata} disabled={selectedType == "Edit"} type='text' placeholder='Enter' className='addEdit_iata_input' onChange={(e: any) => setIata(e.target.value)} style={{ borderColor: Colors.searchBoxBorder }} />
+                            </div>
+                            <div>
+                                <div className='addEdit_label_text'>ICAO Code</div>
+                                <input data-testid='icaoInput' value={icao} type='text' className='addEdit_iata_input' placeholder='Enter' onChange={(e: any) => setIcao(e.target.value)} style={{ borderColor: Colors.searchBoxBorder }} />
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                            <div>
+                                <div className='addEdit_label_text'>Country</div>
+                                <select data-testid='countrySelect' value={country} onChange={(e) => { setCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px', borderColor: Colors.searchBoxBorder }}>
+                                    <option>Select Country</option>
+                                    {countryList?.length > 0 && countryList.map((el: any) => {
+                                        return (
+                                            <option value={el}>{el}</option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                            <div>
+                                <div className='addEdit_label_text'>City</div>
+                                <select data-testid='citySelect' value={city} onChange={(e) => { setCity(e.target.value) }} className='addEdit_drop_down' style={{ width: '250px', borderColor: Colors.searchBoxBorder }}>
+                                    <option>Select City</option>
+                                    {cityList?.length > 0 && cityList.map((el: any) => {
+                                        return (
+                                            <option value={el}>{el}</option>
+                                        )
+                                    })}
+                                </select>
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '20px', marginBottom: '30px' }}>
+                            <div className='addEdit_label_text'>Airport</div>
+                            <select data-testid='airportSelect' value={airport} onChange={(e) => { setAirport(e.target.value) }} className='addEdit_drop_down' style={{ width: '600px', borderColor: Colors.searchBoxBorder }}>
+                                <option>Select Airport</option>
+                                {airportList?.length > 0 && airportList.map((el: any) => {
+                                    return (
+                                        <option value={el}>{el}</option>
+                                    )
+                                })}
+                            </select>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <div data-testid='cancelButton' className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                            <div data-testid='doneButton' className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                        </div>
+                    </div>
+                    : domain === 'Crew MCT' ?
+                        <div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>MCT</div>
+                                    <input data-testid='mctInput' value={mct} placeholder='Enter' onChange={(e) => { setMct(Number(e.target.value)) }} type='number' className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>Crew Type</div>
+                                    <select data-testid='crewTypeSelect' value={crewType} onChange={(e) => { setCrewType(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }} >
+                                        <option value={''}>Select</option>
+                                        {crewTypeList?.length > 0 && crewTypeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR STATION</div>
+                                    <select data-testid='arrStnSelect' value={arrStn} onChange={(e) => { setArrStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''}>Select</option>
+                                        {origList?.length > 0 && origList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP STATION</div>
+                                    <select data-testid='depStnSelect' value={depStn} onChange={(e) => { setDepStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {destList?.length > 0 && destList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>CONX STATUS</div>
+                                    <select data-testid='conxStatusSelect' value={conxStatus} onChange={(e) => { setConxStatus(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {CONX_STATUS?.length > 0 && CONX_STATUS.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>RANGE START</div>
+                                    <input data-testid='rangeStartInput' value={rangeStart} placeholder='Enter' onChange={(e) => { setRangeStart(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>RANGE END</div>
+                                    <input data-testid='rangeEndInput' value={rangeEnd} placeholder='Enter' onChange={(e) => { setRangeEnd(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '10px', marginTop: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF FROM</div>
+                                    <input data-testid='effFromInput' value={effFrom} onChange={(e) => setEffFrom(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF TO</div>
+                                    <input data-testid='effToInput' value={effTo} onChange={(e) => setEffTo(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '20px', marginTop: '10px' }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR TERMINAL</div>
+                                    <input data-testid='arrTerminalInput' value={arrTerminal} placeholder='Enter' onChange={(e) => { setArrTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP TERMINAL</div>
+                                    <input data-testid='depTerminalInput' value={depTerminal} placeholder='Enter' onChange={(e) => { setDepTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div data-testid='cancelButton' className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                                <div data-testid='doneButton' className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                            </div>
+                        </div>
+                        : domain === 'PAX MCT' &&
+                        <div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>MCT</div>
+                                    <input data-testid='mctInput' value={mct} placeholder='Enter' onChange={(e) => { setMct(Number(e.target.value)) }} type='number' className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR STN</div>
+                                    <select data-testid='arrStnSelect' value={arrStn} onChange={(e) => { setArrStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''} >Select</option>
+                                        {origList?.length > 0 && origList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP STN</div>
+                                    <select data-testid='depStnSelect' value={depStn} onChange={(e) => { setDepStn(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {destList?.length > 0 && destList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>CONX STATUS</div>
+                                    <select data-testid='conxStatusSelect' value={conxStatus} onChange={(e) => { setConxStatus(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {CONX_STATUS?.length > 0 && CONX_STATUS.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CARRIER</div>
+                                    <input data-testid='arrCarrierInput' value={arrCarrier} placeholder='Enter' onChange={(e) => { setArrCarrier(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CODESHARE IND</div>
+                                    <select data-testid='arrCodeShareINDSelect' value={arrCodeShareIND} onChange={(e) => { setArrCodeShareIND(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR CODESHARE OP</div>
+                                    <select data-testid='arrCodeShareOPSelect' value={arrCodeShareOP} onChange={(e) => { setArrCodeShareOP(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR FLT RANGE START</div>
+                                    <input data-testid='arrFltRangeStartInput' value={arrFltRangeStart} placeholder='Enter' onChange={(e) => { setArrFltRangeStart(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>ARR FLT RANGE END</div>
+                                    <input data-testid='arrFltRangeEndInput' value={arrFltRangeEnd} placeholder='Enter' onChange={(e) => { setArrFltRangeEnd(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CARRIER</div>
+                                    <input data-testid='depCarrierInput' value={depCarrier} placeholder='Enter' onChange={(e) => { setDepCarrier(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CODESHARE IND</div>
+                                    <select data-testid='depCodeShareINDSelect' value={depCodeShareIND} onChange={(e) => { setDepCodeShareIND(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP CODESHARE OP</div>
+                                    <select data-testid='depCodeShareOPSelect' value={depCodeShareOP} onChange={(e) => { setDepCodeShareOP(e.target.value) }} className='addEdit_drop_down' style={{ width: '120px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {codeShare?.length > 0 && codeShare.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP FLT RANGE START</div>
+                                    <input data-testid='depFltRangeStartInput' value={depFltRangeStart} placeholder='Enter' onChange={(e) => { setDepFltRangeStart(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>DEP FLT RANGE END</div>
+                                    <input data-testid='depFltRangeEndInput' value={depFltRangeEnd} placeholder='Enter' onChange={(e) => { setDepFltRangeEnd(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>PREV COUNTRY</div>
+                                    <select data-testid='prevCountrySelect' value={prevCountry} onChange={(e) => { setPrevCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '200px', borderColor: Colors.searchBoxBorder }}>
+                                        <option value={''}>Select</option>
+                                        {countryCodeList?.length > 0 && countryCodeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>NEXT COUNTRY</div>
+                                    <select data-testid='nextCountrySelect' value={nextCountry} onChange={(e) => { setNextCountry(e.target.value) }} className='addEdit_drop_down' style={{ width: '200px', borderColor: Colors.searchBoxBorder }}>
+                                        <option>Select</option>
+                                        {countryCodeList?.length > 0 && countryCodeList.map((el: any) => {
+                                            return (
+                                                <option value={el}>{el}</option>
+                                            )
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', alignItems: "center" }}>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF FROM</div>
+                                    <input data-testid='effFromInput' value={effFrom} onChange={(e) => setEffFrom(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>EFF TO</div>
+                                    <input data-testid='effToInput' value={effTo} onChange={(e) => setEffTo(e.target.value)} type='date' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>TERMINAL ARR</div>
+                                    <input data-testid='arrTerminalInput' value={arrTerminal} placeholder='Enter' onChange={(e) => { setArrTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                                <div>
+                                    <div className='addEdit_label_text'>TERMINAL DEP</div>
+                                    <input data-testid='depTerminalInput' value={depTerminal} placeholder='Enter' onChange={(e) => { setDepTerminal(e.target.value) }} className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '10px' }}>
+                                <div data-testid='cancelButton' className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                                <div data-testid='doneButton' className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                            </div>
+                        </div>
+            }
+        </div>
+    )
+}
+const mapStateToProps = (state: any) => { }
+const mapDispatchToProps = {
+    insertMgtData: referenceViewAction.insertMgtData,
+    updateMgtData: referenceViewAction.updateMgtData,
+    retrieveMgtData: referenceViewAction.retrieveMgtData,
+    insertAirportData: referenceViewAction.insertAirportData,
+    updateAirportData: referenceViewAction.updateAirportData,
+    insertPaxData: referenceViewAction.insertPaxData,
+    insertCrewData: referenceViewAction.insertCrewData,
+    updateCrewData: referenceViewAction.updateCrewData,
+    updatePaxData: referenceViewAction.updatePaxData
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(DomainAddEdit);
