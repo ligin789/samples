@@ -1,23 +1,13 @@
-  test/screens/home/Home.test.tsx
+FAIL  test/screens/home/Home.test.tsx
   ● Test suite failed to run
 
-    ReferenceError: TextDecoder is not defined
+    jest.setup.ts:5:1 - error TS2322: Type 'typeof TextDecoder' is not assignable to type '{ new (label?: string | undefined, options?: TextDecoderOptions | undefined): TextDecoder; prototype: TextDecoder; }'.
+      The types of 'prototype.decode' are incompatible between these types.
+        Type '(input?: ArrayBufferView | ArrayBuffer | null | undefined, options?: { stream?: boolean | undefined; } | undefined) => string' is not assignable to type '(input?: BufferSource | undefined, options?: TextDecodeOptions | undefined) => string'.
+          Types of parameters 'input' and 'input' are incompatible.
+            Type 'BufferSource | undefined' is not assignable to type 'ArrayBufferView | ArrayBuffer | null | undefined'.
+              Type 'ArrayBufferView' is not assignable to type 'ArrayBufferView | ArrayBuffer | null | undefined'.
+                Type 'ArrayBufferView' is missing the following properties from type 'DataView': getFloat32, getFloat64, getInt8, getInt16, and 17 more.
 
-      1 | /* src/App.js */
-      2 | import { useRef, useEffect, useState } from "react";
-    > 3 | import mapboxgl from "mapbox-gl";
-        | ^
-      4 | import "mapbox-gl/dist/mapbox-gl.css";
-      5 | import "./style.css";
-      6 | import { useDispatch, useSelector, Provider } from "react-redux";
-
-      at node_modules/mapbox-gl/3d-style/util/loaders.ts:241:21
-      at define (node_modules/mapbox-gl/dist/mapbox-gl.js:22:5)
-      at node_modules/mapbox-gl/dist/mapbox-gl.js:36:1
-      at node_modules/mapbox-gl/dist/mapbox-gl.js:3:81
-      at Object.<anonymous> (node_modules/mapbox-gl/dist/mapbox-gl.js:6:3)
-      at Object.<anonymous> (src/components/map/mapbox/index.jsx:3:1)
-      at Object.<anonymous> (src/screens/home/index.tsx:24:1)
-      at Object.<anonymous> (test/screens/home/Home.test.tsx:5:1)
-
-Running coverage on untested files...(node:46720) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+    5 global.TextDecoder= TextDecoder;
+      ~~~~~~~~~~~~~~~~~~
