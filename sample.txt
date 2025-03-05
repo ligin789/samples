@@ -1,13 +1,23 @@
- Test suite failed to run
+  test/screens/home/Home.test.tsx
+  ● Test suite failed to run
 
-    src/components/referenceData/view/index.tsx:82:68 - error TS17001: JSX elements cannot have multiple attributes with the same name.
+    ReferenceError: TextDecoder is not defined
 
-    82                             <div data-testid="AirporthandelDetail" data-testid="MGThandelDetail" className="view_hover_botton" style={{ backgroundColor: Colors.common }} onClick={() => { handelDetail(list) }}><img src={editIcon} />&nbsp;&nbsp;<div>Edit</div></div>
-                                                                          ~~~~~~~~~~~
+      1 | /* src/App.js */
+      2 | import { useRef, useEffect, useState } from "react";
+    > 3 | import mapboxgl from "mapbox-gl";
+        | ^
+      4 | import "mapbox-gl/dist/mapbox-gl.css";
+      5 | import "./style.css";
+      6 | import { useDispatch, useSelector, Provider } from "react-redux";
 
-Running coverage on untested files...(node:46398) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
-Failed to collect coverage from /Users/u2155446/Documents/iocc_dashboard/src/components/referenceData/view/index.tsx
-ERROR: src/components/referenceData/view/index.tsx:82:68 - error TS17001: JSX elements cannot have multiple attributes with the same name.
+      at node_modules/mapbox-gl/3d-style/util/loaders.ts:241:21
+      at define (node_modules/mapbox-gl/dist/mapbox-gl.js:22:5)
+      at node_modules/mapbox-gl/dist/mapbox-gl.js:36:1
+      at node_modules/mapbox-gl/dist/mapbox-gl.js:3:81
+      at Object.<anonymous> (node_modules/mapbox-gl/dist/mapbox-gl.js:6:3)
+      at Object.<anonymous> (src/components/map/mapbox/index.jsx:3:1)
+      at Object.<anonymous> (src/screens/home/index.tsx:24:1)
+      at Object.<anonymous> (test/screens/home/Home.test.tsx:5:1)
 
-82                             <div data-testid="AirporthandelDetail" data-testid="MGThandelDetail" className="view_hover_botton" style={{ backgroundColor: Colors.common }} onClick={() => { handelDetail(list) }}><img src={editIcon} />&nbsp;&nbsp;<div>Edit</div></div>
+Running coverage on untested files...(node:46720) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
