@@ -1,413 +1,217 @@
-import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
-import configureStore from 'redux-mock-store';
-import DomainAddEdit from './DomainAddEdit';
 import moment from 'moment';
+import './addEdit.css';
+import React from 'react';
+import Colors from '../../../global/Color';
+import { referenceViewAction } from '../../../redux/referenceData/action';
+import { connect } from 'react-redux';
 
-const mockStore = configureStore([]);
+const DomainAddEdit = (props: any) => {
+    let { domain, cancelHandel, selectedObject, selectedType } = props;
+    const origList = ['LIS', 'FAO', 'FNC', 'LIS', 'PDL', 'OPD', 'PXO', 'TER'];
+    const destList = ['LIS', 'FAO', 'FNC', 'LIS', 'PDL', 'OPD', 'PXO', 'TER'];
+    const countryList = ['Portugal', 'India'];
+    const cityList = ['Faro', 'Funchal', 'Lisbon'];
+    const airportList = ['Gago Coutinho Airport', 'Cristiano Ronaldo International Airport', 'Humberto Delgado Airport'];
+    const regions = ['Europe', 'America', 'Asia'];
+    const crewTypeList = ['Cabin Crew', 'Flight Crew'];
+    const CONX_STATUS = ['II', 'DD', 'DI', 'ALL'];
+    const countryCodeList = ['GB', 'BR'];
+    const codeShare = ['Y', 'N'];
 
-describe('DomainAddEdit Component', () => {
-    let store;
-    let props;
+    // for MGT domain state
+    const [aircraftType, setAircraftType] = React.useState('');
+    const [fSeatsCapacity, setfSeatsCapacity] = React.useState(0);
+    const [bSeatsCapacity, setbSeatsCapacity] = React.useState(0);
+    const [eSeatsCapacity, seteSeatsCapacity] = React.useState(0);
+    const [overallPayload, setOverallPayload] = React.useState(0);
+    const [cargoPayload, setCargoPayload] = React.useState(0);
+    const [MGT, setMGT] = React.useState(0);
 
-    beforeEach(() => {
-        store = mockStore({});
-        props = {
-            domain: 'MGT',
-            cancelHandel: jest.fn(),
-            selectedObject: {},
-            selectedType: 'Add',
-            insertMgtData: jest.fn(),
-            updateMgtData: jest.fn(),
-            retrieveMgtData: jest.fn(),
-            insertAirportData: jest.fn(),
-            updateAirportData: jest.fn(),
-            insertPaxData: jest.fn(),
-            insertCrewData: jest.fn(),
-            updateCrewData: jest.fn(),
-            updatePaxData: jest.fn(),
-            setShowDetail: jest.fn(),
-        };
-    });
+    // for Airport domain state 
+    const [iata, setIata] = React.useState('');
+    const [icao, setIcao] = React.useState('');
+    const [country, setCountry] = React.useState('');
+    const [region, setRegion] = React.useState('');
+    const [city, setCity] = React.useState('');
+    const [airport, setAirport] = React.useState('');
 
-    test('renders MGT domain form correctly', () => {
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
+    // for Crew MCT domain state
+    const [mct, setMct] = React.useState(0);
+    const [crewType, setCrewType] = React.useState('');
+    const [arrStn, setArrStn] = React.useState('');
+    const [depStn, setDepStn] = React.useState('');
+    const [conxStatus, setConxStatus] = React.useState('');
+    const [rangeStart, setRangeStart] = React.useState(0);
+    const [rangeEnd, setRangeEnd] = React.useState(0);
+    const [effFrom, setEffFrom] = React.useState('');
+    const [effTo, setEffTo] = React.useState('');
+    const [arrTerminal, setArrTerminal] = React.useState('');
+    const [depTerminal, setDepTerminal] = React.useState('');
 
-        expect(screen.getByTestId('AircraftTypeInput')).toBeInTheDocument();
-        expect(screen.getByTestId('FSeatsCapacityInput')).toBeInTheDocument();
-        expect(screen.getByTestId('BSeatsCapacityInput')).toBeInTheDocument();
-        expect(screen.getByTestId('ESeatsCapacityInput')).toBeInTheDocument();
-        expect(screen.getByTestId('overallPayloadInput')).toBeInTheDocument();
-        expect(screen.getByTestId('cargoPayloadInput')).toBeInTheDocument();
-        expect(screen.getByTestId('MGTInput')).toBeInTheDocument();
-    });
+    // for PAX MCT domain state
+    const [arrCarrier, setArrCarrier] = React.useState('');
+    const [arrCodeShareIND, setArrCodeShareIND] = React.useState('');
+    const [arrCodeShareOP, setArrCodeShareOP] = React.useState('');
+    const [arrFltRangeStart, setArrFltRangeStart] = React.useState('');
+    const [arrFltRangeEnd, setArrFltRangeEnd] = React.useState('');
+    const [depCarrier, setDepCarrier] = React.useState('');
+    const [depCodeShareIND, setDepCodeShareIND] = React.useState('');
+    const [depCodeShareOP, setDepCodeShareOP] = React.useState('');
+    const [depFltRangeStart, setDepFltRangeStart] = React.useState('');
+    const [depFltRangeEnd, setDepFltRangeEnd] = React.useState('');
+    const [prevCountry, setPrevCountry] = React.useState('');
+    const [nextCountry, setNextCountry] = React.useState('');
+    const [paxId, setPaxId] = React.useState("")
+    const [crewId, setCrewId] = React.useState("")
 
-    test('handles input changes for MGT domain', () => {
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByTestId('AircraftTypeInput'), { target: { value: 'Boeing 737' } });
-        fireEvent.change(screen.getByTestId('FSeatsCapacityInput'), { target: { value: '100' } });
-        fireEvent.change(screen.getByTestId('BSeatsCapacityInput'), { target: { value: '50' } });
-        fireEvent.change(screen.getByTestId('ESeatsCapacityInput'), { target: { value: '200' } });
-        fireEvent.change(screen.getByTestId('overallPayloadInput'), { target: { value: '5000' } });
-        fireEvent.change(screen.getByTestId('cargoPayloadInput'), { target: { value: '2000' } });
-        fireEvent.change(screen.getByTestId('MGTInput'), { target: { value: '3000' } });
-
-        expect(screen.getByTestId('AircraftTypeInput').value).toBe('Boeing 737');
-        expect(screen.getByTestId('FSeatsCapacityInput').value).toBe('100');
-        expect(screen.getByTestId('BSeatsCapacityInput').value).toBe('50');
-        expect(screen.getByTestId('ESeatsCapacityInput').value).toBe('200');
-        expect(screen.getByTestId('overallPayloadInput').value).toBe('5000');
-        expect(screen.getByTestId('cargoPayloadInput').value).toBe('2000');
-        expect(screen.getByTestId('MGTInput').value).toBe('3000');
-    });
-
-    test('calls insertMgtData when Done is clicked for MGT domain in Add mode', () => {
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByTestId('AircraftTypeInput'), { target: { value: 'Boeing 737' } });
-        fireEvent.change(screen.getByTestId('FSeatsCapacityInput'), { target: { value: '100' } });
-        fireEvent.change(screen.getByTestId('BSeatsCapacityInput'), { target: { value: '50' } });
-        fireEvent.change(screen.getByTestId('ESeatsCapacityInput'), { target: { value: '200' } });
-        fireEvent.change(screen.getByTestId('overallPayloadInput'), { target: { value: '5000' } });
-        fireEvent.change(screen.getByTestId('cargoPayloadInput'), { target: { value: '2000' } });
-        fireEvent.change(screen.getByTestId('MGTInput'), { target: { value: '3000' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.insertMgtData).toHaveBeenCalledWith({
-            aircraftType: 'Boeing 737',
-            fSeatsCapacity: 100,
-            bSeatsCapacity: 50,
-            eSeatsCapacity: 200,
-            overallPayload: 5000,
-            cargoPayload: 2000,
-            MGT: 3000,
-        });
-    });
-
-    test('calls updateMgtData when Done is clicked for MGT domain in Edit mode', () => {
-        props.selectedType = 'Edit';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByTestId('AircraftTypeInput'), { target: { value: 'Boeing 737' } });
-        fireEvent.change(screen.getByTestId('FSeatsCapacityInput'), { target: { value: '100' } });
-        fireEvent.change(screen.getByTestId('BSeatsCapacityInput'), { target: { value: '50' } });
-        fireEvent.change(screen.getByTestId('ESeatsCapacityInput'), { target: { value: '200' } });
-        fireEvent.change(screen.getByTestId('overallPayloadInput'), { target: { value: '5000' } });
-        fireEvent.change(screen.getByTestId('cargoPayloadInput'), { target: { value: '2000' } });
-        fireEvent.change(screen.getByTestId('MGTInput'), { target: { value: '3000' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.updateMgtData).toHaveBeenCalledWith({
-            aircraftType: 'Boeing 737',
-            fSeatsCapacity: 100,
-            bSeatsCapacity: 50,
-            eSeatsCapacity: 200,
-            overallPayload: 5000,
-            cargoPayload: 2000,
-            MGT: 3000,
-        });
-    });
-
-    test('renders Airports domain form correctly', () => {
-        props.domain = 'Airports';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        expect(screen.getByPlaceholderText('Enter')).toBeInTheDocument();
-        expect(screen.getByText('Select Country')).toBeInTheDocument();
-        expect(screen.getByText('Select City')).toBeInTheDocument();
-        expect(screen.getByText('Select Airport')).toBeInTheDocument();
-    });
-
-    test('handles input changes for Airports domain', () => {
-        props.domain = 'Airports';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: 'LIS' } });
-        fireEvent.change(screen.getByText('Select Country'), { target: { value: 'Portugal' } });
-        fireEvent.change(screen.getByText('Select City'), { target: { value: 'Lisbon' } });
-        fireEvent.change(screen.getByText('Select Airport'), { target: { value: 'Humberto Delgado Airport' } });
-
-        expect(screen.getByPlaceholderText('Enter').value).toBe('LIS');
-        expect(screen.getByText('Select Country').value).toBe('Portugal');
-        expect(screen.getByText('Select City').value).toBe('Lisbon');
-        expect(screen.getByText('Select Airport').value).toBe('Humberto Delgado Airport');
-    });
-
-    test('calls insertAirportData when Done is clicked for Airports domain in Add mode', () => {
-        props.domain = 'Airports';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: 'LIS' } });
-        fireEvent.change(screen.getByText('Select Country'), { target: { value: 'Portugal' } });
-        fireEvent.change(screen.getByText('Select City'), { target: { value: 'Lisbon' } });
-        fireEvent.change(screen.getByText('Select Airport'), { target: { value: 'Humberto Delgado Airport' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.insertAirportData).toHaveBeenCalledWith({
-            iata: 'LIS',
-            country: 'Portugal',
-            city: 'Lisbon',
-            airport: 'Humberto Delgado Airport',
-            icao: '',
-        });
-    });
-
-    test('calls updateAirportData when Done is clicked for Airports domain in Edit mode', () => {
-        props.domain = 'Airports';
-        props.selectedType = 'Edit';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: 'LIS' } });
-        fireEvent.change(screen.getByText('Select Country'), { target: { value: 'Portugal' } });
-        fireEvent.change(screen.getByText('Select City'), { target: { value: 'Lisbon' } });
-        fireEvent.change(screen.getByText('Select Airport'), { target: { value: 'Humberto Delgado Airport' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.updateAirportData).toHaveBeenCalledWith({
-            iata: 'LIS',
-            country: 'Portugal',
-            city: 'Lisbon',
-            airport: 'Humberto Delgado Airport',
-            icao: '',
-        });
-    });
-
-    test('renders Crew MCT domain form correctly', () => {
-        props.domain = 'Crew MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        expect(screen.getByPlaceholderText('Enter')).toBeInTheDocument();
-        expect(screen.getByText('Select')).toBeInTheDocument();
-    });
-
-    test('handles input changes for Crew MCT domain', () => {
-        props.domain = 'Crew MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Cabin Crew' } });
-
-        expect(screen.getByPlaceholderText('Enter').value).toBe('60');
-        expect(screen.getByText('Select').value).toBe('Cabin Crew');
-    });
-
-    test('calls insertCrewData when Done is clicked for Crew MCT domain in Add mode', () => {
-        props.domain = 'Crew MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Cabin Crew' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.insertCrewData).toHaveBeenCalledWith({
-            mct: 60,
-            crewType: 'Cabin Crew',
-            arrStn: '',
-            conxStatus: '',
-            depStn: '',
-            rangeStart: 0,
-            rangeEnd: 0,
-            effFrom: '',
-            effTo: '',
-            arrTerminal: '',
-            depTerminal: '',
-        });
-    });
-
-    test('calls updateCrewData when Done is clicked for Crew MCT domain in Edit mode', () => {
-        props.domain = 'Crew MCT';
-        props.selectedType = 'Edit';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Cabin Crew' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.updateCrewData).toHaveBeenCalledWith({
-            id: undefined,
-            mct: 60,
-            crewType: 'Cabin Crew',
-            arrStn: '',
-            conxStatus: '',
-            depStn: '',
-            rangeStart: 0,
-            rangeEnd: 0,
-            effFrom: '',
-            effTo: '',
-            arrTerminal: '',
-            depTerminal: '',
-        });
-    });
-
-    test('renders PAX MCT domain form correctly', () => {
-        props.domain = 'PAX MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        expect(screen.getByPlaceholderText('Enter')).toBeInTheDocument();
-        expect(screen.getByText('Select')).toBeInTheDocument();
-    });
-
-    test('handles input changes for PAX MCT domain', () => {
-        props.domain = 'PAX MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Y' } });
-
-        expect(screen.getByPlaceholderText('Enter').value).toBe('60');
-        expect(screen.getByText('Select').value).toBe('Y');
-    });
-
-    test('calls insertPaxData when Done is clicked for PAX MCT domain in Add mode', () => {
-        props.domain = 'PAX MCT';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Y' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.insertPaxData).toHaveBeenCalledWith({
-            id: undefined,
-            mct: 60,
-            arrStn: '',
-            depStn: '',
-            conxStatus: '',
-            arrCarrier: '',
-            arrCodeShareIND: '',
-            arrCodeShareOP: '',
-            arrFltRangeStart: '',
-            arrFltRangeEnd: '',
-            depCarrier: '',
-            depCodeShareIND: '',
-            depCodeShareOP: '',
-            depFltRangeStart: '',
-            depFltRangeEnd: '',
-            prevCountry: '',
-            nextCountry: '',
-            effFrom: '',
-            effTo: '',
-            arrTerminal: '',
-            depTerminal: '',
-        });
-    });
-
-    test('calls updatePaxData when Done is clicked for PAX MCT domain in Edit mode', () => {
-        props.domain = 'PAX MCT';
-        props.selectedType = 'Edit';
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.change(screen.getByPlaceholderText('Enter'), { target: { value: '60' } });
-        fireEvent.change(screen.getByText('Select'), { target: { value: 'Y' } });
-
-        fireEvent.click(screen.getByText('Done'));
-
-        expect(props.updatePaxData).toHaveBeenCalledWith({
-            id: undefined,
-            mct: 60,
-            arrStn: '',
-            depStn: '',
-            conxStatus: '',
-            arrCarrier: '',
-            arrCodeShareIND: '',
-            arrCodeShareOP: '',
-            arrFltRangeStart: '',
-            arrFltRangeEnd: '',
-            depCarrier: '',
-            depCodeShareIND: '',
-            depCodeShareOP: '',
-            depFltRangeStart: '',
-            depFltRangeEnd: '',
-            prevCountry: '',
-            nextCountry: '',
-            effFrom: '',
-            effTo: '',
-            arrTerminal: '',
-            depTerminal: '',
-        });
-    });
-
-    test('calls cancelHandel when Cancel is clicked', () => {
-        render(
-            <Provider store={store}>
-                <DomainAddEdit {...props} />
-            </Provider>
-        );
-
-        fireEvent.click(screen.getByText('Cancel'));
-
-        expect(props.cancelHandel).toHaveBeenCalled();
-    });
-});
+    const doneHandle: any = () => {
+        if (domain === 'MGT') {
+            console.log("selectedType", selectedType)
+            if (aircraftType == '' || fSeatsCapacity == 0 || bSeatsCapacity == 0 || eSeatsCapacity == 0 || overallPayload == 0 || cargoPayload == 0 || MGT == 0) {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertMgtData({ aircraftType: aircraftType, fSeatsCapacity: fSeatsCapacity, bSeatsCapacity: bSeatsCapacity, eSeatsCapacity: eSeatsCapacity, overallPayload: overallPayload, cargoPayload: cargoPayload, MGT: MGT })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            } else if (selectedType == "Edit") {
+                props.updateMgtData({ aircraftType: aircraftType, fSeatsCapacity: fSeatsCapacity, bSeatsCapacity: bSeatsCapacity, eSeatsCapacity: eSeatsCapacity, overallPayload: overallPayload, cargoPayload: cargoPayload, MGT: MGT })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            }
+        }
+        else if (domain === 'Airports') {
+            if (iata == '' || country == '' || city == '' || airport == '' || icao == '') {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertAirportData({ iata: iata, country: country, city: city, airport: airport, icao: icao })
+                props.setShowDetail(false)
+                // props.retrieveAirportData()
+            } else if (selectedType == "Edit") {
+                props.updateAirportData({ iata: iata, country: country, city: city, airport: airport, icao: icao })
+                props.setShowDetail(false)
+                // props.retrieveMgtData()
+            }
+        } else if (domain === 'PAX MCT') {
+            if (mct == 0 || arrStn == '' || depStn == '' || conxStatus == '' || arrCarrier == '' || arrCodeShareIND == '' || arrCodeShareOP == '' || arrFltRangeStart == '' || arrFltRangeEnd == '' || depCarrier == '' || depCodeShareIND == '' || depCodeShareOP == '' || depFltRangeStart == '' || depFltRangeEnd == '' || prevCountry == '' || nextCountry == '' || effFrom == '' || effTo == '' || arrTerminal == '' || depTerminal == '') {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertPaxData({ id: selectedObject.id, mct: mct, arrStn: arrStn, depStn: depStn, conxStatus: conxStatus, arrCarrier: arrCarrier, arrCodeShareIND: arrCodeShareIND, arrCodeShareOP: arrCodeShareOP, arrFltRangeStart: arrFltRangeStart, arrFltRangeEnd: arrFltRangeEnd, depCarrier: depCarrier, depCodeShareIND: depCodeShareIND, depCodeShareOP: depCodeShareOP, depFltRangeStart: depFltRangeStart, depFltRangeEnd: depFltRangeEnd, prevCountry: prevCountry, nextCountry: nextCountry, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            } else if (selectedType == "Edit") {
+                props.updatePaxData({ id: selectedObject.id, mct: mct, arrStn: arrStn, depStn: depStn, conxStatus: conxStatus, arrCarrier: arrCarrier, arrCodeShareIND: arrCodeShareIND, arrCodeShareOP: arrCodeShareOP, arrFltRangeStart: arrFltRangeStart, arrFltRangeEnd: arrFltRangeEnd, depCarrier: depCarrier, depCodeShareIND: depCodeShareIND, depCodeShareOP: depCodeShareOP, depFltRangeStart: depFltRangeStart, depFltRangeEnd: depFltRangeEnd, prevCountry: prevCountry, nextCountry: nextCountry, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            }
+        }
+        else if (domain === 'Crew MCT') {
+            if (mct == 0 || crewType == '' || arrStn == '' || conxStatus == '' || depStn == '' || rangeStart == 0 || rangeEnd == 0 || effFrom == '' || effTo == '' || arrTerminal == '' || depTerminal == '') {
+                alert("Please enter the valid fields")
+            } else if (selectedType == 'Add') {
+                props.insertCrewData({ mct: mct, crewType: crewType, arrStn: arrStn, conxStatus: conxStatus, depStn: depStn, rangeStart: rangeStart, rangeEnd: rangeEnd, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            } else if (selectedType == "Edit") {
+                props.updateCrewData({ id: selectedObject.id, mct: mct, crewType: crewType, arrStn: arrStn, conxStatus: conxStatus, depStn: depStn, rangeStart: rangeStart, rangeEnd: rangeEnd, effFrom: effFrom, effTo: effTo, arrTerminal: arrTerminal, depTerminal: depTerminal })
+                props.setShowDetail(false)
+            }
+        }
+    }
+    if (Object.keys(selectedObject)?.length > 0) {
+        if (domain === 'MGT' && aircraftType === '') {
+            setAircraftType(selectedObject?.aircraftType);
+            setfSeatsCapacity(selectedObject?.fseatCapacity);
+            setbSeatsCapacity(selectedObject?.bseatCapacity);
+            seteSeatsCapacity(selectedObject?.eseatCapacity);
+            setOverallPayload(selectedObject?.overallpayload);
+            setCargoPayload(selectedObject?.cargoPayload);
+            setMGT(selectedObject?.mgt);
+        }
+        if (domain === 'Airports' && iata === '' && country === '' && city === '' && airport === '' && region === '' && icao === '') {
+            setIata(selectedObject?.iataCode);
+            setIcao(selectedObject?.icaoCode);
+            setCountry(selectedObject?.Country);
+            setRegion(selectedObject?.region);
+            setCity(selectedObject?.City);
+            setAirport(selectedObject?.Airport);
+        }
+        if (domain === 'Crew MCT' && crewType === '' && arrStn === '' && depStn === '' && conxStatus === '' && effFrom === '' && effTo === '' && arrTerminal === '' && depTerminal === '') {
+            setMct(Number(selectedObject?.mct));
+            setCrewType(selectedObject?.crewtype);
+            setArrStn(selectedObject?.arrstn);
+            setDepStn(selectedObject?.depstn);
+            setConxStatus(selectedObject?.conxstatus);
+            setRangeStart(Number(selectedObject?.rangestart));
+            setRangeEnd(Number(selectedObject?.rangeend));
+            setEffFrom(moment(selectedObject?.efffrom, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setEffTo(moment(selectedObject?.effto, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setArrTerminal(selectedObject?.arrterminal);
+            setDepTerminal(selectedObject?.depterminal);
+        }
+        if (domain === 'PAX MCT' && arrStn === '' && depStn === '') {
+            // {"mct","arrStn","depStn","conxStatus","arrCarrier","arrCodeShareIND","arrCodeShareOP","arrFltRangeStart","arrFltRangeEnd","depCarrier","depCodeShareIND","depCodeShareOP","depFltRangeStart","depFltRangeEnd","prevCountry","nextCountry","effFrom","effTo","arrTerminal","depTerminal"}
+            setMct(selectedObject?.mct);
+            setArrStn(selectedObject?.arrstn);
+            setDepStn(selectedObject?.depstn);
+            setConxStatus(selectedObject?.conxstatus);
+            setArrCarrier(selectedObject?.arrcarrier);
+            setArrCodeShareIND(selectedObject?.arrcodeshareind);
+            setArrCodeShareOP(selectedObject?.arrcodeshareop);
+            setArrFltRangeStart(selectedObject?.arrfltrangestart);
+            setArrFltRangeEnd(selectedObject?.arrfltrangeend);
+            setDepCarrier(selectedObject?.depcarrier);
+            setDepCodeShareIND(selectedObject?.depcodeshareind);
+            setDepCodeShareOP(selectedObject?.depcodeshareop);
+            setDepFltRangeStart(selectedObject?.depfltrangestart);
+            setDepFltRangeEnd(selectedObject?.depfltrangeend);
+            setPrevCountry(selectedObject?.prevcountry);
+            setNextCountry(selectedObject?.nextcountry);
+            setEffFrom(moment(selectedObject?.efffrom, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setEffTo(moment(selectedObject?.effto, 'mm/dd/yyyy').format('YYYY-MM-DD'));
+            setArrTerminal(selectedObject?.arrterminal);
+            setDepTerminal(selectedObject?.depterminal);
+        }
+    }
+    return (
+        <div style={{ margin: '20px' }}>
+            {domain === 'MGT' ?
+                <div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>Aircraft Type</div>
+                            <input data-testid='AircraftTypeInput' value={aircraftType} disabled={selectedType == "Edit"} placeholder='Enter' onChange={(e) => { setAircraftType(e.target.value) }} className='addEdit_date_input_big' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>F Seats Capacity</div>
+                            <input data-testid='FSeatsCapacityInput' value={fSeatsCapacity} placeholder='Enter' onChange={(e) => { setfSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>B Seats Capacity</div>
+                            <input data-testid='BSeatsCapacityInput' value={bSeatsCapacity} placeholder='Enter' onChange={(e) => { setbSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>E Seats Capacity</div>
+                            <input data-testid='ESeatsCapacityInput' value={eSeatsCapacity} placeholder='Enter' onChange={(e) => { seteSeatsCapacity(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+                        <div>
+                            <div className='addEdit_label_text'>Overall Payload</div>
+                            <input data-testid='overallPayloadInput' value={overallPayload} placeholder='Enter' onChange={(e) => { setOverallPayload(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>Cargo Payload</div>
+                            <input data-testid='cargoPayloadInput' value={cargoPayload} placeholder='Enter' onChange={(e) => { setCargoPayload(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                        <div>
+                            <div className='addEdit_label_text'>MGT</div>
+                            <input data-testid='MGTInput' value={MGT} placeholder='Enter' onChange={(e) => { setMGT(Number(e.target.value)) }} type='number' className='addEdit_date_input' style={{ borderColor: Colors.searchBoxBorder }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <div data-testid='cancelButton' className='addEdit_cancel' style={{ borderColor: Colors.cancelButtonBorder, color: Colors.themeText }} onClick={() => { cancelHandel() }}>Cancel</div>
+                        <div data-testid='doneButton' className='addEdit_done' style={{ backgroundColor: Colors.common, color: Colors.whiteText, borderColor: Colors.cancelButtonBorder }} onClick={doneHandle}>Done</div>
+                    </div>
+                </div>
+                : domain === 'Airports' ?
+                    <div>
+                        <div style={{ display: 'flex', gap
