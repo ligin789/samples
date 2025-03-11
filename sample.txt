@@ -1,11 +1,519 @@
-TimerSlide Component › renders TimerSlide component
+import React, { useEffect, useMemo, useState } from "react";
+import "./styles.css";
+import Header from "../../components/Header/Header";
+import FocusFlight from "../../components/focusFlights";
+import FirstHeader from "../../components/Header/firstHeader";
+import ReferenceData from "../../components/referenceData";
+import SecondHeader from "../../components/Header/secondHeader";
+import ThirdHeader from "../../components/Header/thirdHeader/index";
+import InfiniteScrollGrid from "../../components/table";
+// import Data from "../../assets/jsons/data.json";
+import FlightFeed from "../../components/flightFeed";
+import Notification from "../../components/notification";
+import { getLocalTimeAndGMT } from "../../utils/GetLocalTime";
 
-    TypeError: (0 , timeConversion_1.localTimezoneConversion)(...).subtract is not a function
+import { referenceViewAction } from '../../redux/referenceData/action'
+import moment from "moment";
+import { useDispatch, useSelector, connect } from "react-redux";
+import { getRequest } from "../../utils/GetRequest";
+import CreateAlert from "../../components/createAlert";
+import AddNotes from "../../components/addNotes";
+import HyperLinkPopup from "../../components/hyperlinkPopUp";
+import CriticalPopup from "../../components/criticalPopup";
+import { useTranslation } from "react-i18next";
+import Map from "../../components/map/mapbox";
+import mapjson from "../../assets/jsons/mapData.json"
+import store from "../../redux/store/store";
 
-      121 |     let currentDateTime: any = localTimezoneConversion().startOf("hour");
-      122 |
-    > 123 |     let startDateTime: any = localTimezoneConversion(currentDateTime).subtract(
-          |                                                                       ^
-      124 |       configurationDetails.timeSlider.startTimer,
-      125 |       "h"
-      126 |     );
+
+const Home = (props: any) => {
+  type TranslationKey = ''
+  const { t, i18n } = useTranslation<TranslationKey>();
+  const menuArray = [t("ioccDiscovery"), t("referenceData"), t("chrono"), t("settings"), t("logout")];
+  const viewArray = [{ name: "Map View", isSelected: true, tKey: "mapView" }, { name: "Gantt View", isSelected: false, tKey: "ganttView" }, { name: "Grid View", isSelected: false, tKey: "gridView" }];
+  const langArray = [{ name: "English", key: "en" }, { name: "Portuguese (Portugal)", key: "pt" }]
+
+  const dispatch = useDispatch();
+  const referenceData = useSelector((state: any) => state?.HomeScreenReducer?.data);
+  const gridData = useSelector((state: any) => state?.FlightReducer?.gridData);
+  const isSearchByPatternError = useSelector((state: any) => state?.HomeScreenReducer?.isSearchByPatternError);
+  const isSearchByPatternComplete = useSelector((state: any) => state?.HomeScreenReducer?.isSearchByPatternComplete);
+  const showLoader = useSelector((state: any) => state?.HomeScreenReducer?.showGridDataLoader)
+  const criticalFlightUpdate = useSelector((state: any) => state?.HomeScreenReducer?.criticalFlightUpdate)
+
+  const [focusClick, setFocusClick] = useState(false);
+  const [displayTime, setDisplayTime] = useState<any>(null);
+  const [isUTCToggled, setIsUTCToggled] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [menuModalDisplay, setMenuModalDisplay] = useState(false);
+  const [gridSelected, setGridSelected] = useState(false);
+
+  const [modalDisplay, setModalDisplay] = useState({ item: "", isSelected: false })
+  const [searchFlightModalDisplay, setsearchFlightModalDisplay] = useState(false);
+  const [ViewFlightModalDisplay, setViewFlightModalDisplay] = useState(false);
+  const [fliterFlightModalDisplay, setFliterFlightModalDisplay] = useState(false);
+  const [addRemoveModalDisplay, setAddRemoveModalDisplay] = useState(false);
+  const [quickMenuModalDisplay, setQuickMenuModalDisplay] = useState(false);
+
+  const [periodMenuModalDisplay, setPeriodMenuModalDisplay] = useState(false);
+  const [depMenuModalDisplay, setDepMenuModalDisplay] = useState(false);
+  const [arrMenuModalDisplay, setArrMenuModalDisplay] = useState(false);
+
+  const [flightFeedClick, setFlightFeedClick] = useState(false);
+  const [notificationClick, setNotificationClick] = useState(false);
+  const [isButtonDisable, setIsButtonDisable] = useState(false)
+  const [selectedCount, setSelectedCount] = useState(0)
+  const [searchPatternText, setSearchPatternText] = useState('')
+  const [userPreference, setUserPreference] = useState<any>({})
+  const [selectedDepartureStation, setSelectedDepartureStation] = useState("ALL");
+  const [selectedArrivalStation, setSelectedArrivalStation] = useState("ALL");
+  const [selectedPeriod, setSelectedPeriod] = useState("2 Hrs");
+  const [selectedStart, setSelectedStart] = useState(moment.utc(new Date()).format('YYYY-MM-DD'));
+  const [selectedEnd, setSelectedEnd] = useState(moment.utc(new Date()).format('YYYY-MM-DD'))
+  const [selectedStartTime, setSelectedStartTime] = useState('00:00')
+  const [selectedEndTime, setSelectedEndTime] = useState('23:59')
+  const [selectedColumnsArray, setSelectedColumnsArray] = useState([])
+  const [selectedColumnsGroupArray, setSelectedColumnsGroupArray] = useState([])
+  const [noOfRowsSelected, setNoOfRowsSelected] = useState(0);
+  const [colSearchText, setColSearchText] = useState('')
+  const [createAlertClicked, setCreateAlertClicked] = useState(false)
+  const [addNotesClicked, setAddNotesClicked] = useState(false)
+  const [criticalPopupVisible, setCriticalPopupVisible] = useState(false)
+  const [flightLinkModal, setFlightLinkModel] = useState(false)
+  const [flightNoValue, setFlightNoValue] = useState(null)
+  const [dropDownIndex, setDropDownIndex] = useState(-1);
+  const [isDateRangeDoneClicked, setIsDateRangeDoneClicked] = useState(false)
+  const [prevSelectedValue, setPrevSelectedValue] = useState('');
+  const [langSelected, setLangSelected] = useState("English")
+  const [menuHoverIndex, setMenuHoverIndex] = useState(-1)
+  const [viewOptions, setViewOption] = useState(viewArray)
+  const [selectedView, setSelectedView] = useState("Map View")
+  const [carrierCodeValue, setCarrierCodeValue] = useState()
+  const [gridDataIdValue, setGridDataIdValue] = useState("")
+  const [flightClicked,setFlightClicked] = useState(false)
+  const [flightClickedData,setFlightClickedData] = useState<any>({})
+  let gate=''
+
+  useEffect(() => {
+    dispatch(referenceViewAction.referenceDataRequest())
+  }, [])
+
+  useEffect(() => {
+    showLoader && handleLoader(false)
+  }, [gridData])
+
+  useEffect(() => {
+    if (referenceData !== null && JSON.stringify(userPreference) !== JSON.stringify(referenceData)) {
+      setUserPreference(referenceData)
+      const filterArr = referenceData?.search_filters || []
+      const requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod })
+      handleGetGridData(requestObj)
+    }
+  }, [referenceData])
+
+  useEffect(() => {
+    if (criticalFlightUpdate) {
+      setTimeout(() => {
+        getGridRequest()
+        store.dispatch({ type: "CHECK_CRITICAL_UPDATE", payload: false })
+      }, 1000)   
+    }
+  }, [criticalFlightUpdate])
+  
+  useEffect(() => {
+    isDateRangeDoneClicked && getGridRequest()
+  }, [isDateRangeDoneClicked])
+
+  useEffect(() => {
+    if (referenceData !== null && selectedPeriod !== 'Custom') {
+      setSearchPatternText("")
+      dispatch(referenceViewAction.updatePatternSearchStatus())
+      getGridRequest()
+    }
+  }, [selectedDepartureStation, selectedArrivalStation, selectedPeriod])
+
+  useEffect(() => {
+    userPreference?.search_filters && getGridRequest();
+  }, [userPreference?.search_filters])
+
+  useEffect(() => {
+    handleDisplayTime()
+    const id = setInterval(() => {
+      handleDisplayTime()
+    }, 1000)
+    // const loaderId = setInterval(() => {
+    //   handleLoader(false)
+    // }, 100)
+    return () => {
+      clearInterval(id);
+      // clearInterval(loaderId)
+    }
+  }, [isUTCToggled]);
+
+  const handleDisplayTime = () => {
+    const iso = new Date().toISOString();
+    const { localStringValue = "", gmtString = "" } = getLocalTimeAndGMT(iso)
+    const val = isUTCToggled ? `LIS  |  UTC ${moment.utc(iso).format('HH:mm')} (${gmtString})` : `LIS  | ${localStringValue} (${gmtString})`
+    setDisplayTime(val);
+  }
+
+  const toggleHover = (index) => {
+    setMenuHoverIndex(index)
+  }
+
+  const handleLoader = (value: boolean) => {
+    dispatch(referenceViewAction.updateLoaderStatus(value))
+  }
+
+  const handleGetGridData = (getDataRequestObj) => {
+    dispatch(referenceViewAction.getGridData(getDataRequestObj))
+  }
+
+  const handleCancel = () => {
+    setNoOfRowsSelected(0)
+  }
+
+  const handleMarkCritical = () => {
+    alert("mark critical clicked")
+  }
+
+  const handleRemoveCritical = () => {
+    alert("Remove critical clicked")
+  }
+
+  const handleDownload = () => {
+    alert("Download Clicked")
+  }
+
+  const handlePatternSearch = () => {
+    if (searchPatternText.trim().length) {
+      dispatch(referenceViewAction.getGridByText({ text: searchPatternText }))
+      return
+    }
+    alert('Please enter some text')
+  }
+
+  const clearPatternSearchError = () => {
+    setSearchPatternText('');
+    dispatch(referenceViewAction.clearPatternSearchError())
+    getGridRequest()
+  }
+
+  const clearPatternSearchErrorWithoutGetGrid = () => {
+    dispatch(referenceViewAction.clearPatternSearchError())
+  }
+
+  const handleCancelPatternSearch = () => {
+    setSearchPatternText('');
+    dispatch(referenceViewAction.updatePatternSearchStatus())
+    getGridRequest()
+  }
+  const changeLanguage = (lng: any) => {
+    i18n.changeLanguage(lng?.key);
+    setLangSelected(lng?.name)
+  };
+  const toggleSidebar = () => {
+    setNotificationClick(false)
+    setFocusClick(!focusClick);
+  };
+  const toggleNotificationClick = () => {
+    setFocusClick(false);
+    setNotificationClick(!notificationClick)
+  };
+
+  const getGridRequest = () => {
+    const filterArr = userPreference?.search_filters || []
+    let requestObj: any = {}
+    if (isDateRangeDoneClicked) {
+      const selectedStartPeriod = moment.utc(selectedStart).format(`YYYY-MM-DDT${selectedStartTime}:00`) + 'Z'
+      const selectedEndPeriod = moment.utc(selectedEnd).format(`YYYY-MM-DDT${selectedEndTime}:00`) + 'Z'
+      const diff = Math.floor(moment(selectedEndPeriod).diff(moment(selectedStartPeriod)) / (1000))
+      if (diff < 1) {
+        alert('End date and time should be greater than start date and time.')
+        return
+      } else {
+        requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod, selectedStartPeriod, selectedEndPeriod })
+      }
+      handleLoader(true)
+      setSelectedStart(moment.utc(new Date()).format('YYYY-MM-DD'))
+      setSelectedEnd(moment.utc(new Date()).format('YYYY-MM-DD'))
+      setSelectedStartTime('00:00')
+      setSelectedEndTime('23:59')
+      handleGetGridData(requestObj)
+      setIsDateRangeDoneClicked(false)
+    } else {
+      handleLoader(true)
+      requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod })
+      handleGetGridData(requestObj)
+    }
+  }
+
+  const handleDoneFlightsBy = (userPreferencefilterOptions: any) => {
+    handleDropDownIndex(-1);
+    setUserPreference(userPreferencefilterOptions);
+  }
+
+  const handleDoneForCustom = () => {
+    setIsDateRangeDoneClicked(true)
+    handleDropDownIndex(-1, true);
+  }
+
+  const handleCancelForCustom = () => {
+    setSelectedPeriod(prevSelectedValue)
+    handleDropDownIndex(-1);
+  }
+
+  const handleResetFlightsBy = () => {
+    setUserPreference((prevState: any) => ({ ...prevState, search_filters: referenceData?.search_filters }))
+  }
+
+  const handleNotesClick = (data: any) => {
+    setAddNotesClicked(true)
+  }
+
+  const handleNotesClose = (data: any) => {
+    setAddNotesClicked(false)
+  }
+
+  const handleDropDownIndex = (index: number, value: boolean = false) => {
+    if (dropDownIndex === 9 && !value) {
+      setSelectedPeriod(prevSelectedValue)
+      const userPreferencePeriodArray = userPreference?.period?.map((item: any) => {
+        return { ...item, isSelected: item?.PERIOD === prevSelectedValue };
+      })
+      setUserPreference((previousState: any) => ({ ...previousState, period: userPreferencePeriodArray }))
+    }
+    setDropDownIndex((prevIndex) => index === prevIndex ? -1 : index)
+    setMenuHoverIndex(-1)
+  }
+  const onClickFlight = (feature: any) => {
+    if (feature.gateNum === gate ) {
+      gate = ''
+      setFlightClicked(false)
+    } else {
+      gate = feature.gateNum
+      setFlightClickedData(feature)
+      setFlightClicked(true)
+    }
+  };
+  const getTabScreenOnSelect = () => {
+    if (selectedTab === 0) {
+      return (
+        <>
+          <SecondHeader
+            isSidebarVisible={focusClick}
+            setSidebarVisible={setFocusClick}
+            notificationVisible={setNotificationClick}
+            setNotificationVisible={setNotificationClick}
+            searchFlightModalDisplay={searchFlightModalDisplay}
+            setsearchFlightModalDisplay={setsearchFlightModalDisplay}
+            periodMenuModalDisplay={periodMenuModalDisplay}
+            setPeriodMenuModalDisplay={setPeriodMenuModalDisplay}
+            depMenuModalDisplay={depMenuModalDisplay}
+            setDepMenuModalDisplay={setDepMenuModalDisplay}
+            arrMenuModalDisplay={arrMenuModalDisplay}
+            setArrMenuModalDisplay={setArrMenuModalDisplay}
+            isToggled={isUTCToggled}
+            setIsUTCToggled={setIsUTCToggled}
+            viewArray={viewArray}
+            userPreference={userPreference}
+            setUserPreference={setUserPreference}
+            handlePatternSearch={handlePatternSearch}
+            searchPatternText={searchPatternText}
+            setSearchPatternText={setSearchPatternText}
+            handleDoneFlightsBy={handleDoneFlightsBy}
+            handleResetFlightsBy={handleResetFlightsBy}
+            selectedDepartureStation={selectedDepartureStation}
+            setSelectedDepartureStation={setSelectedDepartureStation}
+            selectedArrivalStation={selectedArrivalStation}
+            setSelectedArrivalStation={setSelectedArrivalStation}
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+            isSearchByPatternError={isSearchByPatternError}
+            clearPatternSearchError={clearPatternSearchError}
+            clearPatternSearchErrorWithoutGetGrid={clearPatternSearchErrorWithoutGetGrid}
+            isSearchByPatternComplete={isSearchByPatternComplete}
+            handleCancelPatternSearch={handleCancelPatternSearch}
+            selectedStart={selectedStart}
+            setSelectedStart={setSelectedStart}
+            selectedEnd={selectedEnd}
+            setSelectedEnd={setSelectedEnd}
+            selectedStartTime={selectedStartTime}
+            setSelectedStartTime={setSelectedStartTime}
+            selectedEndTime={selectedEndTime}
+            setSelectedEndTime={setSelectedEndTime}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            handleLoader={handleLoader}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            setIsDateRangeDoneClicked={setIsDateRangeDoneClicked}
+            handleDoneForCustom={handleDoneForCustom}
+            handleCancelForCustom={handleCancelForCustom}
+            prevSelectedValue={prevSelectedValue}
+            setPrevSelectedValue={setPrevSelectedValue}
+            toggleSidebar={toggleSidebar}
+            toggleNotificationClick={toggleNotificationClick}
+            viewOptions={viewOptions}
+            setViewOption={setViewOption}
+            setSelectedView={setSelectedView}
+          />
+          <ThirdHeader
+            addRemoveModalDisplay={addRemoveModalDisplay}
+            data={gridData}
+            setAddRemoveModalDisplay={setAddRemoveModalDisplay}
+            quickMenuModalDisplay={quickMenuModalDisplay}
+            setQuickMenuModalDisplay={setQuickMenuModalDisplay}
+            isSidebarVisible={focusClick}
+            userPreference={userPreference}
+            setUserPreference={setUserPreference}
+            gridSelected={gridSelected}
+            setGridSelected={setGridSelected}
+            isButtonDisable={isButtonDisable}
+            selectedCount={selectedCount}
+            noOfRowsSelected={noOfRowsSelected}
+            handleCancel={handleCancel}
+            handleMarkCritical={handleMarkCritical}
+            handleRemoveCritical={handleRemoveCritical}
+            handleDownload={handleDownload}
+            selectedColumnsArray={selectedColumnsArray}
+            setSelectedColumnsArray={setSelectedColumnsArray}
+            selectedColumnsGroupArray={selectedColumnsGroupArray}
+            setSelectedColumnsGroupArray={setSelectedColumnsGroupArray}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            colSearchText={colSearchText}
+            setColSearchText={setColSearchText}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+          />
+          {selectedView == "Grid View" && <InfiniteScrollGrid
+            data={gridData}
+            userPreference={userPreference}
+            noOfRowsSelected={noOfRowsSelected}
+            setNoOfRowsSelected={setNoOfRowsSelected}
+            isUTCToggled={isUTCToggled}
+            setIsUTCToggled={setIsUTCToggled}
+            showLoader={showLoader}
+            handleLoader={handleLoader}
+            handleNotesClick={handleNotesClick}
+            setCriticalPopupVisible={setCriticalPopupVisible}
+            setFlightLinkModel={setFlightLinkModel}
+            flightNoValue={flightNoValue}
+            setFlightFeedClick={setFlightFeedClick}
+            setFlightNoValue={setFlightNoValue}
+            flightLinkModal={flightLinkModal}
+            createAlertClicked={createAlertClicked}
+            setCreateAlertClicked={setCreateAlertClicked}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            carrierCodeValue={carrierCodeValue}
+            setCarrierCodeValue={setCarrierCodeValue}
+            gridDataIdValue={gridDataIdValue}
+            setGridDataIdValue={setGridDataIdValue}
+          />}
+          { selectedView == "Map View" &&  (mapjson ? <div style={{display:"flex",flexDirection:"column"}}>
+          {flightClicked && 
+          <InfiniteScrollGrid 
+          data={[gridData[0]]} 
+          userPreference={userPreference} 
+          noOfRowsSelected={noOfRowsSelected} 
+          setNoOfRowsSelected={setNoOfRowsSelected} 
+          isUTCToggled={isUTCToggled} 
+          setIsUTCToggled={setIsUTCToggled}
+          showLoader={showLoader}
+          handleLoader={handleLoader}
+          handleNotesClick={handleNotesClick}
+          setCriticalPopupVisible={setCriticalPopupVisible}
+          setFlightLinkModel={setFlightLinkModel}
+          flightNoValue={flightNoValue}
+          setFlightFeedClick={setFlightFeedClick}
+          setFlightNoValue={setFlightNoValue}
+          flightLinkModal={flightLinkModal}
+          createAlertClicked={createAlertClicked}
+          setCreateAlertClicked={setCreateAlertClicked}
+          dropDownIndex={dropDownIndex}
+          handleDropDownIndex={handleDropDownIndex}
+          carrierCodeValue={carrierCodeValue}
+          setCarrierCodeValue={setCarrierCodeValue}
+          gridDataIdValue={gridDataIdValue}
+          setGridDataIdValue={setGridDataIdValue}
+          fromscreen={"map"}
+          />
+          }
+          <Map mapData={mapjson} flightClicked={flightClicked} setFlightClicked={setFlightClicked} onClickFlight={onClickFlight}/>
+          </div> 
+          :<div className="noMapDisplay">Map Data is Not Available</div>)}
+          {selectedView == "Gantt View" && <div style={{ height: '100%', width: '100%', zoom: 'var(--zoomPercentage)' }} > Gantt View</div>}
+        </>
+      )
+    } else if (selectedTab === 1) {
+      return (
+        <ReferenceData />
+      )
+    } else if (selectedTab === 2) {
+      return (
+        <div>chrono</div>
+      )
+    } else if (selectedTab == 3) {
+      return (
+        <div>Settings</div>
+      )
+    } else return (<div>logout</div>)
+  }
+  return (
+    <>
+      <div style={{ width: focusClick ? `calc(100% - (400px * var(--zoom)))` : "100%" }}>
+        <div>
+          <FirstHeader
+            isSidebarVisible={focusClick}
+            referenceData={userPreference}
+            selectedTab={selectedTab}
+            setSidebarVisible={setFocusClick}
+            setSelectedTab={setSelectedTab}
+            displayTime={displayTime}
+            menuModalDisplay={menuModalDisplay}
+            setMenuModalDisplay={setMenuModalDisplay}
+            menuArray={menuArray}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            changeLanguage={changeLanguage}
+            langArray={langArray}
+            langSelected={langSelected}
+            toggleHover={toggleHover}
+            menuHoverIndex={menuHoverIndex}
+          />
+          {getTabScreenOnSelect()}
+        </div>
+      </div>
+      {focusClick && (
+        <FocusFlight
+          setFocusClick={setFocusClick}
+          focusClick={focusClick}
+          setFlightFeedClick={setFlightFeedClick}
+        />
+      )}
+      {
+        flightFeedClick && (
+          <FlightFeed setFlightFeedClick={setFlightFeedClick} />
+        )}
+      {criticalPopupVisible && <CriticalPopup setCriticalPopupVisible={setCriticalPopupVisible} flightNoValue={flightNoValue} carrierCodeValue={carrierCodeValue} />}
+      {
+        createAlertClicked && (
+          <CreateAlert setCreateAlertClicked={setCreateAlertClicked} />
+        )}
+      {
+        addNotesClicked && (
+          <AddNotes handleNotesClose={handleNotesClose} />
+        )}
+      {
+        notificationClick && (
+          <Notification setNotificationClick={setNotificationClick} />
+        )}
+    </>
+  );
+};
+
+export default Home
