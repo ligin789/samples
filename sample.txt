@@ -1,540 +1,329 @@
-FocusFlight Component
-    ✕ should render the correct title when in detail view (55 ms)
-    ✓ should render DynamicRender with correct data (4 ms)
-    ✕ should toggle detail view when clicking "Back" button (4 ms)
-    ✕ should trigger flight feed click when the flight feed tab is clicked (6 ms)
-    ✕ should handle task type tab click (5 ms)
-    ✕ should handle activity type tab click (2 ms)
-    ✕ should handle critical flag click (1 ms)
-    ✕ should handle add notes click (1 ms)
-    ✕ should handle next tab selection (3 ms)
-    ✕ should handle previous tab selection (1 ms)
-    ✕ should handle current tab selection (1 ms)
+i will give current notifcation code and its current testcase its only 62 now make it 100%
 
-  ● FocusFlight Component › should render the correct title when in detail view
+import React, { useEffect, useState } from "react";
+import DynamicRender from "../dynamicrenderer";
+import NotificationJson from "../../assets/jsons/notification.json";
+import CloseButton from "../../assets/images/closeButton.svg"
+import "./index.css"
+import { t } from "i18next";
+import Colors from "../../global/Color";
 
-    TestingLibraryElementError: Unable to find an element with the text: /back/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+const Notification = (props: any) => {
+  const [jsonData, setJsonData] = useState(NotificationJson);
+  const [selectedCategoryOption, setSelectedCategoryOption]: any = useState(null);
+  const [filteredArr, setFilteredArr] = useState([])
+  const [snoozeIconClicked, setSnoozeIconClicked] = useState(false)
+  const [selectedStatus, setSelectedStatus] = useState('open')
+  let dropdownData = Array.from(new Set(NotificationJson?.map(item => item?.widgetAttributes?.notificationCategory)))
+  useEffect(() => {
+    let statusFilteredArr: any = jsonData?.filter((item: any) => {
+      if(selectedCategoryOption===null){
+      return item.widgetAttributes.notificationStatus === selectedStatus
+      }else{
+        return item.widgetAttributes.notificationCategory===selectedCategoryOption&&item.widgetAttributes.notificationStatus === selectedStatus
+      }
+      
+    })
+    console.log("statusFilteredArr",statusFilteredArr)
+    setFilteredArr(statusFilteredArr)
+  }, [selectedStatus,jsonData])
 
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
+  const mapFunctions = {
+    closeButtonClick: () => {
+      props.setNotificationClick(false);
+    },
+    acknowledgeIconClick: (data: any) => {
+      let { widgetAttributes, mainListIndex } = data;
+      let array = JSON.parse(JSON.stringify(jsonData))
+      array = array.map((item: any, index: any) => {
+        if (index == mainListIndex) {
+          item.widgetAttributes.acknowledgeIconClicked = true
+        }
+        return item
+      })
+      setJsonData(array);
+    },
+    snoozeIconClick: (data: any) => {
+      let { widgetAttributes, mainListIndex, childComponent } = data;
+      let array = JSON.parse(JSON.stringify(jsonData))
+      array = array.map((item: any, index: any) => {
+        if (index == mainListIndex) {
+          item.widgetAttributes.snoozeIconClicked = true
+        }
+        return item
+      })
+      setJsonData(array);
+    },
+    timeButton: (data: any) => {
+      let { widgetAttributes, mainListIndex } = data;
+      let array = JSON.parse(JSON.stringify(jsonData))
+      array[mainListIndex].widgetAttributes.snoozeIconClicked = false
+      console.log("timebuttondata", data)
+      console.log("array", array)
+      array = array.map((item: any, index: any) => {
+        if (index == mainListIndex) {
+          item.widgetAttributes.selectedTimeValue = data.widgetAttributes.timeValue
+        }
+        return item
+      })
+      setJsonData(array)
+      // array[mainListIndex].widgetAttributes.reminderList = array?.[mainListIndex]?.widgetAttributes?.reminderList.map(
+      //   (remainderElement: any) => {
+      //     remainderElement.isSelected =remainderElement.timeValue === widgetAttributes?.timeValue;
+      //     return remainderElement;
+      //   }
+      // );
+      // setJsonData(array)
+      return array;
+    },
+    resolveButton: (data: any) => {
+      let { widgetAttributes, mainListIndex, childComponent } = data;
+      let array = JSON.parse(JSON.stringify(jsonData))
+      array = array.map((item: any, index: any) => {
+        if (index == mainListIndex) {
+          item.widgetAttributes.notificationStatus = "resolved"
+
+        }
+        return item
+      })
+      setJsonData(array)
+      // childComponent?.children?.map((item:any,index:any)=>{
+      //   if(item.key=="resolveLabel"){
+      //     item.props.text.value="resolved"
+      //   }
+      //   return item
+      // })
+      // return childComponent
+
+    },
+    showMoreButtonClick: (data: any) => {
+      let { widgetAttributes, mainListIndex } = data;
+      let array = JSON.parse(JSON.stringify(jsonData))
+      array = array.map((item: any, index: any) => {
+        if (index == mainListIndex) {
+          item.widgetAttributes.showMoreClicked = !item.widgetAttributes.showMoreClicked
+        }
+        return item
+      })
+      setJsonData(array)
+    }
+  };
+
+  let OpenClickHandler = () => {
+    setSelectedStatus("open")
+  }
+
+  let ResolveClickHandler = () => {
+    setSelectedStatus('resolved')
+  }
+  let closeClickHandler = () => {
+    setSelectedStatus('closed')
+  }
+  const handleCategoryChange = (event: any) => {
+    setSelectedCategoryOption(event.target.value);
+  };
+  const handleStatusChange = (event: any) => {
+    setSelectedStatus(event.target.value);
+  };
+  const handleSnoozeContainer = () => {
+    let array = JSON.parse(JSON.stringify(jsonData))
+    array = jsonData?.map((item: any, index: any) => {
+      item.widgetAttributes.snoozeIconClicked = false
+      return item
+    })
+    setJsonData(array)
+  }
+
+  return (
+    <div style={{ position: "absolute", zIndex: 99, top: "20%", right: "12px", zoom: 'var(--zoomPercentage)' }}>
+      <div className="NotificationView" onClick={(e: any) => { handleSnoozeContainer() }} style={{ background: Colors.notificationsBackground }}>
+        <div className="NotificationHeader">
+          <label className="NotificationLabel" style={{ color: Colors.notificationHeaderTextColor }}>{t("notifications")}</label>
+          <img src={CloseButton} alt="CloseButton" style={{ cursor: "pointer", width: 29, height: 29 }} onClick={() => props.setNotificationClick(false)} />
+        </div>
+        <div className="FilterView">
+          <div className="CategoryFilterView">
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <label htmlFor="dropdown" className="ByCategoryLabel" style={{ color: Colors.notificationFilterLabel }}>
+                {t("byCategory")}
+              </label>
+              <select
+                id="dropdown"
+                value={selectedCategoryOption}
+                onChange={handleCategoryChange}
+                aria-placeholder="Select"
+                className="DropDownSelected"
+              >
+                <option value="" disabled selected hidden>
+                  {t("select")}
+                </option>
+                {
+                  dropdownData?.map((item: any, index: any) => {
+                    return (
+                      <option key={index} value={item?.value}>
+                        {item}
+                      </option>
+                    );
+                  })
+                }
+              </select>
             </div>
           </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
+          <div className="StatusFilterView">
+            <label className="byStatusLabel" style={{ color: Colors.notificationFilterLabel }}>{t("byStatus")}</label>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <div className={selectedStatus == "open" ? "OpenButtonSelected" : "OpenButtonNotSelected"} style={selectedStatus == "open" ? { background: Colors.notificationSelectedButtonColor, color: Colors.notificationSelectedStatusTextColor } : { background: Colors.notificationUnselectedButtonColor, color: Colors.notificationUnSelectedStatusTextColor }} onClick={OpenClickHandler}>
+                <label className="OpenLabel" >{t("open")}</label>
               </div>
+              <div className={selectedStatus == "closed" ? "CloseButtonSelected" : "CloseButtonNotSelected"} style={selectedStatus == "closed" ? { background: Colors.notificationSelectedButtonColor, color: Colors.notificationSelectedStatusTextColor } : { background: Colors.notificationUnselectedButtonColor, color: Colors.notificationUnSelectedStatusTextColor }} onClick={closeClickHandler}>
+                <label className="ClosedLabel" >{t("closed")}</label>
+              </div>
+              <div className={selectedStatus == "resolved" ? "ResolveButtonSelected" : "ResolveButtonNotSelected"} style={selectedStatus == "resolved" ? { background: Colors.notificationSelectedButtonColor, color: Colors.notificationSelectedStatusTextColor } : { background: Colors.notificationUnselectedButtonColor, color: Colors.notificationUnSelectedStatusTextColor }} onClick={ResolveClickHandler}>
+                <label className="ResolvedLabel" >{t("resolved")}</label>
+              </div>
+
             </div>
           </div>
         </div>
-      </div>
-    </body>
+        <div className="ListOuterContainer">
+          {/* {jsonData && selectedStatus == "Open" && jsonData?.map((item: any, index: any) => {
 
-      57 |  
-      58 |     // Set the detail view state to true
-    > 59 |     const backButton = screen.getByText(/back/i);
-         |                               ^
-      60 |     expect(backButton).toBeInTheDocument();
-      61 |  
-      62 |     // Ensure the "Back" button is shown by interacting with it
+            if (selectedCategoryOption == null) {
+              return (
+                item.widgetAttributes.notificationStatus == "open" && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            } else {
+              return (
+                item.widgetAttributes.notificationStatus == "open" && (item.widgetAttributes.notificationCategory == selectedCategoryOption) && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            }
 
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:59:31)
+          })}
+          {jsonData && selectedStatus == "resolved" && jsonData?.map((item: any, index: any) => {
+            if (selectedCategoryOption == null) {
+              return (
+                item.widgetAttributes.notificationStatus == "resolved" && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            } else {
+              return (
+                item.widgetAttributes.notificationStatus == "resolved" && (item.widgetAttributes.notificationCategory == selectedCategoryOption) && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            }
+          })}
+          {jsonData && selectedStatus == "closed" && jsonData?.map((item: any, index: any) => {
+            if (selectedCategoryOption == null) {
+              return (
+                item.widgetAttributes.notificationStatus == "closed" && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            } else {
+              return (
+                item.widgetAttributes.notificationStatus == "closed" && (item.widgetAttributes.notificationCategory == selectedCategoryOption) && <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+              )
+            }
+          })} */}
+          {
+            filteredArr?.length ?
+            jsonData?.map((item: any, index: number) => {
+              if (item.widgetAttributes.notificationStatus === selectedStatus) {
+                return (
+                  (selectedCategoryOption === null) ?
+                    <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} /> :
+                    item.widgetAttributes.notificationCategory === selectedCategoryOption ?
+                      <DynamicRender data={item} mainListIndex={index} mappedFunctions={mapFunctions} />
+                      : null
+                )
+              }
 
-  ● FocusFlight Component › should toggle detail view when clicking "Back" button
+            })
+            : <div style={{ marginTop:"40%",textAlign: "center", color: "#FFFFFF", font: "normal normal normal 19px/15px Roboto" }}>No New Notifications</div>
 
-    TestingLibraryElementError: Unable to find an element with the text: /back/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
+          }
         </div>
       </div>
-    </body>
 
-      83 |     );
-      84 |  
-    > 85 |     const backButton = screen.getByText(/back/i);
-         |                               ^
-      86 |  
-      87 | fireEvent.click(backButton); // Click the "Back" button
-      88 |  
+    </div>
+  );
+};
 
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:85:31)
+export default Notification;
 
-  ● FocusFlight Component › should trigger flight feed click when the flight feed tab is clicked
 
-    expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
-    Expected: true
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import Notification from "../../../src/components/notification";
 
-    Number of calls: 0
+ 
+// Mock props
+const mockSetNotificationClick = jest.fn();
+ 
+// Mock DynamicRender and capture props
+let dynamicRenderProps: any = {};
+ 
+jest.mock("../../../src/components/dynamicrenderer", () => {
+  return jest.fn((props) => {
+    dynamicRenderProps = props;
+    return <div data-testid="dynamic-renderer" />;
+  });
+});
+ 
+describe("Notification Component", () => {
+  beforeEach(() => {
+    render(<Notification setNotificationClick={mockSetNotificationClick} />);
+  });
+ 
+  it("should render the Notification component", () => {
+    expect(screen.getByTestId("dynamic-renderer")).toBeDefined();
+  });
+ 
+  it("should call closeButtonClick and hide notification", () => {
+    dynamicRenderProps.mappedFunctions.closeButtonClick();
+    expect(mockSetNotificationClick).toHaveBeenCalledWith(false);
+  });
+ 
+  it("should mark acknowledgeIconClick as clicked", () => {
+    dynamicRenderProps.mappedFunctions.acknowledgeIconClick({
+      widgetAttributes: {},
+    });
+    expect(dynamicRenderProps.data.widgetAttributes.acknowledgeIconClicked).toBeUndefined();
+  });
+ 
+  it("should update snoozeIconClicked when snoozeIconClick is called", () => {
+    dynamicRenderProps.mappedFunctions.snoozeIconClick({
+      widgetAttributes: { id: 1 },
+    });
+ 
+    const updatedItem = dynamicRenderProps.data.widgetAttributes.list.find(
+(item: any) => item.id === 1
+    );
+    expect(updatedItem.snoozeIconClicked).toBe(true);
+  });
+ 
+  it("should update time selection when timeButton is clicked", () => {
+    dynamicRenderProps.mappedFunctions.timeButton({
+      widgetAttributes: { id: 1, timeValue: "10:00 AM" },
+    });
+ 
+    const updatedItem = dynamicRenderProps.data.widgetAttributes.list.find(
+(item: any) => item.id === 1
+    );
+    expect(updatedItem.snoozeIconClicked).toBe(false);
+ 
+    const selectedReminder = updatedItem.reminderList.find(
+      (reminder: any) => reminder.timeValue === "10:00 AM"
+    );
+    expect(selectedReminder.isSelected).toBe(true);
+  });
+ 
+  it("should log resolveButtonClicked when resolveButton is called", () => {
+    const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+ 
+    dynamicRenderProps.mappedFunctions.resolveButton();
+ 
+    expect(consoleSpy).toHaveBeenCalledWith("resolveButtonClicked");
+ 
+    consoleSpy.mockRestore();
+  });
+});
 
-      113 |  
-      114 |     // Check that setFlightFeedClick and setFocusClick were called with the correct arguments
-    > 115 |     expect(setFlightFeedClickMock).toHaveBeenCalledWith(true);
-          |                                    ^
-      116 |     expect(setFocusClickMock).toHaveBeenCalledWith(false);
-      117 |   });
-      118 |  
 
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:115:36)
-
-  ● FocusFlight Component › should handle task type tab click
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="task-type-tab"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      125 |  
-      126 |     // Simulate task type tab click
-    > 127 |     const taskTypeTab = screen.getByTestId('task-type-tab'); // Adjust the test id as needed
-          |                                ^
-      128 | fireEvent.click(taskTypeTab);
-      129 |  
-      130 |     // Add assertions to check if the state is updated correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:127:32)
-
-  ● FocusFlight Component › should handle activity type tab click
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="activity-type-tab"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      140 |  
-      141 |     // Simulate activity type tab click
-    > 142 |     const activityTypeTab = screen.getByTestId('activity-type-tab'); // Adjust the test id as needed
-          |                                    ^
-      143 | fireEvent.click(activityTypeTab);
-      144 |  
-      145 |     // Add assertions to check if the state is updated correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:142:36)
-
-  ● FocusFlight Component › should handle critical flag click
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="critical-flag"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      155 |  
-      156 |     // Simulate critical flag click
-    > 157 |     const criticalFlag = screen.getByTestId('critical-flag'); // Adjust the test id as needed
-          |                                 ^
-      158 | fireEvent.click(criticalFlag);
-      159 |  
-      160 |     // Add assertions to check if the critical flag is handled correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:157:33)
-
-  ● FocusFlight Component › should handle add notes click
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="add-notes-button"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      170 |  
-      171 |     // Simulate add notes click
-    > 172 |     const addNotesButton = screen.getByTestId('add-notes-button'); // Adjust the test id as needed
-          |                                   ^
-      173 | fireEvent.click(addNotesButton);
-      174 |  
-      175 |     // Add assertions to check if the add notes functionality is handled correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:172:35)
-
-  ● FocusFlight Component › should handle next tab selection
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="next-tab-button"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      185 |  
-      186 |     // Simulate next tab selection
-    > 187 |     const nextTabButton = screen.getByTestId('next-tab-button'); // Adjust the test id as needed
-          |                                  ^
-      188 | fireEvent.click(nextTabButton);
-      189 |  
-      190 |     // Add assertions to check if the next tab is selected correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:187:34)
-
-  ● FocusFlight Component › should handle previous tab selection
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="prev-tab-button"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      200 |  
-      201 |     // Simulate previous tab selection
-    > 202 |     const prevTabButton = screen.getByTestId('prev-tab-button'); // Adjust the test id as needed
-          |                                  ^
-      203 | fireEvent.click(prevTabButton);
-      204 |  
-      205 |     // Add assertions to check if the previous tab is selected correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:202:34)
-
-  ● FocusFlight Component › should handle current tab selection
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="curr-tab-button"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-              data-testid="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-              data-testid="close-button"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      215 |  
-      216 |     // Simulate current tab selection
-    > 217 |     const currTabButton = screen.getByTestId('curr-tab-button'); // Adjust the test id as needed
-          |                                  ^
-      218 | fireEvent.click(currTabButton);
-      219 |  
-      220 |     // Add assertions to check if the current tab is selected correctly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
