@@ -1,356 +1,152 @@
-
-
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { ColDef, RowSelectionOptions, SizeColumnsToContentStrategy, SizeColumnsToFitGridStrategy, SizeColumnsToFitProvidedWidthStrategy } from "ag-grid-community";
-import { AllCommunityModule, ModuleRegistry, themeQuartz } from "ag-grid-community";
-import { AgGridReact } from "ag-grid-react";
-import './styles.css'
-import tableData from '../../assets/jsons/tableDuplicate.json'
-import moment from "moment";
-import { getFormatData } from "../../utils/GetFormatData";
-import CustomNoRowsOverlay from "./noRowData";
-import Loader from "../loader";
-import HyperLinkPopup from "../hyperlinkPopUp";
+import React, { Fragment, useEffect, useState } from "react";
+import "./index.css";
+import ArrowBack from "../../assets/images/arrowBack.svg";
+import Search from "../../assets/images/searchIcon.svg";
+import CrossCircle from "../../assets/images/close-circle.svg";
 import { useTranslation } from "react-i18next";
 import Colors from "../../global/Color";
-import CountdownTimer from "./countdowntimer";
-import { getFlightLegId } from "../../utils/GetFlightLegId";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
-// [
-//   { field: "notes", headerName: "NOTES", cellRenderer: renderNoteCell, sortable: false, headerClass:'notes', cellClass:'notes'},
-//   { field: "criticalIndicator", headerName: "CRITICAL", cellRenderer: renderIsCriticalCell, sortable: false,  headerClass:'critical', cellClass:'critical' },
-//   { field: "ssr", headerName: "SSR", cellRenderer: renderSSRCell, sortable: false},
-//   { field: "carr_IATA", headerName: "CARR (IATA)", headerClass:'carr_iata', cellClass:'carr_iata' },
-//   { field: "aircraft", headerName: "AIRCRAFT" },
-//   { field: "fleet", headerName: "FLEET", cellClass: 'separator', headerClass: 'separator' },
-//   { field: "origin_IB", headerName: "ORIG (IB)" },
-//   { field: "flight_IB", headerName: "FLIGHT (IB)" },
-//   { field: "eta_IB", headerName: "ETA (IB)", cellRenderer: renderDateAndTime },
-//   { field: "arrGate", headerName: "ARR GATE (IB)" },
-//   { field: "flightStatus_IB", headerName: "FLIGHT STATUS (IB)" },
-//   { field: "arrDelay", headerName: "ARR DELAY (IB)", cellRenderer: renderDateAndTime, },
-//   { field: "groundTime", headerName: "GROUND TIME", cellRenderer: renderDateAndTime, cellClass: 'separator', headerClass: 'separator' },
-//   { field: "depGate", headerName: "DEP GATE (OB)" },
-//   { field: "flightStatus_OB", headerName: "FLIGHT STATUS (OB)" },
-//   { field: "flight_OB", headerName: "FLIGHT (OB)" },
-//   { field: "dep_OB", headerName: "DEP (OB)" },
-//   { field: "arr_OB", headerName: "ARR (OB)" },
-//   { field: "schDep_OB", headerName: "SCHED DEP (OB)", cellRenderer: renderDateAndTime },
-//   { field: "etd_act_OB", headerName: "ETD/ACT (OB)", cellRenderer: renderDateAndTime },
-// ]
+const Dropdown2 = ({ userPreference, setUserPreference, setSelectedColumnsArray, colSearchText, setColSearchText,setSelectedColumnsGroupArray,
+  selectedColumnsGroupArray }: any) => {
+  const [expandedGroups, setExpandedGroups] = useState<any>([])
+  const [colData, setColData] = useState(userPreference?.grid_columns)
+  type TranslationKey=''
+  const { t, i18n } = useTranslation<TranslationKey>();
+  
+  useEffect(() => {
+    getSelectedColumn(userPreference?.grid_columns ?? [])
+  }, [userPreference?.grid_columns])
 
+  const toggleSelection = (selectedItemName: string) => {
+    const array = userPreference?.grid_columns ?? [];
+    const isAllSelected = array.find((item: any) => item.name === 'ALL')?.isSelected;
+    const updatedArray = array.map((item: any) => {
+      if (selectedItemName === 'ALL') {
+        const isSelected = !isAllSelected;
+        return { ...item, isSelected: item.isMandatory ? item.isSelected : isSelected, columns: item.columns ? item.columns.map((subItem: any) => ({ ...subItem, isSelected: item.isMandatory && subItem.isMandatory ? subItem.isSelected : isSelected })) : undefined }
+      } else if (item.name === selectedItemName && !item.isMandatory) {
+        const isSelected = !item.isSelected;
+        return { ...item, isSelected, columns: item.columns ? item.columns.map((subItem: any) => ({ ...subItem, isSelected })) : undefined }
+      } else if (item?.columns?.some((subItem: any) => subItem.key === selectedItemName && !subItem.isMandatory)) {
+        const updatedColumns = item.columns.map((subItem: any) => {
+          if (subItem.key === selectedItemName) {
+            return { ...subItem, isSelected: !subItem.isSelected };
+          }
+          return subItem;
+        });
+        return { ...item, columns: updatedColumns, isSelected: !item.isMandatory ? updatedColumns.some((subItem: any) => subItem.isSelected) : item.isSelected };
+      } else if (item.name === 'ALL' && isAllSelected) {
+        return { ...item, isSelected: false };
+      } else {
+        return item
+      }
+    })
 
-
-
-
-const myTheme = themeQuartz.withParams({
-  accentColor: Colors.accentColor,
-  backgroundColor: "#EFF0F4",
-  cellTextColor: Colors.cellTextColor,
-  dataFontSize: 16,
-  fontFamily: {
-    googleFont: "Roboto",
-  },
-  foregroundColor: "#FFFFFF",
-  headerBackgroundColor: Colors.tableColumnHeader,
-  headerFontFamily: {
-    googleFont: "Roboto"
-  },
-  headerTextColor: Colors.tableColumnHeaderText,
-  headerHeight: '55px',
-  headerFontSize: 14,
-  headerFontWeight: 400,
-  oddRowBackgroundColor: "#FFFFFF",
-  spacing: 6,
-  wrapperBorderRadius: 0,
-  rowHoverColor: '#E4EBFF',
-  selectedRowBackgroundColor: 'none',
-  inputFocusBorder: 'none',
-  checkboxUncheckedBorderColor: Colors.tableCheckboxUncheckedBorderColor,
-  checkboxCheckedBorderColor: Colors.tableCheckboxCheckedBorderColor,
-  checkboxCheckedBackgroundColor: Colors.tableCheckBoxCheckedColor,
-  checkboxBorderWidth: 1,
-});
-
-const cellStyle = (param: any) => {
-  const columnHeader = param?.colDef?.headerName
-  const color = param?.data?.[columnHeader]?.color
-  if (color) {
-    return { backgroundColor: color };
-  }
-  return null
-}
-
-
-const InfiniteScrollGrid = (props: any) => {
-  const {
-    data,
-    userPreference,
-    noOfRowsSelected,
-    setNoOfRowsSelected,
-    isUTCToggled,
-    showLoader,
-    handleLoader,
-    handleNotesClick,
-    setCriticalPopupVisible,
-    setFlightLinkModel,
-    flightNoValue,
-    setFlightFeedClick,
-    setFlightNoValue,
-    flightLinkModal,
-    createAlertClicked,
-    setCreateAlertClicked,
-    dropDownIndex,
-    handleDropDownIndex,
-    carrierCodeValue,
-    setCarrierCodeValue,
-    gridDataIdValue,
-    setGridDataIdValue,
-    fromscreen
-  } = props;
-  const gridRef = useRef<AgGridReact>(null);
-  const [rowData, setRowData] = useState<any>([]);
-  const [colDefs, setColDefs] = useState<any>([]);
-  const [columnsToShow, setColumnsToShow] = useState<any>([])
-  const [arrFlights, setArrFlights] = useState(0)
-  const [depFlights, setDepFlights] = useState(0)
-  const [avgTaxiout, setAvgTaxiout] = useState(0)
-  const [avgTaxiin, setAvgTaxiin] = useState(0)
-  const [avgDepartureDelay, setAvgDepartureDelay] = useState(0)
-  const [avgArrivalDelay, setAvgArrivalDelay] = useState(0)
-  const[criticalObject,setCriticalObject]=useState(null)
-  type TranslationKey = '';
-  const { t } = useTranslation<TranslationKey>();
-
-  const defaultColDef: ColDef = {
-    resizable: false,
-    suppressMovable: true,
-    lockPinned: true,
-    maxWidth: 110,
-    minWidth: 50,
-    headerCheckboxSelection: true,
-    loadingCellRenderer: true,
+    const areAllItemsSelected = updatedArray.every(
+      (item: any) => item.name === 'ALL' || (item.isSelected && (!item.columns || item.columns.every((subItem: any) => subItem.isSelected)))
+    );
+    return updatedArray.map((item: any) => {
+      if (item.name === 'ALL') {
+        return { ...item, isSelected: areAllItemsSelected };
+      }
+      return item;
+    });
   };
 
-  const renderIsCriticalCell = (p: any) => {
-    return p.value=="Y" && <img src={require('../../assets/images/critical.png')} alt="note" width={23} height={20} />
+  const handleSelect = (selectedItemName: string) => {
+    const array = toggleSelection(selectedItemName)
+    getSelectedColumn(array)
   }
 
-  useEffect(() => {
-    const { columnDefinition, formatRows, flight_ib = 0, flight_ob = 0, taxiout = 0, taxiin = 0, avgArrDel = 0, avgDepDel = 0 } = getFormatData(data, columnsToShow, isUTCToggled)
-    let formatColumnDefinitions = [];
-    formatColumnDefinitions = columnDefinition?.map((column: any) => {
-      // column.headerName=t(column.tKey).toUpperCase()
-      if (column.cellRenderer === 'renderDateAndTime') {
-        column.cellRenderer = renderDateAndTime;
-        // column.sortable = true;
-        column.comparator = handleSort;
-      } else if (column.cellRenderer === 'linkRenderer') {
-        column.cellRenderer = renderLink;
-      } else if (column.cellRenderer === 'countdownTimer') {
-        column.cellRenderer = renderCountdownTimer
-      }
-
-      if (column.headerName === "NOTES") {
-        column.cellRenderer = renderNoteCell;
-      }
-      if (column.headerName === "CRITICAL") {
-        column.cellRenderer = renderIsCriticalCell;
-      }
-      column.cellStyle = cellStyle;
-      column.sortable = true;
-      return column
-    })
-    setColDefs(formatColumnDefinitions)
-    setRowData(formatRows)
-    setArrFlights(flight_ib)
-    setDepFlights(flight_ob)
-    setAvgTaxiin(taxiin)
-    setAvgTaxiout(taxiout)
-  }, [data, columnsToShow, isUTCToggled])
-
-  useEffect(() => {
-    const columnsArray: string[] = []
-    userPreference?.grid_columns?.forEach((option: any) => {
-      if (option.columns) {
-        option.columns.forEach((subOption: any) => {
-          subOption.isSelected && columnsArray.push(subOption.key)
+  const getSelectedColumn = (array: any = []) => {
+    const arrayOfSelectedOptions: any = []
+    const arrayOfSelectedGroups:any = []
+    array.forEach((item: any) => {
+      if (item?.columns) {
+        item?.columns?.forEach((subItem: any) => {
+          if (subItem.isSelected) {
+            arrayOfSelectedOptions.push(subItem)
+          }
         })
-      } else {
-        if (option.isSelected) {
-          columnsArray.push(option.name)
+        if(item.isSelected){
+          arrayOfSelectedGroups.push(item)
         }
+      } else if (item.isSelected) {
+        arrayOfSelectedOptions.push(item)
+        arrayOfSelectedGroups.push(item)
       }
     })
-    setColumnsToShow(columnsArray)
+    setSelectedColumnsArray(arrayOfSelectedOptions)
+    setSelectedColumnsGroupArray(arrayOfSelectedGroups)
+    setUserPreference((prevState: any) => ({ ...prevState, grid_columns: array }))
+    setColData(array)
+  }
+  const toggleSubOptions = (item: any) => {
+    if (!item.columns) {
+      return
+    }
+    const group = item.name;
+    if (expandedGroups.includes(group)) {
+      setExpandedGroups((prevState: any) => prevState.filter((element: string) => element !== group))
+    } else {
+      setExpandedGroups((prevState: any) => [...prevState, group])
+    }
+  };
+
+  useEffect(() => {
+    const arr = userPreference?.grid_columns?.filter((item: any) => {
+      if (item.name.toLowerCase().includes(colSearchText?.toLowerCase())) {
+        return true
+      }
+      if (item?.columns?.find((subItem: any) => subItem?.key?.toLowerCase()?.includes(colSearchText?.toLowerCase()))) {
+        return true
+      }
+      return false
+    })
+    setColData(arr)
+  }, [colSearchText])
+
+  useEffect(() => {
+    setColData(userPreference?.grid_columns)
   }, [userPreference])
 
-  useEffect(() => {
-    if (noOfRowsSelected === 0) {
-      gridRef?.current?.api?.deselectAll();
-    }
-  }, [noOfRowsSelected])
-
-  const rowSelection = useMemo<RowSelectionOptions | "single" | "multiple">(() => {
-    return {
-      mode: rowData.length ? "multiRow" : "singleRow"
-    };
-  }, [rowData]);
-
-  const autoSizeStrategy = useMemo<| SizeColumnsToFitGridStrategy | SizeColumnsToFitProvidedWidthStrategy | SizeColumnsToContentStrategy>(() => {
-    return {
-      type: "fitCellContents",
-    };
-  }, []);
-
-  const handleSort = (valueA: any, valueB: any) => {
-    if (valueA === '-' && valueB === '-') return 0;
-    if (valueA === '-') return 1;
-    if (valueB === '-') return -1;
-
-    const dateA: any = new Date(valueA);
-    const dateB: any = new Date(valueB);
-
-    if (isNaN(dateA) && isNaN(dateB)) return 0;
-    if (isNaN(dateA)) return 1;
-    if (isNaN(dateB)) return -1;
-
-    return dateA.getTime() - dateB.getTime();
-  }
-
-  const rowClassRules = {
-    'lastRowBorder': (params: any) => {
-      return params.rowIndex === rowData.length - 1
-    },
-  };
-
-  const renderDateAndTime = (p: any) => {
-    if (p.value === '—' || !p.value) {
-      return <span>{'—'}</span>
-    }
-    if (isUTCToggled) {
-      return <span>{moment.utc(p.value).format('HH:mm')}</span>
-    }
-    return <span>{moment(p.value).format('HH:mm')}</span>
-  }
-
-  const renderCountdownTimer = (p: any) => {
-    if (p?.data?.['ETD/ACT (OB)']?.valueLocal || p?.data?.['SCHED DEP (OB)']?.valueLocal) {
-      const [hrs = 0, mins = 0] = moment.utc(moment.utc(p.data['ETD/ACT (OB)'].valueLocal ?? p.data['SCHED DEP (OB)'].valueLocal).diff(moment.utc(new Date()))).format('HH:mm').split(':')
-      return <CountdownTimer hr={hrs} min={mins} sec={0} />
-    }
-    return <span>{"—"}</span>;
-  }
-
-  const renderLink = (p: any) => {
-    const flightNoOnClickHandler = (e: any) => {
-      const flightLegId=getFlightLegId(p.node.rowIndex)
-      setCriticalObject(p?.data["CRITICAL"])
-      setGridDataIdValue(flightLegId)
-      handleDropDownIndex(10)
-      setFlightLinkModel(true)
-      e.stopPropagation()
-      setFlightNoValue(p.value)
-      setCarrierCodeValue(p.data["CARR (IATA)"]?.value)
-    }
-    if (p.value === "—" || !p.value) {
-      return <span>{"—"}</span>;
-    }
-    if (p.colDef.headerName == "FLIGHT (OB)" || p.colDef.headerName == "FLIGHT (IB)") {
-      return (
-        <div onClick={(e: any) => { flightNoOnClickHandler(e) }} style={{ cursor: 'pointer' }}>
-          <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{p.value} </a>
-        </div>
-      );
-    }
-    return (
-      <a href="" style={{ pointerEvents: "none", color: "#0000EE" }}>{p.value} </a>
-    );
-  };
-
-  const onSelectionChanged = (e: any) => {
-    const selectedRows = e.api.getSelectedRows();
-    setNoOfRowsSelected(selectedRows.length)
-  }
-
-  const renderNoteCell = (p: any) => {
-    return p.value.length ?
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: "pointer" }} onClick={() => { handleNotesClick(p) }}>
-        <img src={require('../../assets/images/note.png')} alt="note" width={18} height={20} />
-      </div> :
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: "pointer" }} onClick={() => { handleNotesClick(p) }}>
-        <img src={require('../../assets/images/editPen.png')} alt="note add" width={14} height={13} />
-      </div>
-  }
   return (
-    showLoader ?
-      <Loader /> :
-      <div style={{ height: '100%', width: '100%', zoom:'var(--zoomPercentage)' }} onClick={(e) => { dropDownIndex !== -1 && handleDropDownIndex(-1); }}>
-        <div className="grid" style={fromscreen=="map" ? { height:"115px",scrollbarWidth:"none"}:{}}>
-          <AgGridReact
-            ref={gridRef}
-            theme={myTheme}
-            rowData={rowData}
-            columnDefs={colDefs}
-            defaultColDef={defaultColDef}
-            // autoSizeStrategy={autoSizeStrategy}
-            rowSelection={rowSelection}
-            rowClassRules={rowClassRules}
-            suppressMoveWhenColumnDragging={true}
-            suppressDragLeaveHidesColumns={true}
-            suppressCellFocus={true}
-            onSelectionChanged={onSelectionChanged}
-            // onSortChanged={onSortChanged}
-            noRowsOverlayComponent={CustomNoRowsOverlay}
-          />
-          {flightLinkModal && dropDownIndex === 10 &&
-            <HyperLinkPopup
-              flightNoValue={flightNoValue}
-              carrierCodeValue={carrierCodeValue}
-              setFlightLinkModel={setFlightLinkModel}
-              setCriticalPopupVisible={setCriticalPopupVisible}
-              setFlightFeedClick={setFlightFeedClick}
-              createAlertClicked={createAlertClicked}
-              setCreateAlertClicked={setCreateAlertClicked}
-              gridDataIdValue={gridDataIdValue}
-              criticalObject={criticalObject}
-            />
+    <div className="addRemoveHeaderContainer">
+      <div className="dropdown-content2">
+        <div className="searchboxContainer">
+          <input type="text" className="columnSearch" placeholder="Search" value={colSearchText} onChange={(e) => setColSearchText(e.target.value)} autoComplete={'off'}/>.
+          {colSearchText.length ?
+            <img src={CrossCircle} alt="cross" onClick={() => setColSearchText('')} style={{ width: 16, height: 16 }}/>
+            :
+            <img src={Search} alt="icon" style={{ width: 12, height: 12 }} />
           }
         </div>
-        {fromscreen !=="map" && <div className='tableDetail' style={{ position: 'absolute', bottom: 0, height: 40, width: '100%', backgroundColor: '#FFFFFF', borderTop: '1px solid #B7B7B7', borderBottom: '1px solid #B7B7B7', display: 'flex', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 40 }}>{`${t("totalRecords")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${rowData.length}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("arrFlightsLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${arrFlights}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("depFlightsLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${depFlights}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("avgDepLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${avgDepartureDelay}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("avgArrLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${avgArrivalDelay}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("avgTaxioutLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${avgTaxiout}`}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ fontSize: 16, color: '#5A5A5A', fontWeight: '400', marginLeft: 30 }}>{`${t("avgTaxiinLabel")}`}</span>
-            <span style={{ fontSize: 16, color: '#000000', fontWeight: '600', marginLeft: 5 }}>{`${avgTaxiin}`}</span>
-          </div>
-        </div>
-        }
+        {colData?.map((option: any, index: number) => (
+          <Fragment key={option.name}>
+            <div className={`columnItems ${option.columns ? "withDropdown" : ""}`} style={{alignItems:'center'}}>
+              <label className={`dropDownLabelW ${option.columns?"withChild" : ""}`}>
+                <input data-testid="MenuDropdown2 input" type="checkbox" className="dropDownLabel" style={{accentColor:option.isSelected?Colors.common:Colors.white}}  checked={option.isSelected} onChange={(e) => {handleSelect(option.name);e.stopPropagation()}} />
+                {t(option.tKey).toUpperCase()}
+              </label>
+              {option.columns && (
+                <img src={ArrowBack} onClick={(e) => toggleSubOptions(option)} alt="ArrowBack" style={{ width: 14,  cursor:'pointer' }} className={expandedGroups.includes(option.name) ? 'opposite' : 'normal'} />
+              )}
+            </div>
+            {option.columns && expandedGroups.includes(option.name) && (
+              <div className="sub-options ">
+                {option.columns.map((subOption: any) => (
+                  <label key={subOption.key} className="sub-options-label">
+                    <input type="checkbox" data-testid="inputhandleselectsub" className="dropDownLabelSub" checked={subOption.isSelected} onChange={(e) => handleSelect(subOption.key)} />
+                    {subOption.key}
+                  </label>
+                ))}
+              </div>
+            )}
+          </Fragment>
+        ))}
       </div>
+    </div>
   );
 };
 
-export default InfiniteScrollGrid;
+export default Dropdown2;
