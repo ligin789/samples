@@ -1,21 +1,26 @@
-● Test suite failed to run
+test/components/Notification/index.test.tsx
+  ● Test suite failed to run
 
-    test/components/Notification/index.test.tsx:85:29 - error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+    test/components/Notification/index.test.tsx:25:52 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
 
-    85     expect(categoryDropdown.value).toBe("category1");
-                                   ~~~~~
-    test/components/Notification/index.test.tsx:91:27 - error TS2339: Property 'value' does not exist on type 'HTMLElement'.
+    25     expect(screen.getByTestId("dynamic-renderer")).toBeInTheDocument();
+                                                          ~~~~~~~~~~~~~~~~~
+    test/components/Notification/index.test.tsx:98:24 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
 
-    91     expect(statusDropdown.value).toBe("resolved");
-                                 ~~~~~
-    test/components/Notification/index.test.tsx:97:24 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
-
-    97     expect(openButton).toHaveClass("OpenButtonSelected");
+    98     expect(openButton).toHaveClass("OpenButtonSelected");
                               ~~~~~~~~~~~
-    test/components/Notification/index.test.tsx:103:27 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
+    test/components/Notification/index.test.tsx:104:27 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
 
-    103     expect(resolveButton).toHaveClass("ResolveButtonSelected");
+    104     expect(resolveButton).toHaveClass("ResolveButtonSelected");
                                   ~~~~~~~~~~~
-    test/components/Notification/index.test.tsx:109:25 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
+    test/components/Notification/index.test.tsx:110:25 - error TS2339: Property 'toHaveClass' does not exist on type 'JestMatchers<HTMLElement>'.
 
-    109     expect(closeButton).toHaveClass("CloseButtonSelected");
+    110     expect(closeButton).toHaveClass("CloseButtonSelected");
+                                ~~~~~~~~~~~
+    test/components/Notification/index.test.tsx:116:29 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+
+    116     expect(snoozeContainer).toBeInTheDocument();
+                                    ~~~~~~~~~~~~~~~~~
+    test/components/Notification/index.test.tsx:121:36 - error TS2339: Property 'toBeInTheDocument' does not exist on type 'JestMatchers<HTMLElement>'.
+
+    121     expect(noNotificationsMessage).toBeInTheDocument();
