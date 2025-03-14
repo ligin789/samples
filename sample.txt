@@ -1,114 +1,17 @@
-iocc-dashboard@0.1.0 test
-> jest focusFLights
+FocusFlight Component
+    ✕ should render the correct title when in detail view (55 ms)
+    ✓ should render DynamicRender with correct data (4 ms)
+    ✕ should toggle detail view when clicking "Back" button (4 ms)
+    ✕ should trigger flight feed click when the flight feed tab is clicked (6 ms)
+    ✕ should handle task type tab click (5 ms)
+    ✕ should handle activity type tab click (2 ms)
+    ✕ should handle critical flag click (1 ms)
+    ✕ should handle add notes click (1 ms)
+    ✕ should handle next tab selection (3 ms)
+    ✕ should handle previous tab selection (1 ms)
+    ✕ should handle current tab selection (1 ms)
 
-  console.error
-    Each child in a list should have a unique "key" prop.
-    
-    Check the render method of `FocusFlight`. See https://react.dev/link/warning-keys for more information.
-
-      193 |         <div className='focus-flight-close' onClick={() => props.setFocusClick(!props.focusClick)}>{!detailView && <img src={cross} style={{ width: 29, height: 29 }} />}</div>
-      194 |       </div>
-    > 195 |       <div style={{paddingBottom:"20px"}}>
-          |       ^
-      196 |       {detailView ?
-      197 |         flightJsonTabData?.map((detailData: any, index: any) => {
-      198 |           return (
-
-      at validateExplicitKey (node_modules/react/cjs/react-jsx-runtime.development.js:586:17)
-      at validateChildKeys (node_modules/react/cjs/react-jsx-runtime.development.js:534:38)
-      at jsxDEVImpl (node_modules/react/cjs/react-jsx-runtime.development.js:456:16)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.jsx (node_modules/react/cjs/react-jsx-runtime.development.js:651:14)
-      at FocusFlight (src/components/focusFlights/index.tsx:195:7)
-      at Object.react-stack-bottom-frame (node_modules/react-dom/cjs/react-dom-client.development.js:22428:20)
-      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:5757:22)
-      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:8018:19)
-      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:9683:18)
-      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:543:16)
-      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:15052:22)
-      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:14870:41)
-      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:14850:11)
-      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:14334:13)
-      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:15931:7)
-      at flushActQueue (node_modules/react/cjs/react.development.js:862:34)
-      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:1151:10)
-      at node_modules/@testing-library/react/dist/act-compat.js:47:25
-      at renderRoot (node_modules/@testing-library/react/dist/pure.js:188:26)
-      at render (node_modules/@testing-library/react/dist/pure.js:287:10)
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:63:11)
-
-(node:27806) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
-(Use `node --trace-deprecation ...` to show where the warning was created)
- FAIL  test/components/focusFlights/FocusFlight.test.tsx
-  FocusFlight Component
-    ✕ should render component with correct title initially (62 ms)
-    ✓ should render DynamicRender component (5 ms)
-    ✓ should toggle detail view when clicking on a flight card (10 ms)
-    ✕ should toggle back to flight list when clicking "Back" button (2 ms)
-    ✕ should handle clicking the flight feed tab (4 ms)
-    ✕ should handle mapFunctions: currTabSelected (5 ms)
-    ✕ should handle empty focusFlightData and use default JSON (2 ms)
-    ✕ should handle addNotesClicked function (2 ms)
-    ✕ should handle changing taskTypeTab selection (3 ms)
-    ✕ should handle changing deptTypeTab selection (2 ms)
-    ✕ should handle clicking a detail view card (4 ms)
-    ✕ should show default message when no data is available (3 ms)
-
-  ● FocusFlight Component › should render component with correct title initially
-
-    TestingLibraryElementError: Unable to find an element with the text: /focusFlights/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      67 |     );
-      68 |  
-    > 69 |     expect(screen.getByText(/focusFlights/i)).toBeInTheDocument();
-         |                   ^
-      70 |   });
-      71 |  
-      72 |   it('should render DynamicRender component', () => {
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:69:19)
-
-  ● FocusFlight Component › should toggle back to flight list when clicking "Back" button
+  ● FocusFlight Component › should render the correct title when in detail view
 
     TestingLibraryElementError: Unable to find an element with the text: /back/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
 
@@ -123,9 +26,11 @@ iocc-dashboard@0.1.0 test
           >
             <div
               class="focus-flight-title"
+              data-testid="focus-flight-title"
             />
             <div
               class="focus-flight-close"
+              data-testid="close-button"
             >
               <img
                 style="width: 29px; height: 29px;"
@@ -149,21 +54,78 @@ iocc-dashboard@0.1.0 test
       </div>
     </body>
 
-      100 |     );
-      101 |  
-    > 102 |     const backButton = screen.getByText(/back/i);
-          |                               ^
-      103 | fireEvent.click(backButton); // Click back button
-      104 |  
-      105 |     expect(screen.getByText(/focusFlights/i)).toBeInTheDocument();
+      57 |  
+      58 |     // Set the detail view state to true
+    > 59 |     const backButton = screen.getByText(/back/i);
+         |                               ^
+      60 |     expect(backButton).toBeInTheDocument();
+      61 |  
+      62 |     // Ensure the "Back" button is shown by interacting with it
 
       at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
       at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
       at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:102:31)
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:59:31)
 
-  ● FocusFlight Component › should handle clicking the flight feed tab
+  ● FocusFlight Component › should toggle detail view when clicking "Back" button
+
+    TestingLibraryElementError: Unable to find an element with the text: /back/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="focus-flightContainer"
+        >
+          <div
+            class="focus-flight-title-container"
+          >
+            <div
+              class="focus-flight-title"
+              data-testid="focus-flight-title"
+            />
+            <div
+              class="focus-flight-close"
+              data-testid="close-button"
+            >
+              <img
+                style="width: 29px; height: 29px;"
+              />
+            </div>
+          </div>
+          <div
+            style="padding-bottom: 20px;"
+          >
+            <div
+              data-testid="flight-feed-tab"
+            >
+              <div
+                data-testid="dynamic-render-mock"
+              >
+                Dynamic Render
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+
+      83 |     );
+      84 |  
+    > 85 |     const backButton = screen.getByText(/back/i);
+         |                               ^
+      86 |  
+      87 | fireEvent.click(backButton); // Click the "Back" button
+      88 |  
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:85:31)
+
+  ● FocusFlight Component › should trigger flight feed click when the flight feed tab is clicked
 
     expect(jest.fn()).toHaveBeenCalledWith(...expected)
 
@@ -171,51 +133,19 @@ iocc-dashboard@0.1.0 test
 
     Number of calls: 0
 
-      124 | fireEvent.click(flightFeedTab);
-      125 |  
-    > 126 |     expect(setFlightFeedClickMock).toHaveBeenCalledWith(true);
+      113 |  
+      114 |     // Check that setFlightFeedClick and setFocusClick were called with the correct arguments
+    > 115 |     expect(setFlightFeedClickMock).toHaveBeenCalledWith(true);
           |                                    ^
-      127 |     expect(setFocusClickMock).toHaveBeenCalledWith(false);
-      128 |   });
-      129 |  
+      116 |     expect(setFocusClickMock).toHaveBeenCalledWith(false);
+      117 |   });
+      118 |  
 
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:126:36)
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:115:36)
 
-  ● FocusFlight Component › should handle mapFunctions: currTabSelected
+  ● FocusFlight Component › should handle task type tab click
 
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 2
-    + Received  + 6
-
-      Array [
-        Object {
-    -     "mainListIndex": 0,
-          "widgetAttributes": Object {
-    -       "defaltSelected": "curr",
-    +       "defaltSelected": "prev",
-    +       "taskType": "All",
-    +     },
-    +     "widgetTemplate": Object {
-    +       "cardView": Object {},
-    +       "detailView": Object {},
-          },
-        },
-      ]
-
-      147 |     store.dispatch(action);
-      148 |  
-    > 149 |     expect(store.getState().FlightReducer.flightDetailData).toEqual([widgetData]);
-          |                                                             ^
-      150 |   });
-      151 |  
-      152 |   it('should handle empty focusFlightData and use default JSON', () => {
-
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:149:61)
-
-  ● FocusFlight Component › should handle empty focusFlightData and use default JSON
-
-    TestingLibraryElementError: Unable to find an element with the text: /focusFlights/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+    TestingLibraryElementError: Unable to find an element by: [data-testid="task-type-tab"]
 
     Ignored nodes: comments, script, style
     <body>
@@ -228,9 +158,11 @@ iocc-dashboard@0.1.0 test
           >
             <div
               class="focus-flight-title"
+              data-testid="focus-flight-title"
             />
             <div
               class="focus-flight-close"
+              data-testid="close-button"
             >
               <img
                 style="width: 29px; height: 29px;"
@@ -249,24 +181,54 @@ iocc-dashboard@0.1.0 test
                 Dynamic Render
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </body>
+
+      125 |  
+      126 |     // Simulate task type tab click
+    > 127 |     const taskTypeTab = screen.getByTestId('task-type-tab'); // Adjust the test id as needed
+          |                                ^
+      128 | fireEvent.click(taskTypeTab);
+      129 |  
+      130 |     // Add assertions to check if the state is updated correctly
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:127:32)
+
+  ● FocusFlight Component › should handle activity type tab click
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="activity-type-tab"]
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="focus-flightContainer"
+        >
+          <div
+            class="focus-flight-title-container"
+          >
             <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
+              class="focus-flight-title"
+              data-testid="focus-flight-title"
+            />
             <div
-              data-testid="flight-feed-tab"
+              class="focus-flight-close"
+              data-testid="close-button"
             >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
+              <img
+                style="width: 29px; height: 29px;"
+              />
             </div>
+          </div>
+          <div
+            style="padding-bottom: 20px;"
+          >
             <div
               data-testid="flight-feed-tab"
             >
@@ -281,23 +243,23 @@ iocc-dashboard@0.1.0 test
       </div>
     </body>
 
-      159 |     );
-      160 |  
-    > 161 |     expect(screen.getByText(/focusFlights/i)).toBeInTheDocument();
-          |                   ^
-      162 |   });
-      163 |  
-      164 |   it('should handle addNotesClicked function', () => {
+      140 |  
+      141 |     // Simulate activity type tab click
+    > 142 |     const activityTypeTab = screen.getByTestId('activity-type-tab'); // Adjust the test id as needed
+          |                                    ^
+      143 | fireEvent.click(activityTypeTab);
+      144 |  
+      145 |     // Add assertions to check if the state is updated correctly
 
       at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
       at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
       at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:161:19)
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:142:36)
 
-  ● FocusFlight Component › should handle addNotesClicked function
+  ● FocusFlight Component › should handle critical flag click
 
-    TestingLibraryElementError: Unable to find an element with the text: /notesClicked/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+    TestingLibraryElementError: Unable to find an element by: [data-testid="critical-flag"]
 
     Ignored nodes: comments, script, style
     <body>
@@ -310,9 +272,68 @@ iocc-dashboard@0.1.0 test
           >
             <div
               class="focus-flight-title"
+              data-testid="focus-flight-title"
             />
             <div
               class="focus-flight-close"
+              data-testid="close-button"
+            >
+              <img
+                style="width: 29px; height: 29px;"
+              />
+            </div>
+          </div>
+          <div
+            style="padding-bottom: 20px;"
+          >
+            <div
+              data-testid="flight-feed-tab"
+            >
+              <div
+                data-testid="dynamic-render-mock"
+              >
+                Dynamic Render
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+
+      155 |  
+      156 |     // Simulate critical flag click
+    > 157 |     const criticalFlag = screen.getByTestId('critical-flag'); // Adjust the test id as needed
+          |                                 ^
+      158 | fireEvent.click(criticalFlag);
+      159 |  
+      160 |     // Add assertions to check if the critical flag is handled correctly
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:157:33)
+
+  ● FocusFlight Component › should handle add notes click
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="add-notes-button"]
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="focus-flightContainer"
+        >
+          <div
+            class="focus-flight-title-container"
+          >
+            <div
+              class="focus-flight-title"
+              data-testid="focus-flight-title"
+            />
+            <div
+              class="focus-flight-close"
+              data-testid="close-button"
             >
               <img
                 style="width: 29px; height: 29px;"
@@ -337,187 +358,22 @@ iocc-dashboard@0.1.0 test
     </body>
 
       170 |  
-      171 |     global.alert = jest.fn();
-    > 172 |     const noteButton = screen.getByText(/notesClicked/i); // Adjust based on the actual button text
-          |                               ^
-      173 | fireEvent.click(noteButton);
-      174 |  
-      175 |     expect(global.alert).toHaveBeenCalled();
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:172:31)
-
-  ● FocusFlight Component › should handle changing taskTypeTab selection
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="task-type-tab"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      183 |     );
-      184 |  
-    > 185 |     const taskTypeTab = screen.getByTestId('task-type-tab'); // Adjust the test ID as needed
-          |                                ^
-      186 | fireEvent.click(taskTypeTab);
-      187 |  
-      188 |     // Validate that the state changes accordingly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:185:32)
-
-  ● FocusFlight Component › should handle changing deptTypeTab selection
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="dept-type-tab"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      197 |     );
-      198 |  
-    > 199 |     const deptTypeTab = screen.getByTestId('dept-type-tab'); // Adjust the test ID as needed
-          |                                ^
-      200 | fireEvent.click(deptTypeTab);
-      201 |  
-      202 |     // Validate that the state changes accordingly
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:199:32)
-
-  ● FocusFlight Component › should handle clicking a detail view card
-
-    TestingLibraryElementError: Unable to find an element by: [data-testid="detail-view-card"]
-
-    Ignored nodes: comments, script, style
-    <body>
-      <div>
-        <div
-          class="focus-flightContainer"
-        >
-          <div
-            class="focus-flight-title-container"
-          >
-            <div
-              class="focus-flight-title"
-            />
-            <div
-              class="focus-flight-close"
-            >
-              <img
-                style="width: 29px; height: 29px;"
-              />
-            </div>
-          </div>
-          <div
-            style="padding-bottom: 20px;"
-          >
-            <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </body>
-
-      211 |     );
-      212 |  
-    > 213 |     const detailViewCard = screen.getByTestId('detail-view-card'); // Adjust test ID
+      171 |     // Simulate add notes click
+    > 172 |     const addNotesButton = screen.getByTestId('add-notes-button'); // Adjust the test id as needed
           |                                   ^
-      214 | fireEvent.click(detailViewCard);
-      215 |  
-      216 |     expect(screen.getByText(/back/i)).toBeInTheDocument(); // "Back" button should be visible
+      173 | fireEvent.click(addNotesButton);
+      174 |  
+      175 |     // Add assertions to check if the add notes functionality is handled correctly
 
       at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
       at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
       at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:213:35)
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:172:35)
 
-  ● FocusFlight Component › should show default message when no data is available
+  ● FocusFlight Component › should handle next tab selection
 
-    TestingLibraryElementError: Unable to find an element with the text: /no data available/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+    TestingLibraryElementError: Unable to find an element by: [data-testid="next-tab-button"]
 
     Ignored nodes: comments, script, style
     <body>
@@ -530,9 +386,11 @@ iocc-dashboard@0.1.0 test
           >
             <div
               class="focus-flight-title"
+              data-testid="focus-flight-title"
             />
             <div
               class="focus-flight-close"
+              data-testid="close-button"
             >
               <img
                 style="width: 29px; height: 29px;"
@@ -551,24 +409,54 @@ iocc-dashboard@0.1.0 test
                 Dynamic Render
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </body>
+
+      185 |  
+      186 |     // Simulate next tab selection
+    > 187 |     const nextTabButton = screen.getByTestId('next-tab-button'); // Adjust the test id as needed
+          |                                  ^
+      188 | fireEvent.click(nextTabButton);
+      189 |  
+      190 |     // Add assertions to check if the next tab is selected correctly
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:187:34)
+
+  ● FocusFlight Component › should handle previous tab selection
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="prev-tab-button"]
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="focus-flightContainer"
+        >
+          <div
+            class="focus-flight-title-container"
+          >
             <div
-              data-testid="flight-feed-tab"
-            >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
-            </div>
+              class="focus-flight-title"
+              data-testid="focus-flight-title"
+            />
             <div
-              data-testid="flight-feed-tab"
+              class="focus-flight-close"
+              data-testid="close-button"
             >
-              <div
-                data-testid="dynamic-render-mock"
-              >
-                Dynamic Render
-              </div>
+              <img
+                style="width: 29px; height: 29px;"
+              />
             </div>
+          </div>
+          <div
+            style="padding-bottom: 20px;"
+          >
             <div
               data-testid="flight-feed-tab"
             >
@@ -583,15 +471,70 @@ iocc-dashboard@0.1.0 test
       </div>
     </body>
 
-      229 |     );
-      230 |  
-    > 231 |     expect(screen.getByText(/no data available/i)).toBeInTheDocument();
-          |                   ^
-      232 |   });
-      233 | });
+      200 |  
+      201 |     // Simulate previous tab selection
+    > 202 |     const prevTabButton = screen.getByTestId('prev-tab-button'); // Adjust the test id as needed
+          |                                  ^
+      203 | fireEvent.click(prevTabButton);
+      204 |  
+      205 |     // Add assertions to check if the previous tab is selected correctly
 
       at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
       at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
       at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
       at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
-      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:231:19)
+      at Object.<anonymous> (test/components/focusFlights/FocusFlight.test.tsx:202:34)
+
+  ● FocusFlight Component › should handle current tab selection
+
+    TestingLibraryElementError: Unable to find an element by: [data-testid="curr-tab-button"]
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <div
+          class="focus-flightContainer"
+        >
+          <div
+            class="focus-flight-title-container"
+          >
+            <div
+              class="focus-flight-title"
+              data-testid="focus-flight-title"
+            />
+            <div
+              class="focus-flight-close"
+              data-testid="close-button"
+            >
+              <img
+                style="width: 29px; height: 29px;"
+              />
+            </div>
+          </div>
+          <div
+            style="padding-bottom: 20px;"
+          >
+            <div
+              data-testid="flight-feed-tab"
+            >
+              <div
+                data-testid="dynamic-render-mock"
+              >
+                Dynamic Render
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </body>
+
+      215 |  
+      216 |     // Simulate current tab selection
+    > 217 |     const currTabButton = screen.getByTestId('curr-tab-button'); // Adjust the test id as needed
+          |                                  ^
+      218 | fireEvent.click(currTabButton);
+      219 |  
+      220 |     // Add assertions to check if the current tab is selected correctly
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
