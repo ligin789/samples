@@ -1,22 +1,5 @@
- iocc-dashboard@0.1.0 test
-> jest SliderWithAnomalies
+  could not find react-redux context value; please ensure the component is wrapped in a <Provider>
 
- FAIL  test/components/SliderWithAnomalies/index.test.tsx
-  ● Test suite failed to run
-
-    test/components/SliderWithAnomalies/index.test.tsx:29:17 - error TS2339: Property 'getByClassName' does not exist on type 'Screen<typeof import("/Users/u2155446/Documents/IOCC/iocc-dashboard/node_modules/@testing-library/dom/types/queries")>'.
-
-    29   expect(screen.getByClassName('time-interval-text')).toBeInTheDocument();
-                       ~~~~~~~~~~~~~~
-    test/components/SliderWithAnomalies/index.test.tsx:34:28 - error TS2339: Property 'getByClassName' does not exist on type 'Screen<typeof import("/Users/u2155446/Documents/IOCC/iocc-dashboard/node_modules/@testing-library/dom/types/queries")>'.
-
-    34   const scrollDiv = screen.getByClassName('time-interval-text');
-                                  ~~~~~~~~~~~~~~
-    test/components/SliderWithAnomalies/index.test.tsx:51:25 - error TS2339: Property 'getAllByClassName' does not exist on type 'Screen<typeof import("/Users/u2155446/Documents/IOCC/iocc-dashboard/node_modules/@testing-library/dom/types/queries")>'.
-
-    51   const labels = screen.getAllByClassName('labelText');
-                               ~~~~~~~~~~~~~~~~~
-    test/components/SliderWithAnomalies/index.test.tsx:65:17 - error TS2339: Property 'getAllByClassName' does not exist on type 'Screen<typeof import("/Users/u2155446/Documents/IOCC/iocc-dashboard/node_modules/@testing-library/dom/types/queries")>'.
-
-    65   expect(screen.getAllByClassName('innerdiv').length).toBe(newActualTiming.length);
-                       ~~~~~~~~~~~~~~~~~
+      11 |   const [coloredTiming, setcoloredTiming] = useState<any>();
+      12 |   const [disableAutoUpdate, setdisableAutoUpdate] = useState<boolean>(false);
+    > 13 |   const dispatch = useDispatch();
