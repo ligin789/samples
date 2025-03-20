@@ -1,14 +1,29 @@
-java -version
-openjdk version "17.0.14" 2025-01-21 LTS
-OpenJDK Runtime Environment Zulu17.56+15-CA (build 17.0.14+7-LTS)
-OpenJDK 64-Bit Server VM Zulu17.56+15-CA (build 17.0.14+7-LTS, mixed mode, sharing)
 
+FAILURE: Build failed with an exception.
 
+* What went wrong:
+A problem occurred configuring root project 'p2pNewApp'.
+> Could not resolve all dependencies for configuration 'classpath'.
+   > Could not resolve com.android.tools.build:gradle:8.8.0.
+     Required by:
+         root project :
+      > Could not resolve com.android.tools.build:gradle:8.8.0.
+         > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.8.0/gradle-8.8.0.pom'.
+            > Could not GET 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.8.0/gradle-8.8.0.pom'.
+               > Got SSL handshake exception during request. It might be caused by SSL misconfiguration
+                  > PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
 
-export PATH="/usr/local/opt/ruby/bin:$PATH"
-export ANDROID_HOME=$HOME/Library/Android/sdk
-export PATH=$PATH:$ANDROID_HOME/emulator
-export PATH=$PATH:$ANDROID_HOME/platform-tools
-export M2_HOME=/Users/u2155446/Documents/apache-maven-3.9.8
-export PATH=$M2_HOME/bin:$PATH
+BUILD FAILED in 7s
+error Failed to install the app. Command failed with exit code 1: ./gradlew app:installDebug -PreactNativeDevServerPort=3000 FAILURE: Build failed with an exception. * What went wrong:
+A problem occurred configuring root project 'p2pNewApp'.
+> Could not resolve all dependencies for configuration 'classpath'. > Could not resolve com.android.tools.build:gradle:8.8.0. Required by: root project : > Could not resolve com.android.tools.build:gradle:8.8.0. > Could not get resource 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.8.0/gradle-8.8.0.pom'. > Could not GET 'https://dl.google.com/dl/android/maven2/com/android/tools/build/gradle/8.8.0/gradle-8.8.0.pom'. > Got SSL handshake exception during request. It might be caused by SSL misconfiguration > PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target * Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org. BUILD FAILED in 7s.
