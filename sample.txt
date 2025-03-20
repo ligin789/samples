@@ -1,17 +1,5 @@
-
-FAILURE: Build failed with an exception.
-
-* What went wrong:
+ What went wrong:
 A problem occurred configuring project ':app'.
-> NDK not configured. Download it with SDK manager. Preferred NDK version is '27.0.12077973'. 
+> [CXX1104] NDK from ndk.dir at /Users/u2155446/Library/Android/sdk/ndk/27.0.12077973 had version [27.0.12077973] which disagrees with android.ndkVersion [27.1.12297006]
 
 * Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 33s
-error Failed to install the app. Command failed with exit code 1: ./gradlew app:installDebug -PreactNativeDevServerPort=3000 FAILURE: Build failed with an exception. * What went wrong:
-A problem occurred configuring project ':app'.
-> NDK not configured. Download it with SDK manager. Preferred NDK version is '27.0.12077973'. * Try:
