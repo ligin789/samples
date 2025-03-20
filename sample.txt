@@ -2,7 +2,7 @@ FAILURE: Build failed with an exception.
 
 * What went wrong:
 Could not determine the dependencies of task ':app:compileDebugJavaWithJavac'.
-> Failed to find Build Tools revision 35.0.0
+> Failed to find Platform SDK with path: platforms;android-35
 
 * Try:
 > Run with --stacktrace option to get the stack trace.
@@ -12,3 +12,4 @@ Could not determine the dependencies of task ':app:compileDebugJavaWithJavac'.
 
 BUILD FAILED in 4s
 error Failed to install the app. Command failed with exit code 1: ./gradlew app:installDebug -PreactNativeDevServerPort=3000 FAILURE: Build failed with an exception. * What went wrong:
+Could not determine the dependencies of tas
