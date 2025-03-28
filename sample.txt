@@ -1,214 +1,24 @@
-[
-  {
-    "period": "- 48 to -24 Hours",
-    "isSelected": false,
-    "data": [
-      {
-        "widgetAttributes": {
-          "id": "0",
-          "notificationStatus": "information",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "low",
-          "notificationCategory": "Flight Ops",
-          "category":"Flight Ops",
-          "subCategory":"Taxi-In Delay",
-          "notificationDescription": "Potential curfew infringement at TER. PETA 23:53 | Curfew 00:00 to 06:00",
-          "carrierCode": " TP",
-          "outboundFlightNo": "1825-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:42:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:42:46Z",
-          "outboundArrStation": "TER",
-          "outboundArrTimeUTC": "2025-01-25T18:23:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:23:53Z",
-          "selectedTimeValue": null
-        },
-       
-        "localization": {},
-        "languages": [
-          {
-            "code": "en",
-            "dialect": "US",
-            "name": "English",
-            "description": "American English",
-            "bidi": "ltr"
+const searchFilteredArray = newFilteredArr.map((period) => {
+        // Filter the data array for matching items
+        const filteredData = period.data.filter((item) => {
+          const widgetAttrs = item.widgetAttributes;
+
+          // Check all string properties in widgetAttributes
+          for (const key in widgetAttrs) {
+            const value = widgetAttrs[key];
+            if (
+              typeof value === "string" &&
+              value.toLowerCase().includes(searchTerm)
+            ) {
+              return true;
+            }
           }
-        ],
-        "defaultLanguage": "en-US"
-      },
-      {
-        "widgetAttributes": {
-          "id": "1",
-          "notificationStatus": "open",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "medium",
-          "notificationCategory": "IRROPS",
-          "notificationDescription": "Pilot & cabin crew are unable to arrive on time. Crew connection is at risk.",
-          "carrierCode": " TP",
-          "subCategory":"CC connection",
-          "outboundFlightNo": "5602-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T20:40:46Z",
-          "outboundDepTimeLCL": "2025-01-25T20:40:46Z",
-          "outboundArrStation": "TER",
-          "outboundArrTimeUTC": "2025-01-25T18:26:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:26:53Z",
-          "selectedTimeValue": null
-        }
-       
-      },
-      {
-        "widgetAttributes": {
-          "id": "2",
-          "notificationStatus": "open",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "medium",
-          "notificationCategory": "Ops Restrictions",
-          "notificationDescription": "Pilot staffing minimum requirement is not met.",
-          "carrierCode": " TP",
-          "subCategory":"Pax Misconnection",
-          "outboundFlightNo": "430-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:40:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:40:46Z",
-          "outboundArrStation": "MUC",
-          "outboundArrTimeUTC": "2025-01-25T18:23:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:23:53Z",
-          "selectedTimeValue": null
-        }
-      }
-    ]
-  },
-  {
-    "period": "1 - 3 Hours",
-    "isSelected": true,
-    "data": [
-      {
-        "widgetAttributes": {
-          "id": "3",
-          "notificationStatus": "open",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "high",
-          "notificationCategory": "Ops Milestones",
-          "notificationDescription": "Runway 10/28R closed for schedule maintenance.",
-          "carrierCode": " TP",
-          "subCategory":"CC connection",
-          "outboundFlightNo": "1907-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:52:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:52:46Z",
-          "outboundArrStation": "FAO",
-          "outboundArrTimeUTC": "2025-01-25T18:33:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:33:53Z",
-          "selectedTimeValue": null
-        }
-      },
-      {
-        "widgetAttributes": {
-          "id": "4",
-          "notificationStatus": "open",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "high",
-          "notificationCategory": "Pax Ops",
-          "notificationDescription": "Predicted ETD 21:55 & ETA 22:45",
-          "carrierCode": " TP",
-          "subCategory":"CC connection",
-          "outboundFlightNo": "1907-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:40:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:40:46Z",
-          "outboundArrStation": "FAO",
-          "outboundArrTimeUTC": "2025-01-25T18:23:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:23:53Z",
-          "selectedTimeValue": null
-        }
-      },
-      {
-        "widgetAttributes": {
-          "id": "5",
-          "notificationStatus": "closed",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "high",
-          "notificationCategory": "Crew Ops",
-          "notificationDescription": "Predicted ETD 08:41 & ETA 10:14",
-          "carrierCode": " TP",
-          "subCategory":"CC connection",
+          return false;
+        });
 
-          "outboundFlightNo": "5602-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:40:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:40:46Z",
-          "outboundArrStation": "OPO",
-          "outboundArrTimeUTC": "2025-01-25T18:23:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:23:53Z",
-          "selectedTimeValue": null
-        }
-      }
-    ]
-  },
-  {
-    "period": "3 - 6 Hours",
-    "isSelected": false,
-    "data": [
-      {
-        "widgetAttributes": {
-          "id": "6",
-          "notificationStatus": "closed",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "high",
-          "notificationCategory": "IRROPS",
-          "notificationDescription": "Predicted ETD 08:41 & ETA 10:14",
-          "carrierCode": " TP",
-          "subCategory":"CC connection",
-
-          "outboundFlightNo": "5602-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T19:33:46Z",
-          "outboundDepTimeLCL": "2025-01-25T19:33:46Z",
-          "outboundArrStation": "OPO",
-          "outboundArrTimeUTC": "2025-01-25T18:43:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:43:53Z",
-          "selectedTimeValue": null
-        }
-      },
-      {
-        "widgetAttributes": {
-          "id": "7",
-          "notificationStatus": "closed",
-          "acknowledgeIconClicked": false,
-          "snoozeIconClicked": false,
-          "severity": "medium",
-          "notificationCategory": "Ops Restrictions",
-          "notificationDescription": "Predicted ETD 08:41 & ETA 10:14",
-          "carrierCode": " TP",
-          "subCategory":"Curfew Restriction",
-
-          "outboundFlightNo": "5602-13",
-          "outboundDepStation": "LIS",
-          "outboundDepTimeUTC": "2025-01-25T21:54:46Z",
-          "outboundDepTimeLCL": "2025-01-25T21:54:46Z",
-          "outboundArrStation": "OPO",
-          "outboundArrTimeUTC": "2025-01-25T18:43:53Z",
-          "outboundArrTimeLCL": "2025-01-25T18:43:53Z",
-          "selectedTimeValue": null
-        }
-      }
-    ]
-  }
-]
-
-
-
-[{ "category": "Flight Ops", isSelected: false, "subCategory": [{ "category": "Taxi-In Delay", isSelected: false }, { "category": "Taxi-Out Delay", isSelected: false }, { "category": "ETA Deviation", isSelected: false },{ "category": "ETD Deviation", isSelected: false },{ "category": "Predicted ETA Deviation", isSelected: false },{ "category": "Predicted ETD Deviation", isSelected: false },{ "category": "Arrival Delay", isSelected: false },{ "category": "Departure Delay", isSelected: false }] },
-    { "category": "IRROPS", isSelected: false, "subCategory": [{ "category": "Flight Divert", isSelected: false },{ "category": "Flight AirReturn", isSelected: false },{ "category": "Flight RampReturn", isSelected: false }] },
-    { "category": "Crew Ops", isSelected: false, "subCategory": [{ "category": "CC connection ", isSelected: false },{ "category": "Pilot Connection ", isSelected: false },{ "category": "Pilot FTL ", isSelected: false },{ "category": "Cabin Crew FTL ", isSelected: false }] },
-    { "category": "Pax Ops", isSelected: false, "subCategory": [{ "category": "Pax Misconnection", isSelected: false }] },
-    { "category": "Ops Restrictions", isSelected: false, "subCategory": [{ "category": "Curfew Restriction", isSelected: false },{ "category": "Airport Closure", isSelected: false },{ "category": "Runway Closure", isSelected: false },{ "category": "Weather", isSelected: false }] },
-    { "category": "Ops Milestones", isSelected: false, "subCategory": [{ "category": "Turnaround", isSelected: false },{ "category": "ACDM Milestones", isSelected: false },{ "category": "Schedule Estimation", isSelected: false },{ "category": "Pax Door Close", isSelected: false },{ "category": "Cargo Door Close", isSelected: false }] },]
+        // Return a new period object with filtered data
+        return {
+          ...period,
+          data: filteredData,
+        };
+      });
