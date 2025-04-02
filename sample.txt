@@ -1,85 +1,19 @@
-import React, { useEffect, useState } from "react";
-import DynamicRender from "../dynamicrenderer";
-import ConnectionsJson from "../../assets/jsons/connections.json"
-export const Connections = (props: any) => {
-  const [crewJson, setCrewJson] = useState(ConnectionsJson)
-  const [widgetTemplateData, setWidgetTemplateData]: any = useState(crewJson?.widgetTemplate?.inboundTemplate)
-  const { setConnectionsPopup } = props
-  const mapFunctions = {
-    inboundClickHandler: (data: any) => {
-      let widgetData = crewJson
-      widgetData.widgetAttributes.taskCategoryInBoundTabSelected = true
-      widgetData.widgetAttributes.taskCategoryOutBoundTabSelected = false
-      setCrewJson(widgetData)
-      setWidgetTemplateData(widgetData?.widgetTemplate.inboundTemplate)
-    },
-    outboundClickHandler: (data: any) => {
-      let widgetData = crewJson
-      widgetData.widgetAttributes.taskCategoryInBoundTabSelected = false
-      widgetData.widgetAttributes.taskCategoryOutBoundTabSelected = true
-      setCrewJson(widgetData)
-      setWidgetTemplateData(widgetData?.widgetTemplate?.outboundTemplate)
-    },
-    closeButtonClick: () => {
-      setConnectionsPopup(false)
-    },
-    flightLinkContainer:(data:any)=>{
-      const{widgetAttributes}=data
-      console.log("flightlinkdata",data)
-      let widgetData:any= crewJson
-      widgetData.widgetAttributes.flightLinkClicked = true
-      widgetData.widgetAttributes.flightData=[{...widgetAttributes}]
-      widgetData.widgetAttributes.passengersDataList= widgetAttributes.passengerData
-      widgetData.widgetAttributes.crewsDataList= widgetAttributes.crewData
-      widgetData.widgetAttributes.bagsDataList= widgetAttributes.bagsData
-      setCrewJson({...widgetData})
-    },
-    connectionBackButtonClick: (data:any) => {
-      const{widgetAttributes}=data
-      let widgetData:any= crewJson
-      widgetData.widgetAttributes.flightLinkClicked = false
-      widgetData.widgetAttributes.flightData=[]
-      widgetData.widgetAttributes.passengersDataList=[]
-      widgetData.widgetAttributes.crewsDataList= []
-      widgetData.widgetAttributes.bagsDataList= []
-      setCrewJson({...widgetData})
-    },
-    passengerClickHandler: (data:any) =>{
-      let widgetData:any= crewJson
-      widgetData.widgetAttributes.bagClicked = false
-      widgetData.widgetAttributes.crewClicked = false
-      widgetData.widgetAttributes.passengerClicked = true
-      setCrewJson({...widgetData})
-    },
-    crewClickHandler: (data:any) =>{
-      let widgetData:any= crewJson
-      widgetData.widgetAttributes.bagClicked = false
-      widgetData.widgetAttributes.crewClicked = true
-      widgetData.widgetAttributes.passengerClicked = false
-      setCrewJson({...widgetData})
-    },
-    bagClickHandler: (data:any) =>{
-      let widgetData:any= crewJson
-      widgetData.widgetAttributes.bagClicked = true
-      widgetData.widgetAttributes.crewClicked = false
-      widgetData.widgetAttributes.passengerClicked = false
-      setCrewJson({...widgetData})
-    }
-  }
-  
+./gradlew clean
+:ReactNative:Running '[node, /Users/u2155446/Documents/office/smartturn/node_modules/@react-native-community/cli/build/bin.js, config]' command failed.
 
-  useEffect(()=>
-  {
+FAILURE: Build failed with an exception.
 
-  },[crewJson])
-  return (
-    crewJson &&
-    <div style={{ position: "absolute", zIndex: 10, left: "25%", top: "12%", zoom: "var(--zoomPercentage)" }}>
-      <DynamicRender
-        data={{ widgetAttributes: crewJson?.widgetAttributes, widgetTemplate: widgetTemplateData }}
-        
-        mainListIndex={1}
-        mappedFunctions={mapFunctions} />
-    </div>
-  )
-}
+* Where:
+Script '/Users/u2155446/Documents/office/smartturn/node_modules/@react-native-community/cli-platform-android/native_modules.gradle' line: 401
+
+* What went wrong:
+A problem occurred evaluating script.
+> Process 'command 'node'' finished with non-zero exit value 1
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
