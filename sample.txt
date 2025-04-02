@@ -1,19 +1,2 @@
-./gradlew clean
-:ReactNative:Running '[node, /Users/u2155446/Documents/office/smartturn/node_modules/@react-native-community/cli/build/bin.js, config]' command failed.
-
-FAILURE: Build failed with an exception.
-
-* Where:
-Script '/Users/u2155446/Documents/office/smartturn/node_modules/@react-native-community/cli-platform-android/native_modules.gradle' line: 401
-
-* What went wrong:
-A problem occurred evaluating script.
-> Process 'command 'node'' finished with non-zero exit value 1
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-> Get more help at https://help.gradle.org.
-
-BUILD FAILED in 1s
+ smartturn % node node_modules/@react-native-community/cli/build/bin.js config
+error Failed to build the app: No package name found. We couldn't parse the namespace from neither your build.gradle[.kts] file at /Users/u2155446/Documents/office/smartturn/node_modules/smartturn/android/build.gradle nor your package in the AndroidManifest at /Users/u2155446/Documents/office/smartturn/node_modules/smartturn/android/app/src/main/AndroidManifest.xml.
