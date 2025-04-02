@@ -1,99 +1,85 @@
-import React, { useEffect, useRef, useState } from "react";
-import "./style.css";
-const TimeSlider = (props:any) => {
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const markerRef = useRef<HTMLDivElement>(null);
-  // const [position, setPosition] = useState(60);
-  const {timerArr,interval, hours, position,setPosition} = props
-  const [currentTime, setCurrentTime] = useState('00:00');
-  const getCurrentTime = ()=>{
-    const d = new Date();
-    const h = d.getHours();
-    const m = d.getMinutes();
-    let hours:string = h < 10 ? '0'+h : ''+h;
-    let minutes:string = m < 10 ? '0'+m : ''+m;
-    setCurrentTime( hours +":"+ minutes)
-  };
-  useEffect(() => {
-    getCurrentTime();
-    setInterval(function () {
-      getCurrentTime();
-    }, 60000);
-
-  }, []);
-
-  // Dragging Logic
-  const handleDrag: any = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (sliderRef.current) {
-        const rect = sliderRef.current.getBoundingClientRect();
-        let newX = e.clientX - rect.left;
-        newX = Math.max(0, Math.min(rect.width, newX)); // Keep marker inside bounds
-        if (newX <= interval) {
-            newX = interval;
-        }
-        if (newX >= hours * 60 * 2) {
-            newX = hours * 60 * 2;
-        }
-        console.log("newX",newX)
-        setPosition(newX);
+import React, { useEffect, useState } from "react";
+import DynamicRender from "../dynamicrenderer";
+import ConnectionsJson from "../../assets/jsons/connections.json"
+export const Connections = (props: any) => {
+  const [crewJson, setCrewJson] = useState(ConnectionsJson)
+  const [widgetTemplateData, setWidgetTemplateData]: any = useState(crewJson?.widgetTemplate?.inboundTemplate)
+  const { setConnectionsPopup } = props
+  const mapFunctions = {
+    inboundClickHandler: (data: any) => {
+      let widgetData = crewJson
+      widgetData.widgetAttributes.taskCategoryInBoundTabSelected = true
+      widgetData.widgetAttributes.taskCategoryOutBoundTabSelected = false
+      setCrewJson(widgetData)
+      setWidgetTemplateData(widgetData?.widgetTemplate.inboundTemplate)
+    },
+    outboundClickHandler: (data: any) => {
+      let widgetData = crewJson
+      widgetData.widgetAttributes.taskCategoryInBoundTabSelected = false
+      widgetData.widgetAttributes.taskCategoryOutBoundTabSelected = true
+      setCrewJson(widgetData)
+      setWidgetTemplateData(widgetData?.widgetTemplate?.outboundTemplate)
+    },
+    closeButtonClick: () => {
+      setConnectionsPopup(false)
+    },
+    flightLinkContainer:(data:any)=>{
+      const{widgetAttributes}=data
+      console.log("flightlinkdata",data)
+      let widgetData:any= crewJson
+      widgetData.widgetAttributes.flightLinkClicked = true
+      widgetData.widgetAttributes.flightData=[{...widgetAttributes}]
+      widgetData.widgetAttributes.passengersDataList= widgetAttributes.passengerData
+      widgetData.widgetAttributes.crewsDataList= widgetAttributes.crewData
+      widgetData.widgetAttributes.bagsDataList= widgetAttributes.bagsData
+      setCrewJson({...widgetData})
+    },
+    connectionBackButtonClick: (data:any) => {
+      const{widgetAttributes}=data
+      let widgetData:any= crewJson
+      widgetData.widgetAttributes.flightLinkClicked = false
+      widgetData.widgetAttributes.flightData=[]
+      widgetData.widgetAttributes.passengersDataList=[]
+      widgetData.widgetAttributes.crewsDataList= []
+      widgetData.widgetAttributes.bagsDataList= []
+      setCrewJson({...widgetData})
+    },
+    passengerClickHandler: (data:any) =>{
+      let widgetData:any= crewJson
+      widgetData.widgetAttributes.bagClicked = false
+      widgetData.widgetAttributes.crewClicked = false
+      widgetData.widgetAttributes.passengerClicked = true
+      setCrewJson({...widgetData})
+    },
+    crewClickHandler: (data:any) =>{
+      let widgetData:any= crewJson
+      widgetData.widgetAttributes.bagClicked = false
+      widgetData.widgetAttributes.crewClicked = true
+      widgetData.widgetAttributes.passengerClicked = false
+      setCrewJson({...widgetData})
+    },
+    bagClickHandler: (data:any) =>{
+      let widgetData:any= crewJson
+      widgetData.widgetAttributes.bagClicked = true
+      widgetData.widgetAttributes.crewClicked = false
+      widgetData.widgetAttributes.passengerClicked = false
+      setCrewJson({...widgetData})
     }
-};
+  }
+  
 
+  useEffect(()=>
+  {
+
+  },[crewJson])
   return (
-        <div
-          style={{
-            position:'absolute',
-            width: "420px",
-            color: "#fff",
-            padding: "10px 0px",
-            textAlign: "center",
-            zIndex:1000,
-            top:"30px"
-          }}
-        >
-          <div
-            ref={sliderRef}
-            style={{
-              display: "flex",
-              background: "#132A74",
-              width: "420px",
-              height:"20px",
-              borderRadius: "30px",
-              alignItems:'center',
-              justifyContent:'center'
-            }}
-          >
-              <div className="liveDiv"><div className="liveLabel">LIVE {currentTime}</div></div>
-              <div className="intervalDiv"><div className="labelDiv">+10MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/><div className="separatorRight"/></div></div>
-              <div className="intervalDiv"><div className="labelDiv">+20MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/><div className="separatorRight"/></div></div>
-              <div className="intervalDiv"><div className="labelDiv">+30MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/><div className="separatorRight"/></div></div>
-              <div className="intervalDiv"><div className="labelDiv">+40MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/><div className="separatorRight"/></div></div>
-              <div className="intervalDiv"><div className="labelDiv">+50MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/><div className="separatorRight"/></div></div>
-              <div className="intervalDiv"><div className="labelDiv">+60MIN</div><div className="separatorDiv"><div className="separatorLeft"/><div className="separatorCenter"/></div></div>
-
-            {/* Draggable Marker */}
-            <div
-              ref={markerRef}
-              onMouseDown={(e) => {
-                document.addEventListener("mousemove", handleDrag);
-                document.addEventListener("mouseup", () => {
-                  document.removeEventListener("mousemove", handleDrag);
-                });
-              }}
-              style={{
-                position: "absolute",
-                top: 2,
-                bottom: 10,
-                left: `${position}px`,
-                width: "4px",
-                background: "#0680FA",
-                cursor: "grab",
-                transform: "translateX(-50%)",
-              }}
-            ><div className="dragHandler"></div></div>
-          </div>
-        </div>
-  );
-};
-
-export default TimeSlider;
+    crewJson &&
+    <div style={{ position: "absolute", zIndex: 10, left: "25%", top: "12%", zoom: "var(--zoomPercentage)" }}>
+      <DynamicRender
+        data={{ widgetAttributes: crewJson?.widgetAttributes, widgetTemplate: widgetTemplateData }}
+        
+        mainListIndex={1}
+        mappedFunctions={mapFunctions} />
+    </div>
+  )
+}
