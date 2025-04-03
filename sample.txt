@@ -1,6 +1,1 @@
-
-let ASSET_FOLDER="assettap";
-// let ASSET_FOLDER="assettap1";
-// let ASSET_FOLDER="assettap12";
-
-export  ASSET_FOLDER;
+import ConnectionsJson from "../../assets_Air_India/jsons/connections.json"
