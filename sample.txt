@@ -1,1 +1,6 @@
-Could not find image file:///private/var/containers/Bundle/Application/54E0A801-8C70-44C2-A38E-2CD52E9774A8/Smartmxtechapp.app/assets/app/assets/images/myDay/TaskResources@2x.png
+
+let ASSET_FOLDER="assettap";
+// let ASSET_FOLDER="assettap1";
+// let ASSET_FOLDER="assettap12";
+
+export  ASSET_FOLDER;
