@@ -1,21 +1,56 @@
-.date-picker[type="date"]::-webkit-calendar-picker-indicator { 
-  background: url("../../assets/images/dateRange.svg") no-repeat right center;
-  
-}
-.time-picker[type="time"]::-webkit-calendar-picker-indicator { 
-  background: url("../../assets/images/timeRange.svg") no-repeat right center;
+  .dropdown-headerview::-webkit-scrollbar {
+    width: 2px;
+    height: 8px;
+  }
+    
+  /* Handle */
+ .dropdown-headerview::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+  }
 
-  
-}
-  <input
-                    type="date"
-                    className="date-picker"
-                    placeholder="Select"
-                    name="start-date"
-                    value={selectedStart}
-                    onChange={handleChange}
-                    min={min}
-                    max={max}
-                    style={{borderColor:Colors.searchBoxBorder}}
-                  />
-                </div>
+<div
+                className="dropdown-headerview"
+                style={{}}
+                id="scrollableDiv"
+                ref={scrollableDiv}
+                onClick={() =>
+                  !selectedOptions.length &&
+                  dropDownIndex !== -1 &&
+                  handleDropDownIndex(-1)
+                }
+              >
+                {data.length > 0 &&
+                  selectedOptions.map(
+                    (option: any, index: number) =>
+                      option.name !== "ALL" && (
+                        <div
+                          style={{
+                            backgroundColor: option?.isMandatory
+                              ? Colors.columnsSelectedNotClickable
+                              : Colors.columnsSelected,
+                            color: Colors.common,
+                          }}
+                          key={option.name || option.key}
+                          className={
+                            option?.isMandatory
+                              ? "header-item-disable"
+                              : "header-item"
+                          }
+                        >
+                          <span>{t(option.tKey) || option.key}</span>
+                          <span
+                            className="crossIcon"
+                            onClick={() =>
+                              !option.isMandatory &&
+                              removeSelectedColumn(
+                                index,
+                                option.name || option.key
+                              )
+                            }
+                          >
+                            ✕
+                          </span>
+                        </div>
+                      )
+                  )}
+              </div>
