@@ -7,3 +7,15 @@
 
   
 }
+  <input
+                    type="date"
+                    className="date-picker"
+                    placeholder="Select"
+                    name="start-date"
+                    value={selectedStart}
+                    onChange={handleChange}
+                    min={min}
+                    max={max}
+                    style={{borderColor:Colors.searchBoxBorder}}
+                  />
+                </div>
