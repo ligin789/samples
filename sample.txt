@@ -1,8 +1,9 @@
-import {ASSET_FOLDER} from '../../global/Config'
-const ConnectionsJson =require('../../${ASSET_FOLDER}/jsons/connections.json')
+.date-picker[type="date"]::-webkit-calendar-picker-indicator { 
+  background: url("../../assets/images/dateRange.svg") no-repeat right center;
+  
+}
+.time-picker[type="time"]::-webkit-calendar-picker-indicator { 
+  background: url("../../assets/images/timeRange.svg") no-repeat right center;
 
-
-error
-
-RROR in ./src/components/connectionsPopUp/index.tsx 8:24-79
-Module not found: Error: Can't resolve '../../${ASSET_FOLDER}/jsons/connections.json' in '/Users/u2155446/Documents/office/iocc_dashboard/src/components/connectionsPopUp'
+  
+}
