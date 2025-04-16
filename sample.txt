@@ -1,10 +1,28 @@
-What is React Native?
-React Native is a JavaScript-based framework for building native mobile applications. It allows for the creation of high-performance and responsive mobile apps for iOS and Android platforms using a single codebase.
+import React from 'react';
+import {StyleSheet, View} from 'react-native';
 
-Why use React Native?
-React Native simplifies the app development process by reducing the time and effort required to build high-quality mobile applications. It also provides a range of features that
-allow for the creation of beautiful and intuitive user interfaces.
+const Flex = () => {
+  return (
+    <View
+      style={[
+        styles.container,
+        {
+          // Try setting `flexDirection` to `"row"`.
+          flexDirection: 'column',
+        },
+      ]}>
+      <View style={{flex: 1, backgroundColor: 'red'}} />
+      <View style={{flex: 2, backgroundColor: 'darkorange'}} />
+      <View style={{flex: 3, backgroundColor: 'green'}} />
+    </View>
+  );
+};
 
-What makes React Native special?
-React Native uses a unique architecture allowing it to leverage the power of native components, while still maintaining the speed and flexibility of a JavaScript-based platform.React Native offer collection of react native components
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+  },
+});
 
+export default Flex;
