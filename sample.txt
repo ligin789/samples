@@ -1,78 +1,10 @@
-1. Introduction to React Native
 What is React Native?
-Setting up the development environment
-Basic concepts and architecture
+React Native is a JavaScript-based framework for building native mobile applications. It allows for the creation of high-performance and responsive mobile apps for iOS and Android platforms using a single codebase.
 
-2. Core Concepts
-JSX syntax
-Components and Props
-State and Lifecycle
-Handling events
+Why use React Native?
+React Native simplifies the app development process by reducing the time and effort required to build high-quality mobile applications. It also provides a range of features that
+allow for the creation of beautiful and intuitive user interfaces.
 
-3. Styling
-Flexbox layout
-Styling components
-Responsive design
+What makes React Native special?
+React Native uses a unique architecture allowing it to leverage the power of native components, while still maintaining the speed and flexibility of a JavaScript-based platform.React Native offer collection of react native components
 
-4. Navigation
-React Navigation library
-Stack, Tab, and Drawer navigation
-Passing data between screens
-
-5. State Management
-Context API
-Redux
-MobX
-
-6. Networking
-Fetching data with Fetch API
-Axios
-Handling asynchronous operations
-
-7. Advanced Concepts
-Hooks (useState, useEffect, useContext, etc.)
-Custom Hooks
-Higher-Order Components (HOCs)
-
-8. Performance Optimization
-Optimizing rendering
-Using FlatList and SectionList
-Memory management
-
-9. Testing
-Unit testing with Jest
-Integration testing
-End-to-end testing
-
-10. Native Modules
-Linking native code
-Creating custom native modules
-Using third-party native modules
-
-11. Deployment
-Building and deploying to iOS and Android
-App Store and Google Play submission
-Continuous Integration/Continuous Deployment (CI/CD)
-
-12. Best Practices
-Code organization
-Error handling
-Security
-
-13. Real-world Projects
-Building complete applications
-Debugging and troubleshooting
-Maintaining and updating apps
-
-14. Android Studio
-Setting up Android Studio
-Creating and managing projects
-Understanding the Android project structure
-Using the Android Emulator
-
-15. Debugging
-Debugging React Native apps in Android Studio
-Using React Native Debugger
-Inspecting network requests
-Handling errors and exceptions
-Profiling and performance monitoring
