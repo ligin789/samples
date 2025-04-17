@@ -1,14 +1,72 @@
-import React, { useRef } from 'react';
-function FocusInput() {
- const inputRef = useRef(null); // Create a ref
- const handleFocus = () => {
-   inputRef.current.focus(); // Access the input and call focus
- };
- return (
-   <View>
-     <input ref={inputRef} placeholder="Type something..." />
-     <button onClick={handleFocus}>Focus Input</button>
-   </View>
- );
+let commonColorTheme = "",
+  languageOptionBg = "",
+  menuItemHover = "",
+  tableCheckboxUncheckedBorderColor = "",
+  columnsSelected = "",
+  menuUnSelctedViewOptionBg = "",
+  orHeaderBg = "",
+  filtersBg = "",
+  filterBorder = "",
+  unSelectedQuick = "",
+  customButtonContainer = "",
+  loginButtonBg = "",
+  notificationTabHeaderColor = "",
+  notificationSeperator = "",
+  notificationSearchBox = "";
+switch (ColorVarible) {
+  case "tapAir":
+      commonColorTheme = "#00185F",
+      languageOptionBg = "#DBE1F4",
+      menuItemHover = "#E4EBFF",
+      tableCheckboxUncheckedBorderColor = "#9AA7CE",
+      (columnsSelected = "#E4EBFF"),
+      (menuUnSelctedViewOptionBg = "#33467f"),
+      (orHeaderBg = "#3F5498"),
+      (filtersBg = "#dbe4ff"),
+      (filterBorder = "#DBE4FE"),
+      (unSelectedQuick = "#DBE4FF"),
+      (customButtonContainer = "#F0F0F0"),
+      (loginButtonBg = "#2E5C99"),
+      (notificationTabHeaderColor = "#203679"),
+      (notificationSeperator = "#405287"),
+      (notificationSearchBox = "#36487C");
+      break;
+  case "airIndia":
+    (commonColorTheme = "#DA1128"),
+      (languageOptionBg = "#FFEFF2"),
+      (menuItemHover = "#FFF0F2"),
+      (tableCheckboxUncheckedBorderColor = "#DA1128"),
+      (columnsSelected = "#FFEFF2"),
+      (menuUnSelctedViewOptionBg = "#FFFFFF"),
+      (orHeaderBg = "#999999"),
+      (filtersBg = "#FFEFF2"),
+      (filterBorder = "#FFEFF2"),
+      (unSelectedQuick = "#FFEFF2"),
+      (customButtonContainer = "#F6EDDA"),
+      (loginButtonBg = "#DA1128"),
+      (notificationTabHeaderColor = "#DA1128"),
+      (notificationSeperator = " rgb(255, 255, 255)"),
+      (notificationSearchBox = "#ffffff");
+
+    break;
+  case "assets_Tap":
+    (commonColorTheme = "#015B25"),
+      (languageOptionBg = "#abfecc"),
+      (menuItemHover = "#e6fff0"),
+      (tableCheckboxUncheckedBorderColor = "#9AA7CE"),
+      (columnsSelected = "#E4EBFF"),
+      (menuUnSelctedViewOptionBg = "#3E8518"),
+      (orHeaderBg = "#3E8518"),
+      (filtersBg = "#dbe4ff"),
+      (filterBorder = "#DBE4FE"),
+      (unSelectedQuick = "#DBE4FF");
+      (customButtonContainer = "#F0F0F0"),
+      (loginButtonBg = "#2E5C99"),
+      (notificationTabHeaderColor = "#3E8518"),
+      (notificationSeperator = "#BDBDBD"),
+      (notificationSearchBox = "rgb(17, 105, 71)");
+
+    break;
+  default:
+    break;
 }
-export default FocusInput;
