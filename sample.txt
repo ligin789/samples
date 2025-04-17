@@ -1,72 +1,102 @@
-let commonColorTheme = "",
-  languageOptionBg = "",
-  menuItemHover = "",
-  tableCheckboxUncheckedBorderColor = "",
-  columnsSelected = "",
-  menuUnSelctedViewOptionBg = "",
-  orHeaderBg = "",
-  filtersBg = "",
-  filterBorder = "",
-  unSelectedQuick = "",
-  customButtonContainer = "",
-  loginButtonBg = "",
-  notificationTabHeaderColor = "",
-  notificationSeperator = "",
-  notificationSearchBox = "";
-switch (ColorVarible) {
-  case "tapAir":
-      commonColorTheme = "#00185F",
-      languageOptionBg = "#DBE1F4",
-      menuItemHover = "#E4EBFF",
-      tableCheckboxUncheckedBorderColor = "#9AA7CE",
-      (columnsSelected = "#E4EBFF"),
-      (menuUnSelctedViewOptionBg = "#33467f"),
-      (orHeaderBg = "#3F5498"),
-      (filtersBg = "#dbe4ff"),
-      (filterBorder = "#DBE4FE"),
-      (unSelectedQuick = "#DBE4FF"),
-      (customButtonContainer = "#F0F0F0"),
-      (loginButtonBg = "#2E5C99"),
-      (notificationTabHeaderColor = "#203679"),
-      (notificationSeperator = "#405287"),
-      (notificationSearchBox = "#36487C");
-      break;
-  case "airIndia":
-    (commonColorTheme = "#DA1128"),
-      (languageOptionBg = "#FFEFF2"),
-      (menuItemHover = "#FFF0F2"),
-      (tableCheckboxUncheckedBorderColor = "#DA1128"),
-      (columnsSelected = "#FFEFF2"),
-      (menuUnSelctedViewOptionBg = "#FFFFFF"),
-      (orHeaderBg = "#999999"),
-      (filtersBg = "#FFEFF2"),
-      (filterBorder = "#FFEFF2"),
-      (unSelectedQuick = "#FFEFF2"),
-      (customButtonContainer = "#F6EDDA"),
-      (loginButtonBg = "#DA1128"),
-      (notificationTabHeaderColor = "#DA1128"),
-      (notificationSeperator = " rgb(255, 255, 255)"),
-      (notificationSearchBox = "#ffffff");
+import './App.css';
+import Login from './screens/login';
+import Home from './screens/home';
+import FlightScoreDetails from './screens/flightScoreDetails';
+import Alert from './atoms/alert';
 
-    break;
-  case "assets_Tap":
-    (commonColorTheme = "#015B25"),
-      (languageOptionBg = "#abfecc"),
-      (menuItemHover = "#e6fff0"),
-      (tableCheckboxUncheckedBorderColor = "#9AA7CE"),
-      (columnsSelected = "#E4EBFF"),
-      (menuUnSelctedViewOptionBg = "#3E8518"),
-      (orHeaderBg = "#3E8518"),
-      (filtersBg = "#dbe4ff"),
-      (filterBorder = "#DBE4FE"),
-      (unSelectedQuick = "#DBE4FF");
-      (customButtonContainer = "#F0F0F0"),
-      (loginButtonBg = "#2E5C99"),
-      (notificationTabHeaderColor = "#3E8518"),
-      (notificationSeperator = "#BDBDBD"),
-      (notificationSearchBox = "rgb(17, 105, 71)");
+import React,{ useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { useDispatch, useSelector } from 'react-redux';
+import { loginAction } from './store/login/action';
+import moment from 'moment';
+import { timerAction } from './store/timer/action';
 
-    break;
-  default:
-    break;
+const App = ()=> {
+  const[timeInterval,setTimeInterval]=React.useState(40);
+  const dispatch = useDispatch()
+  const isloggedin = useSelector((state: any) => state.UserData.isValidUserLoggedIn)
+  const reducerTimerCounter = useSelector((state:any)=> state.timerData.timerCount)
+
+  const timerCounter = reducerTimerCounter==='' ? 
+    moment(moment.now()).subtract(timeInterval,'minutes').format('HH:mm'):
+    // moment('05:40','HH:mm').subtract(timeInterval,'minutes').subtract(40,'day').format('HH:mm'):
+    // moment('22:20','HH:mm').subtract(timeInterval,'minutes').subtract(1,'day').format('HH:mm'):
+    // moment('02:07','HH:mm').subtract(timeInterval,'minutes').subtract(1,'day').format('HH:mm'):
+    // moment('00:10','HH:mm').subtract(timeInterval,'minutes').subtract(0,'day').format('HH:mm'):
+    moment(reducerTimerCounter,'HH:mm').format('HH:mm')
+
+  useEffect(()=>{
+    if(reducerTimerCounter===''){
+      dispatch(timerAction.storeTimer({time:timerCounter}))
+    }
+    setInterval(()=>{
+      console.log('check timer value change =>',moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm'))
+
+      // dispatch(timerAction.storeTimer({time:moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm')}))
+      dispatch(timerAction.storeTimer({time:moment(moment(moment.now()).subtract(timeInterval+1,'minutes').format('HH:mm'),'HH:mm').add(1,'minute').format('HH:mm')}))
+    },60000)
+    // },10000)
+  // },[timerCounter])
+},[reducerTimerCounter])
+// },[])
+// setInterval(()=>{
+//   dispatch(timerAction.storeTimer({time:moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm')}))
+// },60000)
+
+// below one is used for reload the app every 8 min
+// useEffect(()=>{
+//   setInterval(()=>{
+//     window.location.reload();
+//   },480000)
+//   // 8*60000
+// },[])
+
+  const setTimeOnHoursSelection = (time:any)=>{
+    console.log('check the setTimeOnHoursSelection => ',time)
+    setTimeInterval(time);
+    // setTimerCounter(moment(moment.utc().subtract(5,'hours').format('HH:mm'),'HH:mm').subtract(time,'minutes').format('HH:mm'))
+    // setTimerCounter(moment(moment(timerCounter,'HH:mm'),'HH:mm').subtract(time,'minutes').format('HH:mm'))
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem('isValidUser') == 'true') {
+      dispatch(loginAction.storeUserData({ accessToken: localStorage.getItem('accessToken') }))
+    }
+  }, [])
+  console.log('check the current page thing ===> ',localStorage.getItem('currentPage'))
+  const currentPage = localStorage.getItem('currentPage')
+  return (
+    <>
+    <Alert />
+    <BrowserRouter basename='/iao/gateAI'>
+    {/* <BrowserRouter> */}
+        <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />
+            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />
+
+            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
+            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />}
+
+            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
+            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />}
+
+            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
+            <Route path="/login" element={<Login />} />}
+            {/* <Route 
+              path="/"
+              element={
+                localStorage.getItem('isValidUser') == 'true' || isloggedin ?
+                !isFromVolar ?
+                <Navigate to="/home" />
+                  : <Navigate to="/flightScoreDetails" />
+                  : <Navigate to="/login" />
+
+              }
+            /> */}
+        </Routes>
+      </BrowserRouter>
+      </>
+  );
 }
+export default App;
