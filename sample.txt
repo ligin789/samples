@@ -1,37 +1,44 @@
-import './alert.css';
-import Button from '../button';
-import { useDispatch, useSelector } from 'react-redux';
+import Constants from "../../globals/Constants";
 
-const Alert = (props: any) => {
-    const alertDetails = useSelector((state: any) => state.alertReducer)
-    const dispatch = useDispatch()
-    console.log("",props.error);
-    return (
-        <>
-            <div className="Alert-container" style={{ display: props.error || alertDetails.isOpen ? 'block' : 'none' }}>
-                <div className="Alert-control">
-                    <div className="Alert-title">
-                        <b>{alertDetails.content.title}</b>
-                    </div>
-                </div>
-                <div className="Alert-message">{props?.error?.message || alertDetails.content.content}</div>
-                <div className="buttonflex">
-                    <Button
-                        className="primary"
-                        onClick={() => {
-                            dispatch({ type: 'CLEAR_ALERT' })
-                            if(alertDetails.content.title === 'Session Timeout'){
-                                dispatch({ type: 'DESTORE_USER_DATA' })
-                            }
-                            props?.resetErrorBoundary()
-                        }}
-                    >
-                        Ok
-                    </Button>
-                </div>
-            </div>
-        </>
-    )
-}
+const BackgroundTimeVerticalLine = (props: any) => {
+  const { leftSpace, bgColor, effectiveHeight, interval, hours, selectedTimeLineValue} = props;
+  // for total time
+  // const part = ((hours*60)+interval)
+  //this for time label
+  // const part = ((hours*60)+interval)/interval
+  // const part = ((hours*60)+30)/interval
+  // const part = ((selectedTimeLineValue.endTime+selectedTimeLineValue.startTime)/interval)
 
-export default Alert;
+  const part = (selectedTimeLineValue.endTime+selectedTimeLineValue.startTime)
+  // const part = (hours*60)+30
+  //this for 10 min line
+  // const part = Math.ceil(((hours*60)+interval)/10)
+  let parts = [];
+  for (let i = 1; i <= part; i++) {
+    parts.push(i);
+  }
+  // let b = `calc(100vw - ${450+140}px)`
+  // let b = `calc({100vw - 450+140}px)`
+  // let trackWidth = window.innerWidth-Constants.CARD_CONTAINER_WIDTH-leftSpace-15;
+  let trackWidth = window.innerWidth-Constants.CARD_CONTAINER_WIDTH-leftSpace-30;
+  console.log('check inside timeverticalline ===> ',trackWidth,interval,part,hours,'parts',((hours*60)+interval),((hours*60)+interval)/interval,Math.ceil(((hours*60)+interval)/10))
+  return (
+    <div
+      // style={{...{paddingLeft: `${leftSpace}px`,width: `${effectiveWidth}px`,backgroundColor:`${bgColor}`,height:`${effectiveHeight}`,display:'flex'},...Styles.backgroundMainBox}}
+      // style={{paddingLeft: `${leftSpace}px`,width: `${effectiveWidth}px`,backgroundColor:`${bgColor}`,height:`${effectiveHeight}px`,display:'flex'}}
+      style={{paddingLeft: `${leftSpace}px`,width: trackWidth,backgroundColor:`${bgColor}`,height:`${effectiveHeight}px`,display:'flex'}}
+    >
+      {parts.map((el:number) => {
+        return (
+          <div
+            // style={{...{width: `${(effectiveWidth - part) / part}px`},...Styles.backgroundDivision}}#d9dcf2
+            // style={{...{width: `${(trackWidth - part) / part}px`},...Styles.backgroundDivision}}
+            // style={{width: `${(trackWidth - (part/interval)) / part}px`,borderRight:el%interval===0?'1px solid #d9dcf2':''}}
+            style={{width: `${trackWidth / part}px`,borderRight:el%interval===0?'1px solid #d9dcf2':''}}
+          ></div>
+        );
+      })}
+    </div>
+  );
+};
+export default BackgroundTimeVerticalLine;
