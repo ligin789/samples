@@ -1,226 +1,175 @@
-import './explainPopup.css';
+import "./AddRule.css";
+import { useEffect, useState } from "react";
+import Dropdown from "./dropDown/DropDownComponent";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import VerticalLine from "../../atoms/verticalLine";
+import Strings from "../../globals/Strings";
+import Colors from "../../globals/Colors";
+import Styles from './styles';
+import DeleteEditButtonContainer from "../deleteEditButtonContainer";
 import { useDispatch, useSelector } from "react-redux";
-import { timerAction } from "../../store/timer/action";
-import React from 'react';
-import { utils, writeFile } from 'xlsx'
-import TwinLoader from '../loader';
-const ExplainPopUp = (props:any)=>{
-    const heading = ['','Op Loss','Crew Saved (DH/DTY)','Pax Conx Saved','Impact on Downstream','Compliance Impacted','Experience Impacted','']
-    const explainDataFromStore = useSelector((state:any)=>state.timerData.explainPopUpData)
-    const [isShowMore,setIsShowMore]=React.useState(false);
-    const [moreIndex,setMoreIndex]=React.useState(-1);
+import { Reducer } from "../../globals/PropTypes";
+import { configurationTabDetails } from "../../store/configurationTab/action";
 
-    const dispatch = useDispatch();
-    const closeExplainPopUp = ()=>{
-        dispatch(timerAction.closeExplainPopUp());
-    }
-    let explainData = explainDataFromStore
-    let explainDatasimulationDetails = explainDataFromStore?.data?.simulationDetails
-    let tempWith = explainDatasimulationDetails?.filter((el:any)=>el?.isSelected===true)
-    let tempWithOut = explainDatasimulationDetails?.filter((el:any)=>el?.isSelected===false)
-    let finalExplainData = tempWith!=undefined&&tempWithOut!=undefined?[...tempWith,...tempWithOut]:[]
-    // explainDataFromStore?.simulationDetails
-    // console.log('check ExplainPopUp data ==> ',explainData)
+const AddRule = (props: any) => {
+    const {listItemData,isFormEditable,setShowForm,handleSaveAction,handleCancelAction} = props;
 
-    const exportDataInXLSX = (data:any,id:any)=>{
-        let exportDataSet :any=[]
-        data?.length>0&&data.map((el:any,index:number)=>{
-            let tempObj :any = {
-                "Plan ID": "", 
-                "Is Selected": "", 
-                "Op Loss":"", 
-                "Crew Saved": "", 
-                "Pax Conx Saved": "", 
-                "Impact On Downstream": "", 
-                "Compliance Impacted": "",
-                "Experience Impacted": "",
-                "Slot - Flight":""
+    const dispatch = useDispatch()
+    const configurationTabListReferenceData = useSelector((state:Reducer) => state.configurationTabViewReducer.configurationTabReferenceData)
+    console.log("configurationTabListReferenceData",configurationTabListReferenceData)
+    
+    const {fltPriority,starFltIndicator,domain,travelType,acType,weightageHierarchy,threshold}:any = configurationTabListReferenceData
+    console.log(fltPriority,starFltIndicator,domain,travelType,acType,weightageHierarchy,threshold)
+    useEffect(() => {
+        dispatch(configurationTabDetails.getConfigListReferenceData())
+    },[])
+    
+    const emptyValuestoFill = Strings.ADD_RULE.DEFAULT_DATA
+    const Flight_Priority = fltPriority || []
+    const Star_flight = starFltIndicator || []
+    const TravelType =  travelType || []
+    const Aircraft_type = acType || []
+    const Weight_level = weightageHierarchy || []
+    const Threshold_options = threshold || []
+    const Domain = domain || []
+    const defaultDataFill= listItemData ? listItemData : emptyValuestoFill
+    const editable = isFormEditable ? Strings.ADD_RULE.AUTO : Strings.ADD_RULE.NONE
+    const [onEdit, setOnEdit] = useState<any>(editable)
+    const [finalObject,setFinalObject] = useState <any> (defaultDataFill)
+    const id = defaultDataFill['id'] || '' ;
+    
+    const handleChange = (e: any) => {
+        let tempArray = e.target.name.split('_')
+        let tempObj: any = { ...finalObject[tempArray[0]] }
+        if (tempArray[2] !== null && tempArray[2] !== undefined) {
+            if(tempArray[2]===Strings.ADD_RULE.ISGREATER) {
+                tempObj[tempArray[1]][tempArray[2]] = e.target.value===Strings.ADD_RULE.GREATER_THEN ? true : false;
+            }else{
+                tempObj[tempArray[1]][tempArray[2]] = e.target.value;
             }
-            tempObj["Plan ID"]=el?.iaoRunid
-            tempObj["Is Selected"]=el?.isSelected
-            tempObj["Op Loss"]=`${el?.iaoOperationsLoss}`
-            tempObj["Crew Saved"]=`${el?.totalFAConx+el?.totalPilotConx}`
-            tempObj["Pax Conx Saved"]=`${el?.totalPaxConx}`
-            tempObj["Impact On Downstream"]=`${el?.isTailConxValid}`
-            tempObj["Compliance Impacted"]=`${el?.iaoHasCompatabilityLoss}`
-            tempObj["Experience Impacted"]=`${el?.iaoHasExperienceLoss}`
-
-            let tempSlotFlight = ""
-            el?.runDetails?.length>0&&el.runDetails.map((obj:any)=>{
-                let tempSlot = obj?.iaoSlotid ? `${obj.iaoSlotid?.split('_')[0]} at ${obj.iaoSlotid?.split('_')[1].substring(0,2)}:${obj.iaoSlotid?.split('_')[1].substring(2,5)}`:'--';
-                let tempFlightLeg = obj?.iaoFlightLegId ? `${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--' ;
-                tempSlotFlight = tempSlotFlight + tempSlot + ' - ' + tempFlightLeg + ' ,'
-
-                // tempSlotFlight = tempSlotFlight + ` ${obj?.iaoSlotid? `${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}` :'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'} ,`
-            })
-
-            tempObj["Slot - Flight"]=tempSlotFlight
-
-            exportDataSet.push(tempObj)
-        })
-
-        // final export data
-        let wb = utils.book_new(),
-        ws = utils.json_to_sheet(exportDataSet);
-        utils.book_append_sheet(wb, ws, `gateAI_${id}`)
-        writeFile(wb, `gateAI_${id}.xlsx`)
-        
-        // console.log('check the export data formet ===> ',exportDataSet)
+            setFinalObject({ ...finalObject, [tempArray[0]]: tempObj })
+        } else if (tempArray[1] !== null && tempArray[1] !== undefined) {
+            tempObj[tempArray[1]] = e.target.value;
+            setFinalObject({ ...finalObject, [tempArray[0]]: tempObj })
+        }
+        else {
+            setFinalObject({ ...finalObject, [e.target.name]: e.target.value })
+        }
     }
-    // console.log(finalExplainData,'check ExplainPopUp data ==> ')
-    return(
-        <div>
-            <div className='explainPopUpMainBoxBG'></div>
-            <div className='explainPopUpMainBox'>
-            <div className='explainPopUpBox'>
-                <div className='explainPopUpHeaderBox'>
-                    <div className='explainPopUpHeadingText' style={{font: 'normal normal bold 16px/21px Roboto'}}>{`${explainData?.data?.simulationId}`}</div>
-                    <div style={{display:'flex',gap:'20px'}}>
-                        <div className='exportButton' style={{font: 'normal normal normal 17px Roboto'}} onClick={()=>{exportDataInXLSX(finalExplainData,`${explainData?.data?.simulationId}`)}}>Export</div>
-                        <div className='explainPopUpClose' onClick={()=>{closeExplainPopUp()}}>&#10006;</div>
+
+    const handleSave = () =>{
+        if(finalObject.Description.trim().length && finalObject.expression.trim().length && finalObject.threshold.low.value.trim().length && finalObject.threshold.medium.value.trim().length && finalObject.threshold.high.value.trim().length && finalObject.cost.low.trim().length && finalObject.cost.medium.trim().length && finalObject.cost.high.trim().length){
+            handleSaveAction({formData:finalObject,isUpdateDataAction:id.trim() !== ''})
+            setShowForm(false)
+        }else {
+            alert("Please enter all the required fields...")
+        }
+    }
+    const renderDropDownView = (title: any, dropdownOptionsList: any, className: any,defaultValue:any,name:any,value:any) => {
+        return (
+            <div className="common-flexcolumn" >
+                <text className="dropdown-title" >{title}</text>
+                <Dropdown className={className} name={name} handleChange={handleChange} options={dropdownOptionsList} pointerEvents={onEdit} defaultValue={defaultValue} value={value}/>
+            </div>
+        )
+    }
+    return (
+       <div style={Styles.addruleContainer}>
+            <div className="addrule-titleView">
+                <>
+                    <text className="addrule-title">{listItemData ? Strings.ADD_RULE.RULE_NAME : Strings.ADD_RULE.NEW_RULE}</text>
+                </>
+                {
+                    onEdit === Strings.ADD_RULE.NONE ?
+                        <div className="buttonView">
+                            <DeleteEditButtonContainer onDeleteClick={handleCancelAction} onEditClick={() => { setOnEdit(Strings.ADD_RULE.AUTO) }} />
+                        </div>
+
+                        : <></>
+                }
+            </div>
+            <div className="addrule-bag" style={ { ...Styles.descriptionView, pointerEvents: onEdit }} >
+                <div className="common-flexcolumn" >
+                    <text className="descrp-title">{Strings.ADD_RULE.DESCRIPTION_TEXT}</text>
+                    <input type="text" placeholder="Enter" className="description-text" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name={Strings.ADD_RULE.DESCRIPTION} value={finalObject.Description} onChange={handleChange} />
+                </div>
+                <div className="first-dropdownsView" style={Styles.firstDropdownsView}>
+                    {renderDropDownView(Strings.ADD_RULE.FLIGHT_PROPRITY, Flight_Priority, "dropdown-one",Flight_Priority[0],Strings.ADD_RULE.FLT_PRIORITY,finalObject.fltPriority)}
+                    {renderDropDownView(Strings.ADD_RULE.STAR_FLIGHT_INDICATOR, Star_flight, "dropdown-one",Star_flight[0],Strings.ADD_RULE.STAR_FLT_INDICATOR,finalObject.starFltIndicator)}
+                    {renderDropDownView(Strings.ADD_RULE.DOM_INT_INDICATOR, TravelType, 'dropdown-one',TravelType[0],Strings.ADD_RULE.TRAVEL_TYPE,finalObject.travelType)}
+                    {renderDropDownView(Strings.ADD_RULE.AIRCRAFT_TYPE, Aircraft_type, 'dropdown-one',Aircraft_type[0],Strings.ADD_RULE.AC_TYPE,finalObject.acType)}
+                    {renderDropDownView(Strings.ADD_RULE.WEIGHTAGE, Weight_level, 'dropdown-two',Weight_level[0],Strings.ADD_RULE.WEIGHTAGE_HIERARCHY,finalObject.weightageHierarchy )}
+                    {renderDropDownView(Strings.ADD_RULE.DOMAIN_TITLE, Domain, 'dropdown-two',Domain[0],Strings.ADD_RULE.DOMAIN,finalObject.Domain )}
+                </div>
+                <div className="second-dropdownView" style={Styles.secondDropdownView}>
+                    <div className="common-flexcolumn" >
+                        <text className="dropdown-title">{Strings.ADD_RULE.THRESHOLD_LOW}</text>
+                        <div className="drodownwithtext" style={{...Styles.dropdownwithtext, backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }}>
+                            <Dropdown className="dropdown-combine" name='threshold_low_isGreater' handleChange={handleChange} options={Threshold_options} pointerEvents={onEdit} defaultValue={Threshold_options[0]} value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.LOW][Strings.ADD_RULE.ISGREATER] ? Strings.ADD_RULE.GREATER_THEN : Strings.ADD_RULE.LESS_THEN} />
+                            <VerticalLine className="verticalLine"/>
+                            <input type="text" placeholder="" className="textValue" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="threshold_low_value" value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.LOW][Strings.ADD_RULE.VALUE]} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="common-flexcolumn" >
+                        <text className="dropdown-title">{Strings.ADD_RULE.COST_LOW}</text>
+                        <input type="text" placeholder="" className="thrshold-text" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="cost_low" value={finalObject[Strings.ADD_RULE.COST][Strings.ADD_RULE.LOW]} onChange={handleChange} />
+                    </div>
+
+                </div>
+                <div className="second-dropdownView" style={Styles.secondDropdownView}>
+
+                    <div className="common-flexcolumn" >
+                        <text className="dropdown-title">{Strings.ADD_RULE.THRESHOLD_MEDIUM}</text>
+                        <div className="drodownwithtext" style={{ ...Styles.dropdownwithtext, backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }}>
+                            <Dropdown className="dropdown-combine" name='threshold_medium_isGreater' handleChange={handleChange} options={Threshold_options} pointerEvents={onEdit} defaultValue={Threshold_options[0]} value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.MEDIUM][Strings.ADD_RULE.ISGREATER] ? Strings.ADD_RULE.GREATER_THEN  : Strings.ADD_RULE.LESS_THEN} />
+                            <div className="verticalLine" />
+                            <input type="text" placeholder="" className="textValue" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="threshold_medium_value" value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.MEDIUM][Strings.ADD_RULE.VALUE]} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="common-flexcolumn">
+                        <text className="dropdown-title">{Strings.ADD_RULE.COST_MEDIUM}</text>
+                        <input type="text" placeholder="" className="thrshold-text" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="cost_medium" value={finalObject[Strings.ADD_RULE.COST][Strings.ADD_RULE.MEDIUM]} onChange={handleChange} />
                     </div>
                 </div>
-                <div className='explainPopUpTableHeading' style={{font: 'normal normal normal 14px/19px Roboto'}}>
-                    {heading?.length>0&&heading.map((el:any,index:number)=>{
-                        if(index===0){
-                            return(<div style={{width:'26%',textAlign:'left'}}>{el}</div>)
-                        }else if(index===1||index===3){
-                            return(<div style={{width:'10%',textAlign:'center'}}>{el}</div>)
-                        }else if(index===2){
-                            return(<div style={{width:'8%',textAlign:'center'}}>{el}</div>)
-                        }else if(index===4){
-                            return(<div style={{width:'15%',textAlign:'center'}}>{el}</div>)
-                        }else if(index===5||index===6){
-                            return(<div style={{width:'12%',textAlign:'center'}}>{el}</div>)
-                        }else{
-                            return(<div style={{width:'7%',textAlign:'center'}}>{el}</div>)
-                        }
-                        // return(
-                        //     <div style={{width:index===0?'26%':index===1||index===3?'10%':index===2?'8%':index===4?'15%':index===5||index===6?'12%':'7%',textAlign:index!=0?'center':'left'}}>{el}</div>
-                        // )
-                    })}
+                <div className="second-dropdownView" style={Styles.secondDropdownView}>
+                    <div className="common-flexcolumn" >
+                        <text className="dropdown-title">{Strings.ADD_RULE.THRESHOLD_HIGH}</text>
+                        <div className="drodownwithtext" style={{ ...Styles.dropdownwithtext, backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }}>
+                            <Dropdown className="dropdown-combine" name='threshold_high_isGreater' handleChange={handleChange} options={Threshold_options} pointerEvents={onEdit} defaultValue={Threshold_options[0]} value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.HIGH][Strings.ADD_RULE.ISGREATER] ? Strings.ADD_RULE.GREATER_THEN  : Strings.ADD_RULE.LESS_THEN} />
+                            <div className="verticalLine" />
+                            <input type="text" placeholder="" className="textValue" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="threshold_high_value" value={finalObject[Strings.ADD_RULE.THRESHOLD][Strings.ADD_RULE.HIGH][Strings.ADD_RULE.VALUE]} onChange={handleChange} />
+                        </div>
+                    </div>
+                    <div className="common-flexcolumn"  style={{}}>
+                        <text className="dropdown-title">{Strings.ADD_RULE.COST_HIGH}</text>
+                        <input type="text" placeholder="" className="thrshold-text" style={{ backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }} name="cost_high" value={finalObject[Strings.ADD_RULE.COST][Strings.ADD_RULE.HIGH]} onChange={handleChange} />
+                    </div>
+
                 </div>
-                <div className='explainPopUpScroll' style={{height:'72%',overflow:'auto'}}>
-                    {/* {explainData?.data?.simulationDetails?.length>0&&explainData.data.simulationDetails.map((el:any,index:number)=>{ */}
-                    {finalExplainData?.length>0?finalExplainData.map((el:any,index:number)=>{
-                        return(
-                            <div style={{backgroundColor:el?.isSelected===true?'#2680EA1F':''}}>
-                                <div style={{marginLeft:'auto',width:'100%',height:'25px',display:'flex'}}>
-                                    {heading?.length>0&&heading.map((i:any,ind:number)=>{
-                                        if(ind===0){
-                                            return(
-                                                <div style={{width:'25%',textAlign:'left',marginLeft:'2%',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    <div style={{width:'100%',display:'flex',justifyContent:'start'}}>
-                                                        <div>{el?.iaoRunid}</div>
-                                                        {el?.isSelected===true&&<div style={{marginLeft:'10px',color:'#32A737'}}>&#10004;</div>}
-                                                    </div>
-                                                </div>
-                                            )
-                                        }else if(ind===1){
-                                            return(
-                                                <div style={{width:'10%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {el?.iaoOperationsLoss}
-                                                </div>
-                                            )
-                                        }else if(ind===2){
-                                            return(
-                                                <div style={{width:'8%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {`${el?.totalDeadheadIndicator?el.totalDeadheadIndicator:'0'}/${((el?.totalFAConx+el?.totalPilotConx)-(el?.totalDeadheadIndicator?el.totalDeadheadIndicator:0))}`}
-                                                </div>
-                                            )
-                                        }else  if(ind===3){
-                                            return(
-                                                <div style={{width:'10%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {el?.totalPaxConx}
-                                                </div>
-                                            )
-                                        }else  if(ind===4){
-                                            return(
-                                                <div style={{width:'15%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {el?.isTailConxValid}
-                                                </div>
-                                            )
-                                        }else  if(ind===5){
-                                            return(
-                                                <div style={{width:'12%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {el?.iaoHasCompatabilityLoss}
-                                                </div>
-                                            )
-                                        }else  if(ind===6){
-                                            return(
-                                                <div style={{width:'12%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
-                                                    {el?.iaoHasExperienceLoss}
-                                                </div>
-                                            )
-                                        }else{
-                                            return(
-                                                <div style={{width:'7%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}></div>
-                                            )
-                                        }
-                                        // return(
-                                        //     <div style={{
-                                        //         width:ind===0?'25%':ind===1||ind===3?'10%':ind===2?'8%':ind===4?'15%':ind===5||ind===6?'12%':'7%',
-                                        //             textAlign:ind!=0?'center':'left',marginLeft:ind===0?'2%':'',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>{
-                                        //                 ind===0?(<div style={{width:'100%',display:'flex',justifyContent:'start'}}>
-                                        //                     <div>{el?.iaoRunid}</div>
-                                        //                     {el?.isSelected===true&&<div style={{marginLeft:'10px',color:'#32A737'}}>&#10004;</div>}
-                                        //                 </div>):
-                                        //                 ind===1?`${el?.iaoOperationsLoss}`:
-                                        //                 ind===2?`${el?.totalDeadheadIndicator?el.totalDeadheadIndicator:'0'}/${((el?.totalFAConx+el?.totalPilotConx)-(el?.totalDeadheadIndicator?el.totalDeadheadIndicator:0))}`:
-                                        //                 ind===3?`${el?.totalPaxConx}`:
-                                        //                 ind===4?`${el?.isTailConxValid}`:
-                                        //                 ind===5?`${el?.iaoHasCompatabilityLoss}`:
-                                        //                 ind===6?`${el?.iaoHasExperienceLoss}`:
-                                        //                 ind===7?``:'--'
-                                        //             }</div>
-                                        // )
-                                    })}
-                                </div>
-                                <div style={{width:'100%',display:'flex',marginLeft:'auto',height:el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?'':'30px',alignItems:'center',marginTop:'10px'}}>
-                                    <div style={{
-                                        ...{borderBottom:'1px solid #BDBDBD',width:'88%',height:el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?'':'30px',marginTop:'2px',marginLeft:'2%'}
-                                        ,...el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?{display:'grid',gridTemplateColumns: 'auto auto auto'}:{display:'flex',}}}>
-                                        {el?.runDetails?.length>0&&el.runDetails.map((obj:any,inde:number)=>{
-                                            // if(isShowMore===false&&moreIndex!=index&&el?.runDetails?.length>4){
-                                            if(moreIndex!=index&&(el?.runDetails?.length>4||el?.runDetails?.length<=4)){
-                                                if(inde<=3){
-                                                    return(
-                                                        // <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>{`${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[0]:'-'} at ${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[1].substring(0,2):'-'}:${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[1].substring(2,5):'-'} - ${obj?.iaoFlightLegId?obj?.iaoFlightLegId?.split('::')[0]:'-'} ${obj?.iaoFlightLegId?obj?.iaoFlightLegId?.split('::')[1]:'-'}`}</div>
-                                                        <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>
-                                                            {/* {`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`} */}
-                                                            {`${obj?.iaoSlotid?`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}`:'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'}`}
-                                                        </div>
-                                                    )
-                                                }
-                                            }else if(isShowMore===true&&moreIndex===index&&el?.runDetails?.length>4){
-                                                return(
-                                                    <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',margin:'5px'}}>
-                                                        {/* {`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`} */}
-                                                        {`${obj?.iaoSlotid?`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}`:'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'}`}
-                                                    </div>
-                                                )
-                                            }
-                                            // else{
-                                            //     {
-                                            //         return(
-                                            //             <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>{`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`}</div>
-                                            //         )
-                                            //     }
-                                            // }
-                                        })}
-                                    </div>
-                                    {/* {el?.runDetails?.length>4&&isShowMore===false&&index!=moreIndex?<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(true);setMoreIndex(index)}}>{'More'}</div>: */}
-                                    {el?.runDetails?.length>4&&index!=moreIndex?<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(true);setMoreIndex(index)}}>{'More'}</div>:
-                                    el?.runDetails?.length>4&&isShowMore===true&&index===moreIndex&&<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(false);setMoreIndex(-1)}}>{'Less'}</div>}
-                                </div>
-                            </div>
-                        )
-                    }):<TwinLoader />}
+
+                <div style={{ display: 'flex', flexDirection: 'column', marginTop: 19 }}>
+                    <text className="expresTitle">{Strings.ADD_RULE.EXPRESSION_TEXT}</text>
+                    <textarea name={Strings.ADD_RULE.EXPRESSION} placeholder="Enter" className="expresInput" style={{font: 'normal normal normal 14px Roboto', backgroundColor: onEdit === Strings.ADD_RULE.NONE ? Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_VIEWONLY : Colors.ADD_RULE.ADD_RULE_INPUT_BG_COLOR_EDITABLE }}
+                    onChange={handleChange}
+                    >{finalObject.expression}</textarea>
                 </div>
-            </div>
+                {
+                    onEdit !== 'none' ?
+                        <div className="saveandcancelView" style={{ display: 'flex', flexDirection: 'row-reverse', marginTop: 30 }}>
+                            <button onClick={handleSave} className="save-button" >
+                                <text className="save-buttonText">{Strings.ADD_RULE.SAVE}</text>
+                            </button>
+
+                            <button onClick={handleCancelAction} className="cancel-button"> 
+                                <text className="cancel-buttonText">{Strings.ADD_RULE.CANCEL}</text>
+                            </button>
+                        </div>
+                        : <></>
+                }
             </div>
         </div>
-    )
+    );
 }
 
-export default ExplainPopUp;
+export default AddRule;
