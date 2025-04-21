@@ -1,44 +1,529 @@
-import Constants from "../../globals/Constants";
+import { useState, useEffect, useRef } from "react";
+import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import "./TimerSlide.css";
+import moment from "moment";
+import configurationDetails from "./Configuration";
+import { TZFormatter, localTimezoneConversion } from "../../globals/Common";
+import { makeStyles } from "@mui/styles";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faMinus,
+  faPlus,
+  faChevronDown,
+} from "@fortawesome/free-solid-svg-icons";
+import SliderWithAnomalies from "../sliderWithAnomalies";
+import { ReactComponent as Previous } from "../../assets/previous.svg";
+import { ReactComponent as Next } from "../../assets/next.svg";
+import { ReactComponent as PreviousDisable } from "../../assets/previousDisable.svg";
+import { ReactComponent as NextDisable } from "../../assets/nextDisable.svg";
+import Dropdown from "../dropDownWithSearch/DropDown";
+import "../dropDownWithSearch/DropDownStyles.css";
+import TwinLabel from "../../atoms/twinLabel/TwinLabel";
+import Styles from "./Styles";
+// import { useDispatch, useSelector } from "react-redux";
+// import { mapScreenAction } from "../../store/map/action";
+// import configuration from "../../environments/Configuration";
 
-const BackgroundTimeVerticalLine = (props: any) => {
-  const { leftSpace, bgColor, effectiveHeight, interval, hours, selectedTimeLineValue} = props;
-  // for total time
-  // const part = ((hours*60)+interval)
-  //this for time label
-  // const part = ((hours*60)+interval)/interval
-  // const part = ((hours*60)+30)/interval
-  // const part = ((selectedTimeLineValue.endTime+selectedTimeLineValue.startTime)/interval)
+const useStyles = makeStyles(
+  {
+    icon: {
+      "&.MuiButtonGroup-grouped": {
+        minWidth: "26px",
+      },
+    },
+  },
+  { index: 1 }
+);
 
-  const part = (selectedTimeLineValue.endTime+selectedTimeLineValue.startTime)
-  // const part = (hours*60)+30
-  //this for 10 min line
-  // const part = Math.ceil(((hours*60)+interval)/10)
-  let parts = [];
-  for (let i = 1; i <= part; i++) {
-    parts.push(i);
-  }
-  // let b = `calc(100vw - ${450+140}px)`
-  // let b = `calc({100vw - 450+140}px)`
-  // let trackWidth = window.innerWidth-Constants.CARD_CONTAINER_WIDTH-leftSpace-15;
-  let trackWidth = window.innerWidth-Constants.CARD_CONTAINER_WIDTH-leftSpace-30;
-  console.log('check inside timeverticalline ===> ',trackWidth,interval,part,hours,'parts',((hours*60)+interval),((hours*60)+interval)/interval,Math.ceil(((hours*60)+interval)/10))
+let heartbeatfortimeframe: any;
+
+// const dropdownOptions = [
+//   "2 Hours",
+//   "3 Hours",
+//   "4 Hours",
+//   "5 Hours",
+//   "6 Hours"
+// ];
+const dropdown2Options = ["A", "B", "C", "D", "E", "F"];
+
+function TimerSlide(props: any) {
+  const classes = useStyles();
+  const [initialScroll, setinitialScroll] = useState<any>();
+  const [currDate, setcurrDate] = useState(localTimezoneConversion());
+  const [dropdownOptions, setdropdownOptions] = useState<any>([]);
+  const [timeSliderSpan, settimeSliderSpan] = useState<any>({
+    minValue: 0,
+    maxValue: 0,
+    varies: 0,
+  });
+  const [interval, setinterval] = useState<number>(0); //Setting default time interval
+  const [actualTiming, setActualTiming] = useState<
+    Array<{
+      timerVal: any;
+      currentTimer: any;
+    }>
+  >([]);
+  const [displayTiming, setDisplayTiming] = useState<
+    Array<{
+      timerVal: any;
+      currentTimer: any;
+    }>
+  >([]); //Setting default time interval
+
+  const {
+    station,
+    terminal,
+    selectedStation,
+    selectedTerminal,
+    setselectedTerminal,
+    setselectedStation,
+    referenceData,
+    setflightWindowEndTime,
+    status
+  } = props;
+
+  const [scrollX, setscrollX] = useState<number>(0); // For detecting start scroll postion
+  const [scrolEnd, setscrolEnd] = useState<boolean>(false); // For detecting end of scrolling
+  const [heartBeat, setheartBeat] = useState<boolean>(false);
+  const [trigger, settrigger] = useState<boolean>(false);
+  const [update] = useState(0);
+  const [currTimeClicked, setcurrTimeClicked] = useState<boolean>(false);
+  const [timeRange, settimeRange] = useState<any>();
+  // const dispatch = useDispatch();
+  // const refData = useSelector((state: any) => state.mapDataReducer.refData)
+  // const isloggedin = useSelector((state: any) => state.UserData.isValidUserLoggedIn)
+  const isCardViewExpanded = true; // useSelector((state: any) => state.boardingflightDataReducer.isCardViewExpanded)
+
+  const scrollElement: any = useRef(null);
+  const scrollLeft = (scrollOffset: number) => {
+    scrollElement.current.scrollLeft += scrollOffset;
+    setscrollX(scrollX + scrollOffset); // Updates the latest scrolled postion
+
+    //For checking if the scroll has ended
+    if (
+      // Math.floor(
+      //   scrollElement.current.scrollWidth - scrollElement.current.scrollLeft + 300
+      // ) <= scrollElement.current.offsetWidth
+      scrollElement.current.scrollWidth <
+      scrollX + scrollOffset + scrollElement.current.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
+    }
+  };
+
+  //This will check scroll event and checks for scroll end
+  const scrollCheck = () => {
+    setscrollX(scrollElement.current.scrollLeft);
+    if (
+      Math.floor(
+        scrollElement.current.scrollWidth - scrollElement.current.scrollLeft
+      ) <= scrollElement.current.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
+    }
+  };
+
+  useEffect(() => {
+    if (referenceData.length) {
+      let dropdownopts = referenceData?.[0]?.ArrivalTimeRangeOptionsInHrs
+      setdropdownOptions(dropdownopts || []);
+      settimeSliderSpan(referenceData?.[0]?.sliderTimeSpanInMins);
+      setinterval(referenceData?.[0]?.sliderTimeSpanInMins?.varies);
+      settimeRange(dropdownopts?.[0]);
+    }
+  }, [referenceData]);
+
+  useEffect(() => {
+    //Check width of the scollings
+    if (
+      scrollElement.current &&
+      scrollElement?.current?.scrollWidth ===
+        scrollElement?.current?.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
+    }
+  }, [
+    scrollElement?.current?.scrollWidth,
+    scrollElement?.current?.offsetWidth,
+  ]);
+
+  // On Click Event for Set time Interval on inc/dec
+  const incrementInterval = () => {
+    setinterval(interval + timeSliderSpan?.varies);
+    scrollCheck();
+  };
+  const decrementInterval = () => {
+    setinterval(interval - timeSliderSpan?.varies);
+    scrollCheck();
+  };
+
+  useEffect(() => {
+    let currentDateTime: any = localTimezoneConversion().startOf("hour");
+
+    let startDateTime: any = localTimezoneConversion(currentDateTime).subtract(
+      configurationDetails.timeSlider.startTimer,
+      "h"
+    );
+
+    let totalHRDisplay: number =
+      (configurationDetails.timeSlider.startTimer +
+        configurationDetails.timeSlider.endTimer) *
+      (60 / 1);
+    let timer: any[] = [];
+    let tempTimer: any[] = [];
+    for (let index = 0; index <= totalHRDisplay; index++) {
+      let nextstartDateTime = localTimezoneConversion(startDateTime).add(
+        1,
+        "m"
+      );
+      if (index % interval == 0) {
+        timer.push({
+          timerVal: startDateTime,
+          currentTimer: localTimezoneConversion().isBetween(
+            startDateTime,
+            nextstartDateTime
+          ),
+        });
+      }
+      tempTimer.push({
+        timerVal: startDateTime,
+        currentTimer: localTimezoneConversion().isBetween(
+          startDateTime,
+          nextstartDateTime
+        ),
+      });
+      if (tempTimer.at(-1).currentTimer) {
+        setcurrDate(tempTimer.at(-1).timerVal);
+        setinitialScroll(
+          Math.floor(tempTimer.length / interval) * 50 -
+            Math.floor(scrollElement.current.offsetWidth / 2) -
+            45
+        ); // 50 is scrollvalue b/t 2 time lables and 45 is some additional value for making it as center
+      }
+      startDateTime = nextstartDateTime;
+    }
+
+    if (tempTimer.length) {
+      setActualTiming(tempTimer);
+      setDisplayTiming(timer);
+    }
+  }, [interval, update, heartBeat]);
+
+  // const callTimeFrameApi = () => {
+  //   // if(actualTiming && actualTiming[0] && actualTiming[0].timerVal)
+  //   dispatch(mapScreenAction.getTimeFrame({
+  //     "bucketFromTime": TZFormatter(moment().utc().subtract(configuration.defaultValues.timerStartHrs, 'hours')), //actualTiming[0].timerVal.format('YYYY:MM:DDTHH:mm:ss'), //"2023-07-06T15:23:00",
+  //     "bucketToTime": TZFormatter(moment().utc().add(configuration.defaultValues.timerEndHrs, 'hours')), //actualTiming[actualTiming.length-1].timerVal.format('YYYY:MM:DDTHH:mm:ss'), //"2023-07-06T15:26:00",
+  //     "departureStation": refData[0].stationName,
+  //     "enterpriseCode": "UA"
+  //   }))
+  // }
+
+  // useEffect(() => {
+  //   if (actualTiming.length && refData.length) {
+  //     callTimeFrameApi()
+  //   }
+  // }, [actualTiming.length, refData])
+
+  // useEffect(() => {
+  //   if (refData.length) {
+  //     heartbeatfortimeframe = setInterval(() => {
+  //       if (isloggedin) {
+  //         callTimeFrameApi()
+  //       } else {
+  //         clearInterval(heartbeatfortimeframe)
+  //         heartbeatfortimeframe = null
+  //       }
+  //     }, 10000)
+  //   }
+
+  // }, [refData, isloggedin])
+
+  // useEffect(() => {
+  //   if (!isloggedin) {
+  //     clearInterval(heartbeatfortimeframe)
+  //     heartbeatfortimeframe = null
+  //   }
+  // }, [isloggedin])
+
+  useEffect(() => {
+    setTimeout(() => {
+      settrigger(true);
+    }, (60 - parseInt(localTimezoneConversion().format("ss"))) * 1000);
+    return () => {
+      clearInterval(heartbeatfortimeframe);
+      heartbeatfortimeframe = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    let heartBeatInterval: any;
+    if (trigger) {
+      heartBeatInterval = setInterval(() => {
+        setheartBeat((prevState) => !prevState);
+      }, 60000);
+    }
+    return () => {
+      clearInterval(heartBeatInterval);
+      heartBeatInterval = null;
+    };
+  }, [trigger]);
+
+  //Horizontal scroll to the current time element
+  useEffect(() => {
+    let hrScrollElement = setTimeout(() => {
+      const element = document.getElementById("current-indicator");
+      element &&
+        element.scrollIntoView({ behavior: "smooth", inline: "center" });
+    }, 1000);
+
+    return () => {
+      clearTimeout(hrScrollElement);
+    };
+  }, []);
+
+  const currentTimeHandler = () => {
+    // setUpdate(update=>update+1)
+    setcurrTimeClicked(true);
+    setcurrDate(localTimezoneConversion());
+    // setinitialScroll(Math.floor(actualTiming.length / interval) * 50 - Math.floor(scrollElement.current.offsetWidth / 2))
+  };
+
   return (
-    <div
-      // style={{...{paddingLeft: `${leftSpace}px`,width: `${effectiveWidth}px`,backgroundColor:`${bgColor}`,height:`${effectiveHeight}`,display:'flex'},...Styles.backgroundMainBox}}
-      // style={{paddingLeft: `${leftSpace}px`,width: `${effectiveWidth}px`,backgroundColor:`${bgColor}`,height:`${effectiveHeight}px`,display:'flex'}}
-      style={{paddingLeft: `${leftSpace}px`,width: trackWidth,backgroundColor:`${bgColor}`,height:`${effectiveHeight}px`,display:'flex'}}
-    >
-      {parts.map((el:number) => {
-        return (
+    <div className="selection-container" style={Styles.selectionContainer}>
+      <div
+        style={{
+          width: `calc( 100vw / var(--zoom) - 113px - ${
+            isCardViewExpanded ? "435px" : "-15px"
+          } )`,
+        }}
+        className="current-time"
+      >
+        <span
+          style={{
+            color: "#000",
+
+            fontSize: "15px",
+
+            position: "absolute",
+
+            left: "50px",
+            fontWeight: "600",
+            textTransform: "uppercase",
+          }}
+        >
+          <TwinLabel label={currDate.format(" DD MMMM YYYY ")} />
+        </span>
+
+        <span
+          style={{
+            color: "#FFFFFFC4",
+
+            cursor: "pointer",
+
+            fontSize: "15px",
+
+            position: "absolute",
+
+            right: "31px",
+            fontWeight: "500",
+            border: "1px solid #00266BCC",
+            borderRadius: "30px",
+            padding: "1px 10px",
+            backgroundColor: "#00266BCC",
+          }}
+          onClick={currentTimeHandler}
+        >
+          <TwinLabel label={"Current Time"} />
+        </span>
+      </div>
+      <div
+        style={{
+          width: `calc( 100vw / var(--zoom) - 50px - ${
+            isCardViewExpanded ? "320px" : "0px"
+          } )`,
+        }}
+        className="time-liner"
+      >
+        <div className="button-section">
+          <ButtonGroup
+            size="small"
+            aria-label="small outlined button group"
+            className="button-group"
+          >
+            <Button
+              className={classes.icon}
+              disabled={interval <= timeSliderSpan?.minValue ? true : false}
+              onClick={decrementInterval}
+            >
+              <FontAwesomeIcon
+                icon={faMinus}
+                style={{
+                  color:
+                    interval <= timeSliderSpan?.minValue ? "grey" : "#FFFFFFC4",
+                  fontSize: "12px",
+                }}
+              />
+            </Button>
+            <span className="minutes-variant">
+              <TwinLabel label={`${interval} MIN`} />
+            </span>
+            <Button
+              className={classes.icon}
+              disabled={interval >= timeSliderSpan?.maxValue}
+              onClick={incrementInterval}
+            >
+              <FontAwesomeIcon
+                icon={faPlus}
+                style={{
+                  color:
+                    interval >= timeSliderSpan?.maxValue ? "grey" : "#FFFFFFC4",
+                  fontSize: "12px",
+                }}
+              />
+            </Button>
+          </ButtonGroup>
+        </div>
+        <div className="time-line-contain">
           <div
-            // style={{...{width: `${(effectiveWidth - part) / part}px`},...Styles.backgroundDivision}}#d9dcf2
-            // style={{...{width: `${(trackWidth - part) / part}px`},...Styles.backgroundDivision}}
-            // style={{width: `${(trackWidth - (part/interval)) / part}px`,borderRight:el%interval===0?'1px solid #d9dcf2':''}}
-            style={{width: `${trackWidth / part}px`,borderRight:el%interval===0?'1px solid #d9dcf2':''}}
-          ></div>
-        );
-      })}
+            style={{
+              height: "26px",
+              display: "flex",
+              // backgroundColor: "#00266BCC"
+            }}
+          >
+            <div
+              style={{
+                backgroundColor: "#00266BCC",
+                height: "100%",
+                marginTop: "14px",
+                width: "14px",
+                borderBottomLeftRadius: "30px",
+                borderTopLeftRadius: "30px",
+              }}
+              className="left-end"
+            >
+              {/* &nbsp;&nbsp;&nbsp; */}
+            </div>
+
+            <SliderWithAnomalies
+              updateCurrDate={(date: any) => setcurrDate(date)}
+              initialScroll={initialScroll}
+              interval={interval}
+              onScroll={scrollCheck}
+              parentDiv={scrollElement}
+              actualTiming={actualTiming}
+              displayTiming={displayTiming}
+              currentTimeClicked={currTimeClicked}
+              resetCurrTimeClicked={setcurrTimeClicked}
+            />
+
+            <div
+              style={{
+                backgroundColor: "#00266BCC",
+                height: "100%",
+                marginTop: "14px",
+                width: "46px",
+                borderBottomRightRadius: "30px",
+                borderTopRightRadius: "30px",
+                display: "flex",
+                alignItems: "center",
+              }}
+              className="prev-nxt"
+            >
+              {scrollX === 0 ? (
+                <PreviousDisable className="previous-button" />
+              ) : (
+                <Previous
+                  className="previous-button"
+                  onClick={() => scrollLeft(-300)}
+                />
+              )}
+              {scrolEnd ? (
+                <NextDisable />
+              ) : (
+                <Next onClick={() => scrollLeft(300)} />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* <div className="dropdownContainer">
+        <div className="firstDropdown">
+          <Dropdown
+            label="STATION"
+            options={station}
+            defaultValue={selectedStation}
+            value={selectedStation}
+            updateValue={setselectedStation}
+          />
+        </div>
+        <div className="verticalLine"></div>
+        <div className="secondDropdown">
+          <Dropdown
+            label="TERMINAL"
+            options={terminal}
+            defaultValue={selectedTerminal}
+            value={selectedTerminal}
+            updateValue={setselectedTerminal}
+          />
+        </div>
+      </div> */}
+      <div className="hrsSelection">
+        <Dropdown
+          label={timeRange}
+          options={dropdownOptions}
+          defaultValue={timeRange}
+          value={timeRange}
+          updateValue={(val:any) => {settimeRange(val); setflightWindowEndTime(val)}}
+        />
+      </div>
+      <div className="statusbar">
+        {/* <div className="whtbc fltstsdpdn"><span>dropdown</span><span><FontAwesomeIcon icon={faChevronDown} style={{color:"#0981FC"}} /></span></div> */}
+        <div className="status">
+          <div className="whtbc suggsts">
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>published</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#249015'}}>{String(status?.published)?.padStart(2, '0')}</p>
+            </div>
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>advised</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#F5760B'}}>{String(status?.advised)?.padStart(2, '0')}</p>
+            </div>
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>pending</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#E63B3B'}}>{String(status?.pending)?.padStart(2, '0')}</p>
+            </div>
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>total</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#2B2B2B'}}>{String(status?.total)?.padStart(2, '0')}</p>
+            </div>
+          </div>
+          <div className="whtbc waitsts">
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>max. wait</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#E63B3B'}}>{String(status?.maxWait)?.padStart(2, '0')}</p>
+            </div>
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>min. wait</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#F5760B'}}>{String(status?.minWait)?.padStart(2, '0')}</p>
+            </div>
+            <div className="individualsts">
+              <p style={{font: 'normal normal normal 17px / 20px Roboto'}}>avg. wait</p>
+              <p style={{font: 'normal normal normal 30px / 39px Roboto',color:'#2B2B2B'}}>{String(status?.avgWait)?.padStart(2, '0')}</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
-};
-export default BackgroundTimeVerticalLine;
+}
+
+export default TimerSlide;
