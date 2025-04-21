@@ -1,7 +1,37 @@
-/Users/u2155446/Documents/office/gate.ai/node_modules/axios/index.js:1
-    ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){import axios from './lib/axios.js';
-                                                                                      ^^^^^^
+import './alert.css';
+import Button from '../button';
+import { useDispatch, useSelector } from 'react-redux';
 
-    SyntaxError: Cannot use import statement outside a module
+const Alert = (props: any) => {
+    const alertDetails = useSelector((state: any) => state.alertReducer)
+    const dispatch = useDispatch()
+    console.log("",props.error);
+    return (
+        <>
+            <div className="Alert-container" style={{ display: props.error || alertDetails.isOpen ? 'block' : 'none' }}>
+                <div className="Alert-control">
+                    <div className="Alert-title">
+                        <b>{alertDetails.content.title}</b>
+                    </div>
+                </div>
+                <div className="Alert-message">{props?.error?.message || alertDetails.content.content}</div>
+                <div className="buttonflex">
+                    <Button
+                        className="primary"
+                        onClick={() => {
+                            dispatch({ type: 'CLEAR_ALERT' })
+                            if(alertDetails.content.title === 'Session Timeout'){
+                                dispatch({ type: 'DESTORE_USER_DATA' })
+                            }
+                            props?.resetErrorBoundary()
+                        }}
+                    >
+                        Ok
+                    </Button>
+                </div>
+            </div>
+        </>
+    )
+}
 
-    > 1 | import axios from "axios";
+export default Alert;
