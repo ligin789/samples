@@ -1,26 +1,226 @@
+import './explainPopup.css';
+import { useDispatch, useSelector } from "react-redux";
+import { timerAction } from "../../store/timer/action";
+import React from 'react';
+import { utils, writeFile } from 'xlsx'
+import TwinLoader from '../loader';
+const ExplainPopUp = (props:any)=>{
+    const heading = ['','Op Loss','Crew Saved (DH/DTY)','Pax Conx Saved','Impact on Downstream','Compliance Impacted','Experience Impacted','']
+    const explainDataFromStore = useSelector((state:any)=>state.timerData.explainPopUpData)
+    const [isShowMore,setIsShowMore]=React.useState(false);
+    const [moreIndex,setMoreIndex]=React.useState(-1);
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 	
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Styles from './Styles';
- 
-const CircleButton =(props:any)=> {
-    const { icon } = props;
-    return ( 
-        <div style={Styles.circleWrapper}>
-            <FontAwesomeIcon icon={icon} style={Styles.buttonIcon}/>
+    const dispatch = useDispatch();
+    const closeExplainPopUp = ()=>{
+        dispatch(timerAction.closeExplainPopUp());
+    }
+    let explainData = explainDataFromStore
+    let explainDatasimulationDetails = explainDataFromStore?.data?.simulationDetails
+    let tempWith = explainDatasimulationDetails?.filter((el:any)=>el?.isSelected===true)
+    let tempWithOut = explainDatasimulationDetails?.filter((el:any)=>el?.isSelected===false)
+    let finalExplainData = tempWith!=undefined&&tempWithOut!=undefined?[...tempWith,...tempWithOut]:[]
+    // explainDataFromStore?.simulationDetails
+    // console.log('check ExplainPopUp data ==> ',explainData)
+
+    const exportDataInXLSX = (data:any,id:any)=>{
+        let exportDataSet :any=[]
+        data?.length>0&&data.map((el:any,index:number)=>{
+            let tempObj :any = {
+                "Plan ID": "", 
+                "Is Selected": "", 
+                "Op Loss":"", 
+                "Crew Saved": "", 
+                "Pax Conx Saved": "", 
+                "Impact On Downstream": "", 
+                "Compliance Impacted": "",
+                "Experience Impacted": "",
+                "Slot - Flight":""
+            }
+            tempObj["Plan ID"]=el?.iaoRunid
+            tempObj["Is Selected"]=el?.isSelected
+            tempObj["Op Loss"]=`${el?.iaoOperationsLoss}`
+            tempObj["Crew Saved"]=`${el?.totalFAConx+el?.totalPilotConx}`
+            tempObj["Pax Conx Saved"]=`${el?.totalPaxConx}`
+            tempObj["Impact On Downstream"]=`${el?.isTailConxValid}`
+            tempObj["Compliance Impacted"]=`${el?.iaoHasCompatabilityLoss}`
+            tempObj["Experience Impacted"]=`${el?.iaoHasExperienceLoss}`
+
+            let tempSlotFlight = ""
+            el?.runDetails?.length>0&&el.runDetails.map((obj:any)=>{
+                let tempSlot = obj?.iaoSlotid ? `${obj.iaoSlotid?.split('_')[0]} at ${obj.iaoSlotid?.split('_')[1].substring(0,2)}:${obj.iaoSlotid?.split('_')[1].substring(2,5)}`:'--';
+                let tempFlightLeg = obj?.iaoFlightLegId ? `${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--' ;
+                tempSlotFlight = tempSlotFlight + tempSlot + ' - ' + tempFlightLeg + ' ,'
+
+                // tempSlotFlight = tempSlotFlight + ` ${obj?.iaoSlotid? `${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}` :'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'} ,`
+            })
+
+            tempObj["Slot - Flight"]=tempSlotFlight
+
+            exportDataSet.push(tempObj)
+        })
+
+        // final export data
+        let wb = utils.book_new(),
+        ws = utils.json_to_sheet(exportDataSet);
+        utils.book_append_sheet(wb, ws, `gateAI_${id}`)
+        writeFile(wb, `gateAI_${id}.xlsx`)
+        
+        // console.log('check the export data formet ===> ',exportDataSet)
+    }
+    // console.log(finalExplainData,'check ExplainPopUp data ==> ')
+    return(
+        <div>
+            <div className='explainPopUpMainBoxBG'></div>
+            <div className='explainPopUpMainBox'>
+            <div className='explainPopUpBox'>
+                <div className='explainPopUpHeaderBox'>
+                    <div className='explainPopUpHeadingText' style={{font: 'normal normal bold 16px/21px Roboto'}}>{`${explainData?.data?.simulationId}`}</div>
+                    <div style={{display:'flex',gap:'20px'}}>
+                        <div className='exportButton' style={{font: 'normal normal normal 17px Roboto'}} onClick={()=>{exportDataInXLSX(finalExplainData,`${explainData?.data?.simulationId}`)}}>Export</div>
+                        <div className='explainPopUpClose' onClick={()=>{closeExplainPopUp()}}>&#10006;</div>
+                    </div>
+                </div>
+                <div className='explainPopUpTableHeading' style={{font: 'normal normal normal 14px/19px Roboto'}}>
+                    {heading?.length>0&&heading.map((el:any,index:number)=>{
+                        if(index===0){
+                            return(<div style={{width:'26%',textAlign:'left'}}>{el}</div>)
+                        }else if(index===1||index===3){
+                            return(<div style={{width:'10%',textAlign:'center'}}>{el}</div>)
+                        }else if(index===2){
+                            return(<div style={{width:'8%',textAlign:'center'}}>{el}</div>)
+                        }else if(index===4){
+                            return(<div style={{width:'15%',textAlign:'center'}}>{el}</div>)
+                        }else if(index===5||index===6){
+                            return(<div style={{width:'12%',textAlign:'center'}}>{el}</div>)
+                        }else{
+                            return(<div style={{width:'7%',textAlign:'center'}}>{el}</div>)
+                        }
+                        // return(
+                        //     <div style={{width:index===0?'26%':index===1||index===3?'10%':index===2?'8%':index===4?'15%':index===5||index===6?'12%':'7%',textAlign:index!=0?'center':'left'}}>{el}</div>
+                        // )
+                    })}
+                </div>
+                <div className='explainPopUpScroll' style={{height:'72%',overflow:'auto'}}>
+                    {/* {explainData?.data?.simulationDetails?.length>0&&explainData.data.simulationDetails.map((el:any,index:number)=>{ */}
+                    {finalExplainData?.length>0?finalExplainData.map((el:any,index:number)=>{
+                        return(
+                            <div style={{backgroundColor:el?.isSelected===true?'#2680EA1F':''}}>
+                                <div style={{marginLeft:'auto',width:'100%',height:'25px',display:'flex'}}>
+                                    {heading?.length>0&&heading.map((i:any,ind:number)=>{
+                                        if(ind===0){
+                                            return(
+                                                <div style={{width:'25%',textAlign:'left',marginLeft:'2%',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    <div style={{width:'100%',display:'flex',justifyContent:'start'}}>
+                                                        <div>{el?.iaoRunid}</div>
+                                                        {el?.isSelected===true&&<div style={{marginLeft:'10px',color:'#32A737'}}>&#10004;</div>}
+                                                    </div>
+                                                </div>
+                                            )
+                                        }else if(ind===1){
+                                            return(
+                                                <div style={{width:'10%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {el?.iaoOperationsLoss}
+                                                </div>
+                                            )
+                                        }else if(ind===2){
+                                            return(
+                                                <div style={{width:'8%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {`${el?.totalDeadheadIndicator?el.totalDeadheadIndicator:'0'}/${((el?.totalFAConx+el?.totalPilotConx)-(el?.totalDeadheadIndicator?el.totalDeadheadIndicator:0))}`}
+                                                </div>
+                                            )
+                                        }else  if(ind===3){
+                                            return(
+                                                <div style={{width:'10%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {el?.totalPaxConx}
+                                                </div>
+                                            )
+                                        }else  if(ind===4){
+                                            return(
+                                                <div style={{width:'15%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {el?.isTailConxValid}
+                                                </div>
+                                            )
+                                        }else  if(ind===5){
+                                            return(
+                                                <div style={{width:'12%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {el?.iaoHasCompatabilityLoss}
+                                                </div>
+                                            )
+                                        }else  if(ind===6){
+                                            return(
+                                                <div style={{width:'12%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>
+                                                    {el?.iaoHasExperienceLoss}
+                                                </div>
+                                            )
+                                        }else{
+                                            return(
+                                                <div style={{width:'7%',textAlign:'center',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}></div>
+                                            )
+                                        }
+                                        // return(
+                                        //     <div style={{
+                                        //         width:ind===0?'25%':ind===1||ind===3?'10%':ind===2?'8%':ind===4?'15%':ind===5||ind===6?'12%':'7%',
+                                        //             textAlign:ind!=0?'center':'left',marginLeft:ind===0?'2%':'',fontWeight:'bold',font:'normal normal normal 14px/40px Roboto',color:'#000000'}}>{
+                                        //                 ind===0?(<div style={{width:'100%',display:'flex',justifyContent:'start'}}>
+                                        //                     <div>{el?.iaoRunid}</div>
+                                        //                     {el?.isSelected===true&&<div style={{marginLeft:'10px',color:'#32A737'}}>&#10004;</div>}
+                                        //                 </div>):
+                                        //                 ind===1?`${el?.iaoOperationsLoss}`:
+                                        //                 ind===2?`${el?.totalDeadheadIndicator?el.totalDeadheadIndicator:'0'}/${((el?.totalFAConx+el?.totalPilotConx)-(el?.totalDeadheadIndicator?el.totalDeadheadIndicator:0))}`:
+                                        //                 ind===3?`${el?.totalPaxConx}`:
+                                        //                 ind===4?`${el?.isTailConxValid}`:
+                                        //                 ind===5?`${el?.iaoHasCompatabilityLoss}`:
+                                        //                 ind===6?`${el?.iaoHasExperienceLoss}`:
+                                        //                 ind===7?``:'--'
+                                        //             }</div>
+                                        // )
+                                    })}
+                                </div>
+                                <div style={{width:'100%',display:'flex',marginLeft:'auto',height:el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?'':'30px',alignItems:'center',marginTop:'10px'}}>
+                                    <div style={{
+                                        ...{borderBottom:'1px solid #BDBDBD',width:'88%',height:el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?'':'30px',marginTop:'2px',marginLeft:'2%'}
+                                        ,...el?.runDetails?.length>4&&isShowMore===true&&moreIndex===index?{display:'grid',gridTemplateColumns: 'auto auto auto'}:{display:'flex',}}}>
+                                        {el?.runDetails?.length>0&&el.runDetails.map((obj:any,inde:number)=>{
+                                            // if(isShowMore===false&&moreIndex!=index&&el?.runDetails?.length>4){
+                                            if(moreIndex!=index&&(el?.runDetails?.length>4||el?.runDetails?.length<=4)){
+                                                if(inde<=3){
+                                                    return(
+                                                        // <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>{`${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[0]:'-'} at ${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[1].substring(0,2):'-'}:${obj?.iaoSlotid?obj?.iaoSlotid?.split('_')[1].substring(2,5):'-'} - ${obj?.iaoFlightLegId?obj?.iaoFlightLegId?.split('::')[0]:'-'} ${obj?.iaoFlightLegId?obj?.iaoFlightLegId?.split('::')[1]:'-'}`}</div>
+                                                        <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>
+                                                            {/* {`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`} */}
+                                                            {`${obj?.iaoSlotid?`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}`:'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'}`}
+                                                        </div>
+                                                    )
+                                                }
+                                            }else if(isShowMore===true&&moreIndex===index&&el?.runDetails?.length>4){
+                                                return(
+                                                    <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',margin:'5px'}}>
+                                                        {/* {`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`} */}
+                                                        {`${obj?.iaoSlotid?`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)}`:'--'} - ${obj?.iaoFlightLegId?`${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`:'--'}`}
+                                                    </div>
+                                                )
+                                            }
+                                            // else{
+                                            //     {
+                                            //         return(
+                                            //             <div style={{textAlign:'center',width:'200px',height:'20px',borderRadius:'10px',font:'normal normal normal 14px/22px Roboto',backgroundColor:'#E4E4E4',marginRight:'5px'}}>{`${obj?.iaoSlotid?.split('_')[0]} at ${obj?.iaoSlotid?.split('_')[1].substring(0,2)}:${obj?.iaoSlotid?.split('_')[1].substring(2,5)} - ${obj?.iaoFlightLegId?.split('::')[0]} ${obj?.iaoFlightLegId?.split('::')[1]}`}</div>
+                                            //         )
+                                            //     }
+                                            // }
+                                        })}
+                                    </div>
+                                    {/* {el?.runDetails?.length>4&&isShowMore===false&&index!=moreIndex?<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(true);setMoreIndex(index)}}>{'More'}</div>: */}
+                                    {el?.runDetails?.length>4&&index!=moreIndex?<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(true);setMoreIndex(index)}}>{'More'}</div>:
+                                    el?.runDetails?.length>4&&isShowMore===true&&index===moreIndex&&<div style={{cursor:'pointer',width:'7%',height:'30px',marginTop:'2px',font:'normal normal normal 14px/22px Roboto',color:'#0B80FA'}} onClick={()=>{setIsShowMore(false);setMoreIndex(-1)}}>{'Less'}</div>}
+                                </div>
+                            </div>
+                        )
+                    }):<TwinLoader />}
+                </div>
+            </div>
+            </div>
         </div>
-    );
-  }
-  
-  export default CircleButton;
+    )
+}
+
+export default ExplainPopUp;
