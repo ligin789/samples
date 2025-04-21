@@ -1,4 +1,77 @@
+TimerSlide Component › renders without crashing
 
-    __mocks__/svgMock.ts:1:1 - error TS1208: 'svgMock.ts' cannot be compiled under '--isolatedModules' because it is considered a global script file. Add an import, export, or an empty 'export {}' statement to make it a module.
+    Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
 
-    1 module.exports = "div";
+    Check the render method of `TimerSlide`.
+
+      56 |  
+      57 |   it('renders without crashing', () => {
+    > 58 |     render(<TimerSlide {...mockProps} />);
+         |           ^
+      59 |     expect(screen.getByText('Current Time')).toBeInTheDocument();
+      60 |   });
+      61 |  
+
+      at createFiberFromTypeAndProps (node_modules/react-dom/cjs/react-dom.development.js:28478:17)
+      at createFiberFromElement (node_modules/react-dom/cjs/react-dom.development.js:28504:15)
+      at createChild (node_modules/react-dom/cjs/react-dom.development.js:13345:28)
+      at reconcileChildrenArray (node_modules/react-dom/cjs/react-dom.development.js:13640:25)
+      at reconcileChildFibers (node_modules/react-dom/cjs/react-dom.development.js:14057:16)
+      at reconcileChildren (node_modules/react-dom/cjs/react-dom.development.js:19186:28)
+      at updateHostComponent (node_modules/react-dom/cjs/react-dom.development.js:19953:3)
+      at beginWork (node_modules/react-dom/cjs/react-dom.development.js:21657:14)
+      at beginWork$1 (node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+      at recoverFromConcurrentError (node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+      at performConcurrentWorkOnRoot (node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (test/components/timeSlider/index.test.tsx:58:11)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
+
+  ● TimerSlide Component › displays the current date correctly
+
+    Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+    Check the render method of `TimerSlide`.
+
+      61 |  
+      62 |   it('displays the current date correctly', () => {
+    > 63 |     render(<TimerSlide {...mockProps} />);
+         |           ^
+      64 |     const currentDate = moment().format(' DD MMMM YYYY ');
+      65 |     expect(screen.getByText(currentDate)).toBeInTheDocument();
+      66 |   });
+
+      at createFiberFromTypeAndProps (node_modules/react-dom/cjs/react-dom.development.js:28478:17)
+      at createFiberFromElement (node_modules/react-dom/cjs/react-dom.development.js:28504:15)
+      at createChild (node_modules/react-dom/cjs/react-dom.development.js:13345:28)
+      at reconcileChildrenArray (node_modules/react-dom/cjs/react-dom.development.js:13640:25)
+      at reconcileChildFibers (node_modules/react-dom/cjs/react-dom.development.js:14057:16)
+      at reconcileChildren (node_modules/react-dom/cjs/react-dom.development.js:19186:28)
+      at updateHostComponent (node_modules/react-dom/cjs/react-dom.development.js:19953:3)
+      at beginWork (node_modules/react-dom/cjs/react-dom.development.js:21657:14)
+      at beginWork$1 (node_modules/react-dom/cjs/react-dom.development.js:27465:14)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom.development.js:26599:12)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom.development.js:26505:5)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom.development.js:26473:7)
+      at recoverFromConcurrentError (node_modules/react-dom/cjs/react-dom.development.js:25889:20)
+      at performConcurrentWorkOnRoot (node_modules/react-dom/cjs/react-dom.development.js:25789:22)
+      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
+      at act (node_modules/react/cjs/react.development.js:2582:11)
+      at node_modules/@testing-library/react/dist/act-compat.js:47:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:190:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:292:10)
+      at Object.<anonymous> (test/components/timeSlider/index.test.tsx:63:11)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+      at _run10000 (node_modules/@jest/core/build/cli/index.js:320:7)
+      at runCLI (node_modules/@jest/core/build/cli/index.js:173:3)
