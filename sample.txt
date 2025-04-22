@@ -1,168 +1,89 @@
-import React from "react";
-import { useDispatch } from "react-redux";
-import { flightCardViewAction } from "../../store/flightcardview/action";
-import moment from 'moment';
-import { ValueSetter } from "date-fns/parse/_lib/Setter";
+import * as React from "react";
+import { styled } from "@mui/system";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
+import MoreTimeIcon from "@mui/icons-material/MoreTime";
+import moment from "moment";
+import dayjs from 'dayjs';
+import 'date-fns/locale/en-GB';
 
+const OpenPickerIcon = styled(MoreTimeIcon)({
+  //   backgroundColor: "red"
+  color: "#CECECE",
+});
 
-const TwinDropDown = (props:any) =>{
-  console.log('check TwinDropDown TwinDropDown ==> ',props);
-    // const {styles,optionStyles,buttonStyles,optionValue,data,widgetConversationId}=props;
-    const {styles,optionStyles,buttonStyles,data,widgetConversationId}=props;
+const LeftArrowIcon = styled(ArrowBackIcon)({
+  backgroundColor: "red",
+});
 
-    const optionValue :any = data?.flight?.gateCompactability? data.flight.gateCompactability : [];
-    // const optionValue :any = [
-    //   {
-    //     "gateNum": "C13",
-    //     "iaoGmtEstArrDtTm": "2024-12-30T17:00:00Z",
-    //     "iaoLclEstArrDtTm": "2024-12-30T15:48:00Z"
-    //   },
-    //   {
-    //     "gateNum": "C08",
-    //     "iaoGmtEstArrDtTm": "2024-12-30T21:30:00Z",
-    //     "iaoLclEstArrDtTm": "2024-12-30T15:30:00Z"
-    //   },
-    //   {
-    //     "gateNum": "C23",
-    //     "iaoGmtEstArrDtTm": "2024-12-30T17:00:00Z",
-    //     "iaoLclEstArrDtTm": "2024-12-30T15:20:00Z"
-    //   }
-    // ]
-    const [selectedLclEstArrValue,setSelectedLclEstArrValue]=React.useState('');
-    const [selectedGmtEstArrValue,setSelectedGmtEstArrValue]=React.useState('');
-    const [selectedGateNumValue,setSelectedGateNumValue]=React.useState('');
-    const [requestBody,setRequestBody]=React.useState({});
-    const [showOptionValue, setShowOptionValue] = React.useState(false);
-    const [isShowDropDown,setIsShowDropDown]=React.useState(false);
-    const [isSubmit,setIsSubmit]=React.useState(false);
+const RightArrowIcon = styled(ArrowForwardIcon)({
+  backgroundColor: "red",
+});
 
+const SwitchViewIcon = styled(ChangeCircleIcon)({
+  backgroundColor: "red",
+});
 
-    const dispatch = useDispatch();
-    console.log('check the getComponent props ======> props',props,optionValue);
-    
-    
-
-    let optionValueRefer = [
-        {
-          "gateNum": "C12",
-          "iaoGmtEstArrDtTm": "2024-12-30T17:00:00Z",
-          "iaoLclEstArrDtTm": "2024-12-30T12:00:00Z"
-        },
-        {
-          "gateNum": "C9",
-          "iaoGmtEstArrDtTm": "2024-12-30T21:30:00Z",
-          "iaoLclEstArrDtTm": "2024-12-30T16:30:00Z"
-        },
-        {
-          "gateNum": "C3",
-          "iaoGmtEstArrDtTm": "2024-12-30T17:00:00Z",
-          "iaoLclEstArrDtTm": "2024-12-30T12:00:00Z"
-        },
-        {
-          "gateNum": "C12",
-          "iaoGmtEstArrDtTm": "2024-12-30T21:30:00Z",
-          "iaoLclEstArrDtTm": "2024-12-30T16:30:00Z"
-        },
-        {
-          "gateNum": "C2",
-          "iaoGmtEstArrDtTm": "2024-12-30T18:25:00Z",
-          "iaoLclEstArrDtTm": "2024-12-30T13:25:00Z"
-        }
-      ]
-
-    React.useEffect(()=>{
-
-      
-        // needto you also check the request variable once and you got all required variable in data
-        let tempObj = {
-            "eventTimeUTC":new Date().toISOString(),
-            "iaoAdvisedGate":selectedGateNumValue,
-            "widgetConversationId":widgetConversationId,
-            // needto you will check , what status we need to pass here
-            "status":"override",
-            "iaoOldGate":data?.flight?.iaoAdvisedGate,
-            "iaoLclEstArrDtTm": selectedLclEstArrValue,
-            "iaoGmtEstArrDtTm": selectedGmtEstArrValue,
-            "iaoGateWaitingTime": `${data?.flight?.iaoGateWaitingTime}`,
-            "iaoArrPrdctGmt": data?.flight?.iaoArrPrdctGmt,
-            "iaoArrPrdctLcl": data?.flight?.iaoArrPrdctLcl,
-            "simulationId":data?.flight?.simulationId,
-            "simulationTimeStamp":data?.flight?.simulationTimeStamp
+export default function BasicDatePicker({ label, id, setTime, value }: any) {
+  // const [testValue,setTestValue]=React.useState(moment(moment.now()).format('YYYY-MM-DDTHH:mm'))
+  const [testValue,setTestValue]=React.useState(value!=''?moment(value,'YYYY-MM-DDTHH:mm:SS').format('YYYY-MM-DDTHH:mm'):'')
+  console.log('check the input value ==> ',value)
+  return (
+    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale={"enGB"} >
+      {/* <DatePicker
+        sx={{
+          // backgroundColor:"pink",
+          minWidth: "50px !important",
+          // width: "140px",
+          // borderColor: "#CECECE",
+          "& .css-nxo287-MuiInputBase-input-MuiOutlinedInput-input": {
+            padding: "4px 0px 5px 4px",
+            width: "60%",
+            color: "#CECECE",
+          },
+          "& .css-14s5rfu-MuiFormLabel-root-MuiInputLabel-root": {
+            top: "-11px",
+            color: "#CECECE",
+          },
+          "& .css-o9k5xi-MuiInputBase-root-MuiOutlinedInput-root": {
+            paddingRight: "0px",
+            justifyContent: "space-between",
+            padding: "8px 14px",
+            borderRadius: "7px",
+            backgroundColor: "white"
+          },
+          "& .css-10o2lyd-MuiStack-root": { paddingBottom: "8px" },
+          "& .css-1laqsz7-MuiInputAdornment-root": { marginLeft: "-16px" },
+          "& .css-1d3z3hw-MuiOutlinedInput-notchedOutline": {borderColor:"rgba(0, 0, 0, 0.23) !important"}
+        }}
+        // label={label}
+        slots={{
+          openPickerIcon: OpenPickerIcon,
+          //   leftArrowIcon: LeftArrowIcon,
+          //   rightArrowIcon: RightArrowIcon,
+          //   switchViewIcon: SwitchViewIcon
+        }}
+        onChange={(val: any) =>
+          {
+              setTime(`${moment(new Date(val)).format("YYYY-MM-DDTHH:mm:ss")}Z`)
           }
-        setRequestBody(tempObj);
-    },[props]);
-
-
-    const onChangeHandel = (e:any,)=>{
-
-      
-      console.log("checking ValueSetter", e)
-      let selectedObj = JSON.parse(e)
-        console.log("onChangeHandel", selectedObj.iaoLclEstArrDtTm, e)
-        setSelectedLclEstArrValue(selectedObj.iaoLclEstArrDtTm);
-        setSelectedGmtEstArrValue(selectedObj.iaoGmtEstArrDtTm);
-        setSelectedGateNumValue(selectedObj.gateNum);
-        let tempObj = requestBody;
-        // needto here also you will check which variable we need to change in request body 
-        setRequestBody(tempObj);
-    }
-    const onSubmitHandel = (data:any)=>{
-        dispatch(flightCardViewAction.widgetUpdate(data))
-    }
-
-    const selectOnchange = (e:any)=>{
-      console.log("chooseSelection",e)
-      setShowOptionValue(true)
-  }
-    return(
-        // <div data-testid="Dot" className="circular" style={{...Styles.defaultDot,...props.styles}}/>
-        <div style={{display:'flex',gap:'5px',alignItems:'center'}}>
-           {/* {showOptionValue !== true ?<select style={styles} onChange={(e)=>{selectOnchange(e.target.value)}}> */}
-           {optionValue?.length===0&&false?<select style={{...styles,...{cursor:'pointer'}}} onChange={(e)=>{selectOnchange(e.target.value)}}>
-                  <option style={optionStyles} value="1">Override</option>
-            </select> :<>
-
-            {/* <select style={styles} onChange={(e)=>{
-                 onChangeHandel(e.target.value)
-                 }}>
-                 <option style={optionStyles} value="">Override</option>
-                 {optionValue?.length>0&&optionValue.map((el:any)=>{
-                     return(
-                     <option style={optionStyles} value={JSON.stringify(el)}>{`${el?.gateNum}, ${moment.utc(el.iaoLclEstArrDtTm).format('HH:mm')}`}</option>
-                 )})}
-             </select> */}
-          <div style={{...styles,...{display:'flex',justifyContent:'space-around',font:'normal normal normal 15px/20px Roboto'}}} onClick={()=>{setIsShowDropDown(true)}}>
-            <div>{'Override'}</div>
-            <div style={{rotate:'90deg',color:'#3382F2'}}>&#10095;</div>
-          </div>
-          {<div>
-            {isShowDropDown===true&&<div style={{width:'0px',height:'0px',position:'relative',zIndex:5}}><div style={{textAlign:'center',backgroundColor:'#FFFFFF',width:'150px',marginLeft:'-155px',marginTop:'30px',boxShadow:'0px 0px 10px #0000005F',borderRadius:'10px'}}>
-              {optionValue?.length>0&&optionValue.map((el:any)=>{
-              {/* {optionValueRefer?.length>0&&optionValueRefer.map((el:any)=>{ */}
-                     return(
-                     <div style={{...optionStyles,...{display:'flex',justifyContent:'space-evenly',paddingTop:'5px',paddingBottom:'5px',marginLeft:'10px',borderBottom:'1px solid #DDDDDD'}}} onClick={()=>{onChangeHandel(JSON.stringify(el))}}>
-                        <input type="radio" value={JSON.stringify(el)} name="radioGroup"/>
-                        <div>{`${el?.gateNum}, ${moment.utc(el.iaoLclEstArrDtTm).format('HH:mm')}`}</div>
-                      </div>
-                 )})}
-              <div style={{display:'flex',justifyContent:'space-around',height:'40px',alignItems:'center',font:'normal normal normal 15px/20px Roboto',color:'#0780FC'}}>
-                <div style={{width:'50%',cursor:'pointer'}}  onClick={()=>{setIsShowDropDown(false)}}>Cancel</div>
-                <div style={{width:'50%',cursor:optionValue?.length>0?'pointer':'no-drop',borderLeft:'1px solid #DDDDDD',height:'100%'}} onClick={()=>{setIsShowDropDown(false);onSubmitHandel([requestBody])}}>
-                {/* <div style={{width:'50%',cursor:optionValueRefer?.length>0?'pointer':'no-drop',borderLeft:'1px solid #DDDDDD',height:'100%'}} onClick={()=>{setIsShowDropDown(false);onSubmitHandel([requestBody])}}> */}
-                {/* <div style={{width:'50%',cursor:'pointer',borderLeft:'1px solid #DDDDDD',height:'100%'}} onClick={()=>{setIsShowDropDown(false);onSubmitHandel(requestBody)}}> */}
-                  <div style={{marginTop:'10px'}}>Submit</div>
-                </div>
-              </div>
-              </div>
-              </div>
-            }
-          </div>}
-            
-            </>
-            }
-            
-            {/* {selectedGateNumValue!=''&&<div style={buttonStyles} onClick={()=>{onSubmitHandel([requestBody])}}>Submit</div>} */}
-        </div>
-    )
+        }
+        value={dayjs(value)}
+      /> */}
+      <input type="datetime-local" 
+        // value={moment(value,'YYYY-MM-DDTHH:mm:ss').format('YYYY-MM-DDTHH:mm')} 
+        value={testValue} 
+        onChange={(e) =>{
+          // console.log('check the input value ==> ',e.target.value)
+          setTime(`${moment(e.target.value,'YYYY-MM-DDTHH:mm').format("YYYY-MM-DDTHH:mm:ss")}Z`)
+          setTestValue(e.target.value)
+        }}
+        style={{marginTop:'6px',border:'1px solid rgb(221, 221, 221)',height:'40px',borderRadius:'7px',paddingLeft:'14px',paddingRight:'14px'}}
+        />
+    </LocalizationProvider>
+  );
 }
-export default TwinDropDown;
