@@ -1,41 +1,179 @@
-import { flightCardViewAction } from '../../store/flightcardview/action';
-import './TwinButtonStyles.css'
-import { useDispatch } from "react-redux";
-const TwinButton = (props: any) => {
-    const dispatch = useDispatch()
-    const { styles = null, action = null, title = '', widgetData} = props;
-    let tempPayload = JSON.parse(widgetData?.metadata)
-    console.log('check widgetData ==>widgetData ',widgetData,tempPayload?.flight?.iaoAdvisedGate,tempPayload?.flight?.iaoOldGate)
-    const events:any = {
-        handlePublishAction:function(){
-            dispatch(flightCardViewAction.widgetUpdate({
-                "eventTimeUTC":new Date().toISOString(),
-                "iaoAdvisedGate":tempPayload?.flight?.iaoAdvisedGate,
-                "iaoOldGate":tempPayload?.flight?.iaoOldGate,
-                "widgetConversationId":widgetData?.widgetConversationId,
-                "status":"Published"
-            }))
-        },
-        handleOverrideAction:function(){
-            dispatch(flightCardViewAction.widgetUpdate({
-                "eventTimeUTC":new Date().toISOString(),
-                "iaoAdvisedGate":tempPayload?.flight?.iaoAdvisedGate,
-                "iaoOldGate":tempPayload?.flight?.iaoOldGate,
-                "widgetConversationId":widgetData?.widgetConversationId,
-                "status":"override"
-            }))
-        },
-        handleInitiateTowingAction:function(){
-            alert(widgetData?.widgetConversationId)
-            alert('InitiateTow')
-        },
-        handleUnfreezeAction:function(){
-            alert(widgetData?.widgetConversationId)
-            alert('Unfreeze')
-        }
-    }
+import Styles from './Styles';
+const DoubleColorButton =(props:any)=> { 
+    const { text , className ,onClickAction} = props;
+    let finalClass = {...className,...Styles.buttonStyle}
     return (
-        <div className='twin-btn' style={{...styles,...{zIndex:1,cursor:'pointer'}}} onClick={()=> action && events[action]()}>{title}</div>
-    )
+        <button style={finalClass} onClick={()=>{onClickAction();}}>
+            {text}
+        </button>
+    );
+  }
+  
+  export default DoubleColorButton;
+
+
+import Styles from './Styles'; 
+
+const DoubleColorLable =(props:any)=> {
+    const { text , primary , Secondary } = props;
+    let boxLable = {...Secondary,...Styles.lableBox}
+    return (
+        <div style={boxLable}>
+            <label style={primary}>{text}</label>
+        </div>
+    );
+  }
+  
+  export default DoubleColorLable;
+
+import { useDispatch } from "react-redux";
+import { timerAction } from "../../store/timer/action";
+import React from "react";
+import TimerIcon from '../../assets/widgetTimerIcon.svg'
+
+const HistoryIcon = (props:any)=>{
+    console.log('check HistoryIcon props => ',props)
+    const dispatch = useDispatch();
+    const {styles,fltlegid}=props;
+    const openHistoryPopUp = ()=>{
+        dispatch(timerAction.openHistoryPopUp());
+        dispatch(timerAction.storeHistoryPopUpData({iaoFlightLegId:fltlegid}))
+    }
+    
+    return(<>
+        {props.visibility===true&&<div style={styles} onClick={()=>{openHistoryPopUp()}}>
+            <img src={TimerIcon} />
+        </div>}
+    </>)
 }
-export default TwinButton
+
+export default HistoryIcon;
+
+import './historyPopUp.css'
+import { useDispatch, useSelector } from "react-redux";
+import { timerAction } from "../../store/timer/action";
+import moment from 'moment';
+import TwinLoader from '../loader';
+const HistoryPopUp = (props:any)=>{
+    // const {close}=props;
+    const heading = ['','Gate Info & Comments','GWT','MRV Saved']
+    const gateInfo :any= {
+        Conflict : 'Original Gate Assigned :',
+        Advised : 'Advised : Change To',
+        Published : 'Published : Changed To',
+        GateNotAssigned : 'Gate Is Not Assigned'
+      }
+    const testData = [
+        {
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        },
+        {
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        },
+        {
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        },{
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        },
+        {
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        },
+        {
+            date:'9/11/24',
+            time:'14:56',
+            gateInfo:'Original Gate Assigned: C2',
+            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
+            gwt:'30 min',
+            mrvSaved:'--'
+        }
+    ]
+
+    const historyData = useSelector((state:any)=>state.timerData.historyPopUpData)
+
+    const dispatch = useDispatch();
+    const closeHistoryPopUp = ()=>{
+        dispatch(timerAction.closeHistoryPopUp());
+    }
+    const flightNo = `${historyData?.iaoFlightLegId?.split('::')[0]} ${historyData?.iaoFlightLegId?.split('::')[1]}`
+
+    console.log('check the history data => ',historyData)
+    return(<>
+        <div className='historyPopUpMainBoxBG'></div>
+        <div className='historyPopUpMainBox'>
+            <div className='historyPopUpBox'>
+                <div className='historyPopUpHeaderBox'>
+                    {/* <div className='historyPopUpHeadingText'>History - UA72</div> */}
+                    <div className='historyPopUpHeadingText' style={{font: 'normal normal normal 16px/21px Roboto',fontWeight:'bold'}}>{`History - ${flightNo}`}</div>
+                    {/* <div className='historyPopUpClose' onClick={()=>{close()}}>&#10006;</div> */}
+                    <div className='historyPopUpClose' onClick={()=>{closeHistoryPopUp()}}>&#10006;</div>
+                </div>
+                <div className='historyPopUpTableHeading' style={{font: 'normal normal normal 14px/19px Roboto'}}>
+                    {heading?.length>0&&heading.map((el:any,index:number)=>{
+                        return(
+                            <div style={{width:index===0||index===3?'18%':index===2?'13%':'51%',textAlign:index===0||index===3||index===2?'center':'left'}}>{el}</div>
+                        )
+                    })}
+                </div>
+                <div style={{height:'80%',overflow:'auto'}}>
+                {/* {testData?.length>0&&testData.map((el:any)=>{ */}
+                {historyData?.data?.length>0
+                ?
+                // &&
+                // historyData.data.map((el:any)=>{
+                (historyData.data.sort((a:any,b:any)=>new Date(a.iaoEventCreationTime).getTime()-new Date(b.iaoEventCreationTime).getTime())).map((el:any)=>{
+                    return(
+                        <div className='historyPopUpTableDataRow'>
+                            <div style={{width:'18%',textAlign:'center'}}>
+                                {/* <div className='historyPopUpTableMainText'>{el.time}</div>
+                                <div className='historyPopUpTableSubText'>{el.date}</div> */}
+                                
+                                <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${moment(el.iaoEventCreationTime,'YYYY-MM-DDTHH:mm:SS').format('HH:mm')}`}</div>
+                                <div className='historyPopUpTableSubText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${moment(moment(el.iaoEventCreationTime,'YYYY-MM-DDTHH:mm:SS')).format('DD/MM/YY')}`}</div>
+                                {/* <div className='historyPopUpTableMainText'>{`${new Date(el.iaoEventCreationTime).getHours()}:${new Date(el.iaoEventCreationTime).getMinutes()}`}</div> */}
+                                {/* <div className='historyPopUpTableSubText'>{`${el.iaoEventCreationTime}`}</div> */}
+                            </div>
+                            <div style={{width:'51%'}}>
+                                {/* <div className='historyPopUpTableMainText'>{el.gateInfo}</div>
+                                <div className='historyPopUpTableSubText'>{el.comments}</div> */}
+                                <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${gateInfo[el.SignalName]} ${el.gateNum?el.gateNum:''}`}</div>
+                                <div className='historyPopUpTableSubText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{el.Comments}</div>
+                            </div>
+                            <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto',width:'13%',textAlign:'center'}}>{`${el.gateWaitingTime?`${el.gateWaitingTime} min`:'NA'}`}</div>
+                            <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto',width:'18%',textAlign:'center'}}>{`${el.mrvScore?`${el.mrvScore}`:'--'}`}</div>
+                        </div>
+                    )
+                })
+                :<TwinLoader/>
+                }
+                </div>
+            </div>
+        </div>
+    </>)
+}
+
+export default HistoryPopUp;
