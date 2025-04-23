@@ -1,72 +1,8 @@
-import { useState } from "react";
-import "./DropDownStyles.css";
-import RenderList from "./RenderList";
-import TwinInput from "../../atoms/twinInput/TwinInput";
-import TwinLabel from "../../atoms/twinLabel/TwinLabel";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-
-const Dropdown = ({
-  label,
-  options,
-  defaultValue = '',
-  value = "",
-  updateValue,
-  withSearch = false,
-}: any) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [selectedOption, setSelectedOption] = useState<string | null>(value);
-  const [searchItem, setSearchItem] = useState<string>("");
-
-  const toggleDropdown = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleOptionSelect = (option: string) => {
-    updateValue(option);
-    setSelectedOption(option);
-    setSearchItem("");
-    setIsOpen(false);
-  };
-  const filteredOptions = options.filter((option: any) =>
-    option.toLowerCase().includes(searchItem.toLowerCase())
-  );
-  return (
-    <div className="dropdown">
-      {withSearch ? <TwinLabel className="dopDownLabel" label={label} /> : null}
-      <div className="listbutton">
-        <span className="dropdownvalue" style={{font: 'normal normal normal 15px/20px Roboto'}} onClick={toggleDropdown}>
-          {`${selectedOption || defaultValue} Hours`}
-          <FontAwesomeIcon
-            style={{
-              alignSelf: "end",
-              fontSize: "12px",
-              color: "#0981FC",
-              opacity: 1,
-              marginLeft: 14,
-            }}
-            icon={faChevronDown}
-          />
-        </span>
-        {isOpen && (
-          <div className="listBag">
-            {withSearch ? (
-              <TwinInput
-                className="listSearch"
-                type="text"
-                placeholder="Search"
-                value={searchItem}
-                onChange={setSearchItem}
-              />
-            ) : null}
-            <RenderList
-              filteredOptions={filteredOptions}
-              handleOptionSelect={handleOptionSelect}
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-export default Dropdown;
+ "/node_modules/",
+    "/coverage",
+    "package.json",
+    "package-lock.json",
+    "reportWebVitals.ts",
+    "setupTests.ts",
+    "src/components/gantt",
+    "index.tsx"
