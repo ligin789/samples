@@ -1,179 +1,313 @@
-import Styles from './Styles';
-const DoubleColorButton =(props:any)=> { 
-    const { text , className ,onClickAction} = props;
-    let finalClass = {...className,...Styles.buttonStyle}
-    return (
-        <button style={finalClass} onClick={()=>{onClickAction();}}>
-            {text}
-        </button>
-    );
-  }
-  
-  export default DoubleColorButton;
-
-
-import Styles from './Styles'; 
-
-const DoubleColorLable =(props:any)=> {
-    const { text , primary , Secondary } = props;
-    let boxLable = {...Secondary,...Styles.lableBox}
-    return (
-        <div style={boxLable}>
-            <label style={primary}>{text}</label>
-        </div>
-    );
-  }
-  
-  export default DoubleColorLable;
-
-import { useDispatch } from "react-redux";
-import { timerAction } from "../../store/timer/action";
-import React from "react";
-import TimerIcon from '../../assets/widgetTimerIcon.svg'
-
-const HistoryIcon = (props:any)=>{
-    console.log('check HistoryIcon props => ',props)
-    const dispatch = useDispatch();
-    const {styles,fltlegid}=props;
-    const openHistoryPopUp = ()=>{
-        dispatch(timerAction.openHistoryPopUp());
-        dispatch(timerAction.storeHistoryPopUpData({iaoFlightLegId:fltlegid}))
-    }
-    
-    return(<>
-        {props.visibility===true&&<div style={styles} onClick={()=>{openHistoryPopUp()}}>
-            <img src={TimerIcon} />
-        </div>}
-    </>)
-}
-
-export default HistoryIcon;
-
-import './historyPopUp.css'
+import { useEffect, useState } from "react";
+import TwinText from "../../atoms/twinText/index";
+import "./MenuOptionStyles.css";
+import Styles from "./Styles";
+import { styles } from "../../atoms/domainRow/style";
+import RulesList from "./listOfRules";
+import AddRule from "../addRule";
+import LocalUtcTime from "../localUtcTime";
+import Strings from "../../globals/Strings";
 import { useDispatch, useSelector } from "react-redux";
-import { timerAction } from "../../store/timer/action";
-import moment from 'moment';
-import TwinLoader from '../loader';
-const HistoryPopUp = (props:any)=>{
-    // const {close}=props;
-    const heading = ['','Gate Info & Comments','GWT','MRV Saved']
-    const gateInfo :any= {
-        Conflict : 'Original Gate Assigned :',
-        Advised : 'Advised : Change To',
-        Published : 'Published : Changed To',
-        GateNotAssigned : 'Gate Is Not Assigned'
+import { Reducer } from "../../globals/PropTypes";
+import { configurationTabDetails } from "../../store/configurationTab/action";
+import RangeSlider from "../../atoms/slider";
+import DomainRow from "../../atoms/domainRow";
+import AddBusiness from "./addBusiness";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronLeft, faPlus } from "@fortawesome/free-solid-svg-icons";
+import TwinInput from "../../atoms/twinInput/TwinInput";
+import TwinLabel from "../../atoms/twinLabel/TwinLabel";
+import "../addRule/AddRule.css";
+// import isEqual from 'lodash.isequal'
+
+const MenuOption = (props: any) => {
+  const {selectedTimeLineValue, configurationMenuOptions, configList ,timerCounter} = props;
+
+  const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [showForm, setShowForm] = useState(false);
+  const [tappedItemIndex, setTappedItemIndex] = useState(-1);
+  const [isFormEditable, setIsFormEditable] = useState(false);
+  const [displayHeadingText, setdisplayHeadingText] = useState(
+    Strings.domainText
+  );
+  const [list, setList] = useState([]);
+  const [selectedSubDomain, setSelectedSubDomain] = useState({id:""})
+  const [isAddScreen, setisAddScreen] = useState<boolean>(false);
+  const [newEntry, setNewEntry] = useState("");
+  const dispatch = useDispatch();
+  const configurationTabListData = useSelector(
+    (state: Reducer) =>
+      state.configurationTabViewReducer.configurationTabListData
+  );
+
+  // useEffect(() => {
+  //     dispatch(configurationTabDetails.getConfigurationList())
+  // }, [])
+
+  const setInitialList = () => {
+    configList?.forEach((element: any) => {
+      if (element?.type?.toLowerCase() == configurationMenuOptions?.toLowerCase()) {
+        // let categoryName = element?.[configurationMenuOptions]?.category;
+        let disList = element?.domain;
+        setList(disList || []);
       }
-    const testData = [
-        {
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        },
-        {
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        },
-        {
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        },{
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        },
-        {
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        },
-        {
-            date:'9/11/24',
-            time:'14:56',
-            gateInfo:'Original Gate Assigned: C2',
-            comments:'PETA: 15:56; Conflict with XA1232; Crew Impacts: 1 CA to XA 3454; Pax Impacts: 2 Economy to XA3454',
-            gwt:'30 min',
-            mrvSaved:'--'
-        }
-    ]
+    });
+    setdisplayHeadingText(Strings.domainText);
+  };
 
-    const historyData = useSelector((state:any)=>state.timerData.historyPopUpData)
+  useEffect(() => {
+    setInitialList();
+  }, [configList, configurationMenuOptions]);
+  console.log("configScreenData", configList, configurationMenuOptions, list);
 
-    const dispatch = useDispatch();
-    const closeHistoryPopUp = ()=>{
-        dispatch(timerAction.closeHistoryPopUp());
+  const modifyDomainList = () => {
+    let temp:any
+    if(displayHeadingText === "Domain"){
+      temp = list.map((item:any) => ({
+        id:item.id,
+        name:item.name,
+        type:configurationMenuOptions?.charAt(0).toUpperCase() + configurationMenuOptions?.slice(1),
+        fromTime:item.fromTime,
+        toTime:item.toTime,
+        value:item.value,
+        subdomain:item.subdomain
+      }))
+    }else{
+    temp = list.map((item:any) => ({
+      domainId:selectedSubDomain?.id,
+      subDomainId:item.subDomainId,
+      name:item.name,
+      type:configurationMenuOptions?.charAt(0).toUpperCase() + configurationMenuOptions?.slice(1),
+      fromTime:item.fromTime,
+      toTime:item.toTime,
+      value:item.value
+    }))
     }
-    const flightNo = `${historyData?.iaoFlightLegId?.split('::')[0]} ${historyData?.iaoFlightLegId?.split('::')[1]}`
+    console.log("modifyDomainList",list,configurationMenuOptions,temp);
+    dispatch({type:"modifyDomainData",payload:temp, isDomain:displayHeadingText === "Domain"})
+  }
 
-    console.log('check the history data => ',historyData)
-    return(<>
-        <div className='historyPopUpMainBoxBG'></div>
-        <div className='historyPopUpMainBox'>
-            <div className='historyPopUpBox'>
-                <div className='historyPopUpHeaderBox'>
-                    {/* <div className='historyPopUpHeadingText'>History - UA72</div> */}
-                    <div className='historyPopUpHeadingText' style={{font: 'normal normal normal 16px/21px Roboto',fontWeight:'bold'}}>{`History - ${flightNo}`}</div>
-                    {/* <div className='historyPopUpClose' onClick={()=>{close()}}>&#10006;</div> */}
-                    <div className='historyPopUpClose' onClick={()=>{closeHistoryPopUp()}}>&#10006;</div>
-                </div>
-                <div className='historyPopUpTableHeading' style={{font: 'normal normal normal 14px/19px Roboto'}}>
-                    {heading?.length>0&&heading.map((el:any,index:number)=>{
-                        return(
-                            <div style={{width:index===0||index===3?'18%':index===2?'13%':'51%',textAlign:index===0||index===3||index===2?'center':'left'}}>{el}</div>
-                        )
-                    })}
-                </div>
-                <div style={{height:'80%',overflow:'auto'}}>
-                {/* {testData?.length>0&&testData.map((el:any)=>{ */}
-                {historyData?.data?.length>0
-                ?
-                // &&
-                // historyData.data.map((el:any)=>{
-                (historyData.data.sort((a:any,b:any)=>new Date(a.iaoEventCreationTime).getTime()-new Date(b.iaoEventCreationTime).getTime())).map((el:any)=>{
-                    return(
-                        <div className='historyPopUpTableDataRow'>
-                            <div style={{width:'18%',textAlign:'center'}}>
-                                {/* <div className='historyPopUpTableMainText'>{el.time}</div>
-                                <div className='historyPopUpTableSubText'>{el.date}</div> */}
-                                
-                                <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${moment(el.iaoEventCreationTime,'YYYY-MM-DDTHH:mm:SS').format('HH:mm')}`}</div>
-                                <div className='historyPopUpTableSubText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${moment(moment(el.iaoEventCreationTime,'YYYY-MM-DDTHH:mm:SS')).format('DD/MM/YY')}`}</div>
-                                {/* <div className='historyPopUpTableMainText'>{`${new Date(el.iaoEventCreationTime).getHours()}:${new Date(el.iaoEventCreationTime).getMinutes()}`}</div> */}
-                                {/* <div className='historyPopUpTableSubText'>{`${el.iaoEventCreationTime}`}</div> */}
-                            </div>
-                            <div style={{width:'51%'}}>
-                                {/* <div className='historyPopUpTableMainText'>{el.gateInfo}</div>
-                                <div className='historyPopUpTableSubText'>{el.comments}</div> */}
-                                <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{`${gateInfo[el.SignalName]} ${el.gateNum?el.gateNum:''}`}</div>
-                                <div className='historyPopUpTableSubText' style={{font: 'normal normal normal 16px/21px Roboto'}}>{el.Comments}</div>
-                            </div>
-                            <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto',width:'13%',textAlign:'center'}}>{`${el.gateWaitingTime?`${el.gateWaitingTime} min`:'NA'}`}</div>
-                            <div className='historyPopUpTableMainText' style={{font: 'normal normal normal 16px/21px Roboto',width:'18%',textAlign:'center'}}>{`${el.mrvScore?`${el.mrvScore}`:'--'}`}</div>
-                        </div>
-                    )
-                })
-                :<TwinLoader/>
-                }
-                </div>
-            </div>
+  const updateList = () => {
+    let tempNewEntry: any = {
+      name: newEntry,
+      value: 0,
+      fromTime: "",
+      toTime: "",
+      subDomain: [],
+    };
+    console.log("configScreenData", tempNewEntry);
+    if (displayHeadingText != "Domain") {
+      delete tempNewEntry.subDomain;
+    }
+    console.log("configScreenData", tempNewEntry);
+    let temp: any = [...list, { ...tempNewEntry }];
+    console.log("configScreenData", tempNewEntry);
+    setList(temp);
+    setNewEntry("");
+    setisAddScreen(!isAddScreen);
+  };
+  //   var
+  // remoteJSON = {"allowExternalMembers": "false", "whoCanJoin": "CAN_REQUEST_TO_JOIN"},
+  //     localJSON = {"whoCanJoin": "CAN_REQUEST_TO_JOIN", "allowExternalMembers": "false"};
+
+  // console.log("configScreenData", isEqual(remoteJSON, localJSON) );
+
+  const handleRuleAdd = () => {
+    setShowForm(true);
+    setIsFormEditable(true);
+  };
+
+  const handleRuleListClick = (index: number) => {
+    setTappedItemIndex(index);
+    setShowForm(true);
+    setIsFormEditable(false);
+  };
+
+  const handleDeleteRule = (id: string) => {
+    console.log("formData:::::", id);
+    dispatch(configurationTabDetails.deleteConfigurationListItem({ id }));
+  };
+
+  const handleEditRule = (index: number) => {
+    setTappedItemIndex(index);
+    setShowForm(true);
+    setIsFormEditable(true);
+  };
+
+  const handleSaveAction = ({ formData, isUpdateDataAction }: any) => {
+    setTappedItemIndex(-1);
+    setIsFormEditable(false);
+    isUpdateDataAction
+      ? dispatch(configurationTabDetails.updateConfigurationListItem(formData))
+      : dispatch(configurationTabDetails.postConfigurationListItem(formData));
+  };
+
+  const handleCancelAction = () => {
+    setTappedItemIndex(-1);
+    setShowForm(false);
+    setIsFormEditable(false);
+  };
+
+  const handleRowClicks = (event: any) => {
+    console.log("handleRowClicks", event.target.id, event.target.innerText);
+    const { innerText } = event.target;
+    list.forEach((domains: any) => {
+      if (domains.name.toLowerCase() === innerText.toLowerCase()) {
+        // if (domains?.category) {
+        setList(domains.subdomain);
+        setdisplayHeadingText(innerText);
+        setSelectedSubDomain(domains)
+        // }
+      }
+    });
+    // dispatch(configurationTabDetails.getDomainConfig({id:event.target.id}))
+  };
+
+  const handleBack = () => {
+    setInitialList();
+    setdisplayHeadingText(Strings.domainText);
+  };
+
+  const updateListByUserAction = (childProps:any) => {
+    let tempArr = JSON.parse(JSON.stringify(list))
+    tempArr.forEach((item:any) => {
+      console.log("updateListByUserActionfor",item.id === childProps.id,item.id, childProps.id);
+      
+      if(item.id === childProps.id){
+        item.fromTime = childProps.fromTime ? childProps.fromTime : item.fromTime
+        item.toTime = childProps.toTime ? childProps.toTime : item.toTime
+        item.value = childProps?.val ? childProps?.val : item.value
+      }
+    })
+    console.log("updateListByUserAction", tempArr,childProps);
+    setList(tempArr)
+  }
+
+  return (
+    <div className="menuRightContainer" style={Styles.menuRightContainer}>
+      <div
+        className="menu-option-header-container"
+        style={Styles.menuOptionHeaderContainer}
+      >
+        <LocalUtcTime timerCounter={timerCounter} styles={{ padding: "6px 0px", paddingRight: "200px" }} selectedTimeLineValue={selectedTimeLineValue}/>
+      </div>
+      <div
+        className="menuOption-header main-header"
+        style={Styles.menuOptionsTitleContainer}
+      >
+        <div className="subHeadingView">
+          <TwinText
+            text={configurationMenuOptions}
+            className="subHeadingText"
+          />
         </div>
-    </>)
-}
+      </div>
+      {/* {isAddScreen ? (
+        <>
+          <div
+            className="menuOption-header"
+            style={Styles.menuOptionsTitleContainer}
+          >
+            <div className="subHeadingView">
+              <TwinText
+                text={`Add Business ${
+                  displayHeadingText === "Domain" ? "Domain" : "Event"
+                }`}
+                className="subHeadingText"
+              />
+            </div>
+          </div>
+          <AddBusiness
+            description={() => {}}
+            handleDesChange={() => {}}
+            onCancel={() => setisAddScreen(!isAddScreen)}
+          />
+        </>
+      ) : ( */}
+      <>
+        <div
+          className="menuOption-header"
+          style={Styles.menuOptionsTitleContainer}
+        >
+          <div style={Styles.subHeading}>
+            <div className="subHeadingView">
+              {displayHeadingText === "Domain" ? null : (
+                <div className="back">
+                  <FontAwesomeIcon
+                    icon={faChevronLeft}
+                    style={{ color: "#0981FD" }}
+                  />
+                  <TwinText
+                    text={`Back`}
+                    onClick={handleBack}
+                    className="back-button"
+                  />
+                </div>
+              )}
+              <TwinText text={displayHeadingText} className="subHeadingText" />
+            </div>
+            <button onClick={modifyDomainList} style={Styles.updateButton}>
+              Update
+            </button>
+          </div>
+        </div>
+        <div style={Styles.AddRowStyle}>
+          {isAddScreen ? (
+            <div style={{ display: "flex", padding: "8px 0px" }}>
+              <TwinInput
+                onChange={(val: string) => setNewEntry(val)}
+                style={{ border: "none", minWidth: "507px" }}
+                placeholder={`Add Business ${
+                displayHeadingText === "Domain" ? "Domain" : "Event"
+              } Name`}
+              />
+              <div
+                className="saveandcancelView"
+                style={{ display: "flex", flexDirection: "row-reverse" }}
+              >
+                <button onClick={updateList} className="save-button">
+                  <TwinLabel
+                    className="save-buttonText"
+                    label={Strings.ADD_RULE.DONE}
+                  />
+                </button>
 
-export default HistoryPopUp;
+                <button
+                  onClick={() => setisAddScreen(!isAddScreen)}
+                  className="cancel-button"
+                >
+                  <TwinLabel
+                    className="cancel-buttonText"
+                    label={Strings.ADD_RULE.CANCEL}
+                  />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{display:'flex', alignItems:'center', fontWeight:"500"}}
+            className="add-business-button">
+            <FontAwesomeIcon icon={faPlus} style={{fontSize:"11px"}} />
+            <TwinText
+              styles={{paddingLeft:"4px"}}
+              onClick={() => setisAddScreen(!isAddScreen)}
+              text={`Add Business ${
+                displayHeadingText === "Domain" ? "Domain" : "Event"
+              }`}
+            />
+            </div>
+          )}
+        </div>
+        {list?.length
+          ? list.map((domains: any) => (
+              <div style={Styles.rowStyle}>
+                <DomainRow onChange={updateListByUserAction} onClick={handleRowClicks} row={domains} />
+              </div>
+            ))
+          : null}
+      </>
+      {/* )} */}
+    </div>
+  );
+};
+
+export default MenuOption;
