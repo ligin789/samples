@@ -1,88 +1,281 @@
-import { useEffect, useState, useRef } from "react";
-import moment from "moment";
+import { useEffect, useState } from "react";
+import "./FlightValueTimeGraph.css";
+import Highcharts from "highcharts";
+import {
+  flightIcon,
+  flightDelayIcon,
+  incrementIcon,
+  decrementIcon,
+  flightGreyIcon,
+} from "./FlightIcon";
+import Strings from "../../globals/Strings";
+import Colors from "../../globals/Colors";
+import FlightListTooltip from "./FlightListTooltip";
 
-const FlightListTooltip = ({
-  isTooltipEnabled,
-  xAxisTooltipData,
+require("highcharts/modules/exporting")(Highcharts);
+require("highcharts-custom-events")(Highcharts);
+
+const FlightArrivalGraph = ({
   flightDetailData,
-}: FlightListTooltipProps) => {
-  let displayInterval: number = 5;
-  let totalNoOfDisplayRecord: number = 10;
-  const [extendedTimeList, setExtendendTimeList] = useState<any>([]);
-  const [isComponentVisible, setIsComponentVisible] = useState(true);
-  const ref:any = useRef(null);
+  isFlightArrivalGraphShow,
+  currentTimeValue,
+  showDetailedFlightData,
+}: FlightArrivalProps) => {
+  const [isTooltipEnabled, setIsTooltipEnabled] = useState(false);
+  const [xAxisTooltipData, setXAxisTooltipData] = useState("");
 
-  let listArray: any = [1, 2, 3, 4, 5, 6];
-
-  const handleClickOutside = (event: any) => {
-    if (ref.current && !ref.current.contains(event.target)) {
-    console.log("isComponentVisible", isComponentVisible, ref.current)
-      
-      setIsComponentVisible(false);
-    }
-  };
+  const { CHART } = Colors;
+  const defaultTickIntervalTime: number = 5;
+  let tickIntervalTime: number = defaultTickIntervalTime;
 
   useEffect(() => {
-    document.addEventListener("click", handleClickOutside, true);
-    return () => {
-      document.removeEventListener("click", handleClickOutside, true);
-    };
-  }, []);
+    // @ts-ignore
+    var chart: any = Highcharts.chart("flightArrivalGraphContainer", {
+      chart: {
+        backgroundColor: CHART.CHART_BG_COLOR,
+        events: {
+          load: function () {
+            const chartDetail = this,
+              data = chartDetail.series[0].data;
+              console.log("flightArrivalGraphContainer", data)
 
-  useEffect(() => {
-      console.log("tooltipData", extendedTimeList[4])
-    if (isTooltipEnabled && xAxisTooltipData !== "") {
-      let selectedTime: any = new Date(xAxisTooltipData);
-      let selectedTimeInMin: any = selectedTime.getMinutes();
-      selectedTime.setMinutes(selectedTimeInMin + displayInterval);
+            data.forEach((element: any) => {
+              let flightSymbol: string = flightIcon;
+              element.isCongestion && (flightSymbol = flightDelayIcon);
+              isFlightArrivalGraphShow &&
+                !element.isSelectedFlight &&
+                (flightSymbol = flightGreyIcon);
 
-      let displayValues: any = [];
-      for (let index = 0; index < totalNoOfDisplayRecord; index++) {
-        let selectedStartTime: any = new Date(selectedTime);
-        let selectedStartTimeMin: any = selectedStartTime.getMinutes();
-        selectedStartTime.setMinutes(selectedStartTimeMin - index);
+              element.update({
+                marker: {
+                  symbol: `url(${flightSymbol})`,
+                },
+              });
+            });
+            chartDetail?.xAxis[0]?.tickPositions?.forEach(function (tPos, i) {
+              if (i % 2 !== 0) {
+                chartDetail?.xAxis[0]?.ticks[tPos]?.gridLine?.attr({
+                  stroke: "transparent",
+                });
+              }
+            });
+          },
+        },
+      },
+      credits: {
+        enabled: false,
+      },
+      title: {
+        text: "",
+      },
+      xAxis: [
+        {
+          startOnTick: true,
+          endOnTick: true,
+          showLastLabel: true,
+          visible: true,
+          alternateGridLineColor: "#fff",
+          lineColor: "#00000052",
+          gridLineColor: CHART.XAXIS_GRID_LINE_COLOR,
+          gridLineWidth: CHART.XAXIS_GRID_LINE_WIDTH,
+          type: "datetime",
+          tickInterval: 1000 * 60 * defaultTickIntervalTime,
+          tickLength: CHART.XAXIS_TICK_LENGTH,
+          currentDateIndicator: true,
+          showFirstLabel: false,
+          labels: {
+            useHTML: true,
+            events: {
+              click: function () {
+                const chartData: any = this;
+                setIsTooltipEnabled(true);
+                setXAxisTooltipData(chartData.pos);
+                console.log(
+                  "onclick",
+                  chartData,
+                  chart?.flightDetails,
+                  chartData.pos
+                );
+              },
+            },
 
-        let hrs: any = `0${selectedStartTime.getUTCHours()}`.slice(-2);
-        let min: any = `0${selectedStartTime.getUTCMinutes()}`.slice(-2);
-        displayValues.unshift(`${hrs}:${min}`);
-      }
-      setExtendendTimeList(displayValues);
-    }
-  }, [xAxisTooltipData]);
+            style: {
+              color: CHART.XAXIS_LABEL_COLOR,
+              cursor: "pointer",
+            },
+          },
+          plotBands: [
+            {
+              from: 0,
+              to: Date.UTC(2024, 0, 2, 6, 12),
+              color: CHART.XAXIS_PLOT_BRAND_COLOR,
+            },
+          ],
+        },
+      ],
+      yAxis: [
+        {
+          gridLineColor: CHART.YAXIS_GRID_LINE_COLOR,
+          lineColor: "#0000000A",
+          tickLength: 20,
+          title: {
+            text: Strings.flightValue.toUpperCase(),
+            style: {
+              color: CHART.YAXIS_TITLE_FONT_COLOR,
+              fontWeight: CHART.YAXIS_TITLE_FONT_WEIGTH,
+              fontSize: CHART.YAXIS_TITLE_FONT_SIZE,
+            },
+          },
+          lineWidth: 2,
+        },
+        {
+          title: {
+            text: "",
+          },
+        },
+      ],
+      series: [
+        {
+          showInLegend: false,
+          type: "scatter",
+          name: "flightArrivalDetails",
+          data: flightDetailData,
+          marker: {
+            radius: 2.5,
+            symbol: `url(${flightIcon})`,
+            states: {
+              hover: {
+                enabled: true,
+                lineColor: CHART.SCATTER_HOVER_LINE_COLOR,
+              },
+              select: {
+                fillColor: "orange",
+              },
+            },
+          },
+          point: {
+            events: {
+              click: function () {
+                const chart: any = this;
+                showDetailedFlightData(chart?.flightDetails);
+              },
+            },
+          },
+        },
+        // {
+        //   type: "spline",
+        //   name: "particularFlightArrivalDetails",
+        //   showInLegend: false,
+        //   visible: isFlightArrivalGraphShow,
+        //   data: particularArrivalFlightData,
+        //   color: "#335188",
+        //   marker: {
+        //     enabled: false,
+        //   },
+        // },
+        {
+          type: "scatter",
+          showInLegend: false,
+          enableMouseTracking: false,
+          marker: {
+            symbol: "circle",
+            radius: 5,
+          },
+          data: currentTimeValue,
+          allowPointSelect: false,
+          states: {
+            hover: {
+              enabled: false,
+            },
+            inactive: {
+              enabled: false,
+            },
+          },
+        },
+      ],
+      tooltip: {
+        formatter: function () {
+          const chartDetail: any = this;
+          return `<span style="color:rgb(0, 38, 107)"><b>${Strings.flightNumber.toUpperCase()} : ${
+            chartDetail?.point?.flightNumber
+          }</b></span> <br/><br/>${
+            Strings.flightArrivalTime
+          }:${Highcharts.dateFormat("%Y-%m-%d %H:%M", chartDetail.x)} <br/> ${
+            Strings.flightValue
+          } : ${chartDetail.y}`;
+        },
+      },
+      exporting: {
+        buttons: {
+          contextButton: {
+            enabled: false,
+          },
+          incrementTimer: {
+            x: -695,
+            y: 134,
+            height: "20px",
+            onclick: function () {
+              if (tickIntervalTime < 60) {
+                tickIntervalTime = tickIntervalTime + 5;
+
+                chart.xAxis[0].update({
+                  tickInterval: 1000 * 60 * tickIntervalTime,
+                });
+              }
+            },
+            symbol: `url(${incrementIcon})`,
+            symbolSize: 20,
+          },
+          decrementTimer: {
+            x: -715,
+            y: 134,
+            height: "20px",
+            onclick: function () {
+              if (tickIntervalTime > 5) {
+                tickIntervalTime = tickIntervalTime - 5;
+                chart.xAxis[0].update({
+                  tickInterval: 1000 * 60 * tickIntervalTime,
+                });
+              }
+            },
+            symbol: `url(${decrementIcon})`,
+            symbolSize: 20,
+          },
+        },
+      },
+    });
+    //     chart.xAxis[0].labelGroup.element.childNodes.forEach(function(label:any)
+    // {
+    // 	label.style.cursor = "pointer";
+    //   label.onclick = function(){
+
+    //   }
+    // });
+  },[flightDetailData,
+    isFlightArrivalGraphShow,
+    currentTimeValue,
+    showDetailedFlightData]);
 
   return (
     <>
-    { isComponentVisible && <div  className="extension-container">
-      {isTooltipEnabled && (
-        <>
-          <div ref={ref} className="tooltip-info">
-            <div className="tooltip-txt">
-              <div>80</div>
-              <div>UA1018-30</div>
-            </div>
-            <div className="tooltip-txt">
-              <div>75</div>
-              <div>UA1086-30</div>
-            </div>
-          </div>
-
-          <div className="extend-xaxis">
-            {extendedTimeList.map((value: any, index: any) => {
-              return <div className={`${index === 4 ? "xaxis-highlight-label" : ""}`} key={index}>{value}</div>;
-            })}
-          </div>
-          
-        </>
-      )}
-    </div>}
+      <div
+        id="flightArrivalGraphContainer"
+        className="high-chart-container"
+      ></div>
+      <FlightListTooltip
+        isTooltipEnabled={isTooltipEnabled}
+        xAxisTooltipData={xAxisTooltipData}
+        flightDetailData={flightDetailData}
+      />
     </>
   );
 };
 
-interface FlightListTooltipProps {
-  isTooltipEnabled: boolean;
-  xAxisTooltipData: string;
+interface FlightArrivalProps {
   flightDetailData: any;
+  isFlightArrivalGraphShow: boolean;
+  currentTimeValue: any;
+  showDetailedFlightData: (flightDetail: any) => void;
 }
 
-export default FlightListTooltip;
+export default FlightArrivalGraph;
