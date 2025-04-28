@@ -1,17 +1,1 @@
-import React, { useState } from 'react'
-
-const App = () => {
-  const [name,setName]=useState('')
-  function clickAble(): void {
-    setName("hello")
-  }
-
-  return (
-    <div>
-      <h1 style={{fontSize:"10px"}}>{name}</h1>
-      <button onClick={clickAble}>clickAble</button>
-    </div>
-  )
-}
-
-export default App
+https://careers.ey.com/ey/job/Katowice-Senior-Frontend-React-Developer-%C5%9Al%C4%85s-40-028/1167324401/
