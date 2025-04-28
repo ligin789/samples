@@ -1,8 +1,74 @@
- "/node_modules/",
-    "/coverage",
-    "package.json",
-    "package-lock.json",
-    "reportWebVitals.ts",
-    "setupTests.ts",
-    "src/components/gantt",
-    "index.tsx"
+import moment from "moment";
+
+export const workSpaceModel = (data: any) => {
+  console.log('check the workSpaceModel workSpaceModel =>',data)
+  let tempFinalObj = { ...data };
+  let tempFinalGraphViewData: any = [];
+  data?.graphViewData?.length > 0 &&
+    data.graphViewData.map((el: any, index: number) => {
+      let temp: any = {};
+      // temp.nowTime = `${
+      //   (
+      //     Number(
+      //       el.graphDataView[0]?.time
+      //         ?.split("T")[1]
+      //         .substring(0, 5)
+      //         .split(":")[0]
+      //     ) - 1
+      //   ).toString().length > 1
+      //     ? Number(
+      //         el.graphDataView[0]?.time
+      //           ?.split("T")[1]
+      //           .substring(0, 5)
+      //           .split(":")[0]
+      //       ) - 1
+      //     : `0${
+      //         Number(
+      //           el.graphDataView[0]?.time
+      //             ?.split("T")[1]
+      //             .substring(0, 5)
+      //             .split(":")[0]
+      //         ) - 1
+      //       }`
+      // }:${
+      //   el.graphDataView[0]?.time?.split("T")[1].substring(0, 5).split(":")[1]
+      // }`;
+      // temp.nowTime = moment(el?.iaoLclEstArrDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').subtract(1,'hour').format('HH:mm');
+      // temp.nowTime = moment(el?.iaoLclEstDepDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').subtract(1,'hour').format('HH:mm');
+      temp.nowTime = moment(el?.iaoLclEstDepDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').format('HH:mm');
+      temp.timeNow = el?.iaoLclEstDepDtTm
+      // temp.groundStartTime = el.graphDataView[0]?.time
+      // temp.groundStartTime = el?.iaoLclEstArrDtTm 
+      // temp.groundStartTime = el?.iaoLclEstDepDtTm
+      temp.groundStartTime = el?.iaoLclEstArrDtTm
+        ?.split("T")[1]
+        .substring(0, 5);
+      temp.startTimeGround = el?.iaoLclEstArrDtTm
+      temp.groundEndTime = el.graphDataView[el.graphDataView.length - 2]?.time
+        ?.split("T")[1]
+        .substring(0, 5);
+      temp.endTimeGround = el.graphDataView[el.graphDataView.length - 2]?.time
+      temp.flightNo = el.flightNo;
+      // temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,time:el?.iaoLclEstArrDtTm?.split("T")[1]?.substring(0, 5)}];
+      // temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,time:el?.iaoLclEstDepDtTm?.split("T")[1]?.substring(0, 5)}];
+      temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,timeFull:el?.iaoLclEstArrDtTm,time:el?.iaoLclEstArrDtTm?.split("T")[1]?.substring(0, 5)}];
+      console.log("workSpaceModel ####=>1", temp);
+
+      el.graphDataView.length > 0 &&
+        el.graphDataView.map((obj: any, i: number) => {
+          let tempObj: any = {};
+          tempObj.value = obj.score;
+          tempObj.time = obj.time?.split("T")[1]?.substring(0, 5);
+          tempObj.timeFull = obj.time;
+          if(tempObj.time && tempObj.value){
+            temp.graphDataView.push(tempObj);
+          }
+        });
+        console.log("workSpaceModel ####=>2", temp);
+
+      tempFinalGraphViewData.push(temp);
+    });
+  tempFinalObj.graphViewData = tempFinalGraphViewData;
+  console.log("workSpaceModel ####=>3", tempFinalObj,data);
+  return tempFinalObj;
+};
