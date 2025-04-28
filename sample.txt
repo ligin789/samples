@@ -1,10 +1,254 @@
-encrypt › should generate a base64 encoded SHA-256 hash
+import FlightValueTimeGraph from "../../components/flightValueTimeGraph";
+import GanttView from "../../components/gantt";
+import WorkSpaceView from "../../components/workSpace";
+import GridView from "../../components/grid";
+import LayoutTab from "../../components/layoutTab";
+import MapBoxMap from "../../components/map";
+// import MenuOption from "../../components/menu/indexDupe";
+import MenuOption from "../../components/menu/index";
+import TwinsCardsWrapper from "../../components/twinCardsWrapper";
+import Header from "../../components/header";
+import CardsDashbord from "../../components/cardsDashbord";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import FlightsTable from "../../components/flightsTable";
+import LocalUtcTime from "../../components/localUtcTime";
 
-    ReferenceError: crypto is not defined
-
-      16 | export async function encrypt(str:any) {
-      17 |     const bytes = new TextEncoder().encode(str);
-    > 18 |     const hash = await crypto.subtle.digest('SHA-256', bytes);
-         |                        ^
-      19 |     return toBase64(hash);
-      20 | }
+const HomeComponent = (props: any) => {
+  const {
+    newTimeInterval,
+    setNewTimeInterval,
+    tabClick,
+    tabItem,
+    selectedTabIndex,
+    exceptionDotArray,
+    dotClick,
+    tabViewIndex,
+    onTabViewClick,
+    onMenuIconClick,
+    showMenuOptions,
+    handleShowMenuOptions,
+    configurationTabClicked,
+    onConfigurationTabClick,
+    configurationMenuOptionsIndex,
+    configurationMenuOptionClick,
+    flightData,
+    referenceData,
+    flightSearchHandler,
+    sortFlightList,
+    setselectedStationName,
+    setselectedTerminalName,
+    commentExItemIndex,
+    onCommentExpandClick,
+    setflightWindowEndTime,
+    status,
+    configList,
+    selectedTimeLineValue,
+    setselectedTimeLineValue,
+    timeLineValueList,
+    interval,
+    setInterval,
+    hours,
+    setHours,
+    workSpaceViewDetailData, 
+    ganttViewDetailData,
+    maxMinData,
+    callAdvisory,
+    postConfigData,
+    postConfigType,
+    postConfigChange,
+    updateWidgetHistory,
+    selectedFlight,
+    setSelectedFlight,
+    timerCounter,
+    allFlightWidgetHistory,
+    openHistoryPopUp,
+    widgetCardApi,
+    waitingObj,
+    openExplainPopUp
+  } = props;
+  const flightDataNew = useSelector((state: any) => state.flightCardViewReducer.flightData)
+  // const getTabLayoutView = tabViewIndex === 1 ? <GridView /> : <GanttView />;
+  const getTabLayoutView =
+    tabViewIndex === 1 ? (
+      <GanttView
+        newTimeInterval={newTimeInterval}
+        setNewTimeInterval={setNewTimeInterval}
+        setHoursValue={setHours}
+        referenceData={referenceData}
+        setflightWindowEndTime={setflightWindowEndTime}
+        status={status}
+        selectedTimeLineValue={selectedTimeLineValue}
+        setselectedTimeLineValue={setselectedTimeLineValue}
+        timeLineValueList={timeLineValueList}
+        setTimeInterval={setInterval}
+        timeInterval={interval}
+        hoursValue={hours}
+        tabViewIndex={tabViewIndex}
+        ganttViewDetailData={ganttViewDetailData}
+        maxMinData={maxMinData}
+        selectedFlight={selectedFlight}
+        timerCounter={timerCounter}
+        // setSelectedFlight={setSelectedFlight}
+        allFlightWidgetHistory={allFlightWidgetHistory}
+        waitingObj={waitingObj}
+      />
+    ) : (
+      <WorkSpaceView
+        newTimeInterval={newTimeInterval}
+        setNewTimeInterval={setNewTimeInterval}
+        setHoursValue={setHours}
+        referenceData={referenceData}
+        setflightWindowEndTime={setflightWindowEndTime}
+        status={status}
+        selectedTimeLineValue={selectedTimeLineValue}
+        setselectedTimeLineValue={setselectedTimeLineValue}
+        timeLineValueList={timeLineValueList}
+        setTimeInterval={setInterval}
+        timeInterval={interval}
+        hoursValue={hours}
+        tabViewIndex={tabViewIndex}
+        workSpaceViewDetailData={workSpaceViewDetailData}
+        maxMinData={maxMinData}
+        timerCounter={timerCounter}
+        waitingObj={waitingObj}
+      />
+    );
+  return (
+    <div>
+      {(tabViewIndex===3)?<Header openHistoryPopUp={openHistoryPopUp} type={'cardsDashbord'} showMenuOptions={showMenuOptions} handleShowMenuOptions={handleShowMenuOptions} onMenuIconClick={onMenuIconClick} callAdvisory={callAdvisory} postConfigData={postConfigData} postConfigType={postConfigType} postConfigChange={postConfigChange} tabViewIndex={tabViewIndex} onTabViewClick={onTabViewClick}/>:
+      tabViewIndex!=4&&
+      <TwinsCardsWrapper
+        tabClick={tabClick}
+        tabItem={tabItem}
+        selectedTabIndex={selectedTabIndex}
+        exceptionDotArray={exceptionDotArray}
+        dotClick={dotClick}
+        onMenuIconClick={onMenuIconClick}
+        showMenuOptions={showMenuOptions}
+        configurationTabClicked={configurationTabClicked}
+        onConfigurationTabClick={onConfigurationTabClick}
+        configurationMenuOptionsIndex={configurationMenuOptionsIndex}
+        configurationMenuOptionClick={configurationMenuOptionClick}
+        flightData={flightData}
+        // flightData={flightDataNew}
+        flightSearchHandler={flightSearchHandler}
+        sortFlightList={sortFlightList}
+        tabViewIndex={tabViewIndex}
+        commentExItemIndex={commentExItemIndex}
+        onCommentExpandClick={onCommentExpandClick}
+        configList={configList}
+        onTabViewClick={onTabViewClick}
+        postConfigData={postConfigData}
+        postConfigType={postConfigType}
+        postConfigChange={postConfigChange}
+        selectedFlight={selectedFlight}
+        setSelectedFlight={setSelectedFlight}
+        allFlightWidgetHistory={allFlightWidgetHistory}
+        callAdvisory={callAdvisory}
+        updateWidgetHistory={updateWidgetHistory}
+        handleShowMenuOptions={handleShowMenuOptions}
+        openHistoryPopUp={openHistoryPopUp}
+        openExplainPopUp={openExplainPopUp}
+      />}
+      {!showMenuOptions ? (
+        <>
+          {tabViewIndex!=4&&<LayoutTab
+            tabViewIndex={tabViewIndex}
+            onTabViewClick={onTabViewClick}
+          />}
+          {/* <div style={{width:'100vw',display:'flex'}}> */}
+          {/* <div style={{display:'flex',width:`calc(100vw - ${475}px)`}}> */}
+          {tabViewIndex===4?<div>
+            <div style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',boxShadow: '0px 3px 10px #00000031'}}>
+              <div style={{width:'450px'}}>
+                <Header openHistoryPopUp={openHistoryPopUp} showMenuOptions={showMenuOptions} handleShowMenuOptions={handleShowMenuOptions} onMenuIconClick={onMenuIconClick} callAdvisory={callAdvisory} postConfigData={postConfigData} postConfigType={postConfigType} postConfigChange={postConfigChange} tabViewIndex={tabViewIndex} onTabViewClick={onTabViewClick}/>
+              </div>
+              <div style={{width:'320px'}}>
+                <LocalUtcTime timerCounter={timerCounter} selectedTimeLineValue={selectedTimeLineValue}/>
+              </div>
+            </div>
+            <FlightsTable allFlightWidgetHistory={allFlightWidgetHistory} updateWidgetHistory={updateWidgetHistory}/>
+            </div>:
+          tabViewIndex===3?
+          <CardsDashbord
+            newTimeInterval={newTimeInterval}
+            setNewTimeInterval={setNewTimeInterval}
+            referenceData={referenceData}
+            setselectedTimeLineValue={setselectedTimeLineValue}
+            selectedTimeLineValue={selectedTimeLineValue}
+            timeLineValueList={timeLineValueList}
+            interval={interval}
+            hours={hours}
+            setInterval={setInterval}
+            setHours={setHours}
+            setselectedTerminalName={setselectedTerminalName}
+            setselectedStationName={setselectedStationName}
+            setflightWindowEndTime={setflightWindowEndTime}
+            status={status}
+            flightData={flightData}
+            maxMinData={maxMinData}
+            timerCounter={timerCounter}
+            allFlightWidgetHistory={allFlightWidgetHistory}
+            callAdvisory={callAdvisory}
+            updateWidgetHistory={updateWidgetHistory}
+            tabViewIndex={tabViewIndex}
+            onTabViewClick={onTabViewClick}
+            showMenuOptions={showMenuOptions}
+            handleShowMenuOptions={handleShowMenuOptions}
+            openHistoryPopUp={openHistoryPopUp}
+            waitingObj={waitingObj}
+            openExplainPopUp={openExplainPopUp}
+          />:
+          <div style={{display:'flex',width:`${window.innerWidth-25}px`}}>
+            {/* <div style={{width:'450px',height:'100vh'}}></div> */}
+            {/* <div style={{width:`calc(100vw-${450+50}px)`,overflow:'auto',whiteSpace:'nowrap'}}> */}
+            {/* <div style={{width:`calc(100vw - ${450}px)`}}> */}
+            <div>
+            {/* <div style={{width:`500px`,overflow:'auto',whiteSpace:'nowrap'}}> */}
+          {tabViewIndex === 0 ? (
+            <>
+            {/* {console.log('check the MapBoxMap referenceData ===> ',referenceData)} */}
+              <MapBoxMap
+                newTimeInterval={newTimeInterval}
+                setNewTimeInterval={setNewTimeInterval}
+                referenceData={referenceData}
+                setselectedTimeLineValue={setselectedTimeLineValue}
+                selectedTimeLineValue={selectedTimeLineValue}
+                timeLineValueList={timeLineValueList}
+                interval={interval}
+                hours={hours}
+                setInterval={setInterval}
+                setHours={setHours}
+                setselectedTerminalName={setselectedTerminalName}
+                setselectedStationName={setselectedStationName}
+                setflightWindowEndTime={setflightWindowEndTime}
+                status={status}
+                tabViewIndex={tabViewIndex}
+                flightData={flightData}
+                maxMinData={maxMinData}
+                timerCounter={timerCounter}
+                ganttViewDetailData={ganttViewDetailData}
+                allFlightWidgetHistory={allFlightWidgetHistory}
+                waitingObj={waitingObj}
+              />
+            </>
+          ) : (
+            getTabLayoutView
+          )}
+          </div>
+          </div>}
+        </>
+      ) : (
+        <MenuOption
+          configList={configList}
+          configurationMenuOptions={configurationMenuOptionsIndex}
+          selectedTimeLineValue={selectedTimeLineValue}
+          timerCounter={timerCounter}
+        />
+        // <div>rahul</div>
+      )}
+    </div>
+  );
+};
+export default HomeComponent;
