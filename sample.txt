@@ -1,74 +1,186 @@
-import moment from "moment";
+import { put, takeLatest } from "redux-saga/effects";
+import { APIcall } from "../../environments/Service";
+import configuration from "../../environments/Configuration";
+import { getPayloadOther } from "../../globals/Common";
+import { CustomResponseType} from "../../globals/PropTypes";
+// import TestData from './data.json';
+// import TestData from './data1.json';
+import TestData from './data2.json';
+import TestDataExplain from './explainData.json';
+import axios from "axios";
 
-export const workSpaceModel = (data: any) => {
-  console.log('check the workSpaceModel workSpaceModel =>',data)
-  let tempFinalObj = { ...data };
-  let tempFinalGraphViewData: any = [];
-  data?.graphViewData?.length > 0 &&
-    data.graphViewData.map((el: any, index: number) => {
-      let temp: any = {};
-      // temp.nowTime = `${
-      //   (
-      //     Number(
-      //       el.graphDataView[0]?.time
-      //         ?.split("T")[1]
-      //         .substring(0, 5)
-      //         .split(":")[0]
-      //     ) - 1
-      //   ).toString().length > 1
-      //     ? Number(
-      //         el.graphDataView[0]?.time
-      //           ?.split("T")[1]
-      //           .substring(0, 5)
-      //           .split(":")[0]
-      //       ) - 1
-      //     : `0${
-      //         Number(
-      //           el.graphDataView[0]?.time
-      //             ?.split("T")[1]
-      //             .substring(0, 5)
-      //             .split(":")[0]
-      //         ) - 1
-      //       }`
-      // }:${
-      //   el.graphDataView[0]?.time?.split("T")[1].substring(0, 5).split(":")[1]
-      // }`;
-      // temp.nowTime = moment(el?.iaoLclEstArrDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').subtract(1,'hour').format('HH:mm');
-      // temp.nowTime = moment(el?.iaoLclEstDepDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').subtract(1,'hour').format('HH:mm');
-      temp.nowTime = moment(el?.iaoLclEstDepDtTm?.substring(0,19),'YYYY-MM-DDTHH:mm:SS').format('HH:mm');
-      temp.timeNow = el?.iaoLclEstDepDtTm
-      // temp.groundStartTime = el.graphDataView[0]?.time
-      // temp.groundStartTime = el?.iaoLclEstArrDtTm 
-      // temp.groundStartTime = el?.iaoLclEstDepDtTm
-      temp.groundStartTime = el?.iaoLclEstArrDtTm
-        ?.split("T")[1]
-        .substring(0, 5);
-      temp.startTimeGround = el?.iaoLclEstArrDtTm
-      temp.groundEndTime = el.graphDataView[el.graphDataView.length - 2]?.time
-        ?.split("T")[1]
-        .substring(0, 5);
-      temp.endTimeGround = el.graphDataView[el.graphDataView.length - 2]?.time
-      temp.flightNo = el.flightNo;
-      // temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,time:el?.iaoLclEstArrDtTm?.split("T")[1]?.substring(0, 5)}];
-      // temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,time:el?.iaoLclEstDepDtTm?.split("T")[1]?.substring(0, 5)}];
-      temp.graphDataView = [{value:el?.graphDataView[el?.graphDataView?.length-1]?.score,timeFull:el?.iaoLclEstArrDtTm,time:el?.iaoLclEstArrDtTm?.split("T")[1]?.substring(0, 5)}];
-      console.log("workSpaceModel ####=>1", temp);
+export const timerAction = {
+  storeTimer: (data:any)=>({
+    type:'TIMER_STORE',
+    payload:data
+  }),
+  storeTimeLine: (data:any)=>({
+    type:'TIME_LINE_STORE',
+    payload:data
+  }),
+  timerStore: (data:any)=>({
+    type:'STORE_TIMER_DATA',
+    payload:data
+  }),
+  timeLineStore: (data:any)=>({
+    type:'STORE_TIME_LINE_DATA',
+    payload:data
+  }),
 
-      el.graphDataView.length > 0 &&
-        el.graphDataView.map((obj: any, i: number) => {
-          let tempObj: any = {};
-          tempObj.value = obj.score;
-          tempObj.time = obj.time?.split("T")[1]?.substring(0, 5);
-          tempObj.timeFull = obj.time;
-          if(tempObj.time && tempObj.value){
-            temp.graphDataView.push(tempObj);
-          }
-        });
-        console.log("workSpaceModel ####=>2", temp);
+  // for history pop up
+  openHistoryPopUp:()=>({
+    type:'HISTORY_POPUP_OPEN'
+  }),
+  historyPopUpOpen:()=>({
+    type:'OPEN_HISTORY_POPUP'
+  }),
+  closeHistoryPopUp:()=>({
+    type:'HISTORY_POPUP_CLOSE'
+  }),
+  historyPopUpClose:()=>({
+    type:'CLOSE_HISTORY_POPUP'
+  }),
+  storeHistoryPopUpData:(data:any)=>({
+    type:'HISTORY_POPUP_DATA_STORE',
+    payload:data
+  }),
+  historyPopUpDataStore:(data:any)=>({
+    type:'STORE_HISTORY_DATA',
+    payload:data
+  }),
 
-      tempFinalGraphViewData.push(temp);
-    });
-  tempFinalObj.graphViewData = tempFinalGraphViewData;
-  console.log("workSpaceModel ####=>3", tempFinalObj,data);
-  return tempFinalObj;
-};
+  // for Explain pop up
+  openExplainPopUp:()=>({
+    type:'EXPLAIN_POPUP_OPEN'
+  }),
+  explainPopUpOpen:()=>({
+    type:'OPEN_EXPLAIN_POPUP'
+  }),
+  closeExplainPopUp:()=>({
+    type:'EXPLAIN_POPUP_CLOSE'
+  }),
+  explainPopUpClose:()=>({
+    type:'CLOSE_EXPLAIN_POPUP'
+  }),
+  storeExplainPopUpData:(data:any)=>({
+    type:'EXPLAIN_POPUP_DATA_STORE',
+    payload:data
+  }),
+  explainPopUpDataStore:(data:any)=>({
+    type:'STORE_EXPLAIN_DATA',
+    payload:data
+  })
+}
+
+function* storeTimer({payload}:any){
+    yield put(timerAction.timerStore(payload.time))
+}
+function* storeTimeLine({payload}:any){
+  yield put(timerAction.timeLineStore(payload.data))
+}
+
+// for historyPopUp
+function* storeHistoryPopUpData({payload}:any){
+  console.log('we are checking workspase api response =>#### ',payload)
+  // try {
+    // axios({
+    //   method: "post",
+    //   url: `/token`,
+    //   headers: '',
+    //   data : {},
+    // }).then(())
+    // axios({
+    //   method:'post',
+    //   url:configuration.url.getgatehistorydata,
+    //   data:{iaoFlightLegId:payload.iaoFlightLegId?payload.iaoFlightLegId:''}
+    // }).then(function(response:any){
+    let response: CustomResponseType = yield APIcall(
+      // let res: CustomResponseType = yield APIcall(
+      //   let res: CustomResponseType = APIcall(
+      'POST', 
+      configuration.url.getgatehistorydata,
+      // {iaoFlightLegId:payload.iaoFlightLegId}
+      {iaoFlightLegId:payload.iaoFlightLegId?payload.iaoFlightLegId:''}
+      // getPayloadOther()
+    )
+    console.log('we are checking workspase api response => ',response);
+    if (response.status === 200) {
+        // yield put({type: Constants.SAVE_WORK_SPACE_VIEW_DETAIL, payload: response.data})
+        yield put(timerAction.historyPopUpDataStore({iaoFlightLegId:payload.iaoFlightLegId,data:response.data}))
+        // put(timerAction.historyPopUpDataStore({iaoFlightLegId:payload.iaoFlightLegId,data:response.data}))
+    } else if (response?.response?.status === 401 || response?.response?.status === 403) {
+      yield put({type: 'UPDATE_ALERT', payload: {title: 'Session Timeout',content: 'Login to start a new session'}})
+      // put({type: 'UPDATE_ALERT', payload: {title: 'Session Timeout',content: 'Login to start a new session'}})
+    } else {
+      yield put({type:'UPDATE_ALERT', payload:{title: 'Alert',content: 'Oops, something went wrong. Please try again later.'}})
+      // put({type:'UPDATE_ALERT', payload:{title: 'Alert',content: 'Oops, something went wrong. Please try again later.'}})
+    }
+  // }).catch(function(error){
+  //   console.log('this is the store History PopUp Data ERROR => ',error);
+  //   // put(timerAction.historyPopUpDataStore({iaoFlightLegId:"UA::517::2025-02-25::MIA::IAH::0::0",data:TestData}))
+  // })
+  // } catch (error) {
+  // 
+  // }
+
+  // after work we need to comment below line
+  // yield put(timerAction.historyPopUpDataStore({iaoFlightLegId:"UA::517::2025-02-25::MIA::IAH::0::0",data:TestData}))
+  // setTimeout(()=>{
+  //   yield put(timerAction.historyPopUpDataStore({iaoFlightLegId:"UA::517::2025-02-25::MIA::IAH::0::0",data:TestData}))
+  // },3000)
+}
+function* openHistoryPopUp({payload}:any){
+  console.log('in side setIsHistoryPopUpShow ##')
+  yield put(timerAction.historyPopUpOpen())
+}
+function* closeHistoryPopUp({payload}:any){
+  yield put(timerAction.historyPopUpDataStore({}))
+  yield put(timerAction.historyPopUpClose())
+}
+
+// for Explain PopUp
+function* storeExplainPopUpData({payload}:any){
+  console.log('we are checking workspase api response =>#### simulationId',payload)
+  let response: CustomResponseType = yield APIcall(
+    'POST', 
+    configuration.url.getgateExplaindata,
+    // {iaoFlightLegId:payload.iaoFlightLegId}
+    {simulationId:payload.simulationId?payload.simulationId:''}
+    // getPayloadOther()
+  )
+  console.log('we are checking workspase api response => ',response);
+  if (response.status === 200 || response.status === 304 || response.status === 202) {
+      // yield put({type: Constants.SAVE_WORK_SPACE_VIEW_DETAIL, payload: response.data})
+      yield put(timerAction.explainPopUpDataStore({simulationId:payload.simulationId,data:response.data}))
+  } else if (response?.response?.status === 401 || response?.response?.status === 403) {
+    yield put({type: 'UPDATE_ALERT', payload: {title: 'Session Timeout',content: 'Login to start a new session'}})
+  } else {
+    yield put({type:'UPDATE_ALERT', payload:{title: 'Alert',content: 'Oops, something went wrong. Please try again later.'}})
+  }
+
+  // after work we need to comment below line
+  // yield put(timerAction.explainPopUpDataStore({simulationId:payload.simulationId,data:TestDataExplain}))
+}
+function* openExplainPopUp({payload}:any){
+  console.log('in side setIsExplainPopUpShow ##')
+  yield put(timerAction.explainPopUpOpen())
+}
+function* closeExplainPopUp({payload}:any){
+  yield put(timerAction.explainPopUpDataStore({}))
+  yield put(timerAction.explainPopUpClose())
+}
+
+export function* timer() {
+yield takeLatest('TIMER_STORE', storeTimer)
+yield takeLatest('TIME_LINE_STORE', storeTimeLine)
+
+// for history pop up
+yield takeLatest('HISTORY_POPUP_OPEN', openHistoryPopUp)
+yield takeLatest('HISTORY_POPUP_CLOSE', closeHistoryPopUp)
+yield takeLatest('HISTORY_POPUP_DATA_STORE', storeHistoryPopUpData)
+
+// for Explain pop up
+yield takeLatest('EXPLAIN_POPUP_OPEN', openExplainPopUp)
+yield takeLatest('EXPLAIN_POPUP_CLOSE', closeExplainPopUp)
+yield takeLatest('EXPLAIN_POPUP_DATA_STORE', storeExplainPopUpData)
+}
