@@ -1,261 +1,40 @@
-import { takeLatest, put } from "redux-saga/effects";
-import Constants from "../../globals/Constants";
-import { APIcall } from "../../environments/Service";
-import configuration from "../../environments/Configuration";
-import { CustomResponseType } from "../../globals/PropTypes";
-import testData from './data.json';
 
-export const configurationTabDetails = {
-  getConfigurationList: () => {
-    const payload = {};
-    return {
-      type: Constants.GET_CONFIGURATION_LIST,
-      payload,
-    };
-  },
-  getDomainConfig: (payload: any) => ({
-    type: "GET_SUB_DOMAIN_LIST",
-    payload,
-  }),
-  postConfigurationListItem: (payload: any) => {
-    return {
-      type: Constants.POST_CONFIGURATION_LIST_ITEM,
-      payload,
-    };
-  },
-  updateConfigurationListItem: (payload: any) => {
-    return {
-      type: Constants.UPDATE_CONFIGURATION_LIST_ITEM,
-      payload,
-    };
-  },
-  deleteConfigurationListItem: (payload: any) => {
-    return {
-      type: Constants.DELETE_CONFIGURATION_LIST_ITEM,
-      payload,
-    };
-  },
-  getConfigListReferenceData: () => {
-    const payload = {};
-    return {
-      type: Constants.GET_CONFIGURATION_REFERENCE_DATA,
-      payload,
-    };
-  },
-};
-
-function* getConfigurationList({ payload }: any) {
-  
-  console.log("getConfigurationList", payload);
-
-  let response: CustomResponseType = yield APIcall(
-    configuration.method,
-    `${configuration.url.getConfigList}`,
-    payload
-  );
-  
-  if (response.status === 200 || response.status === 304) {
-  console.log("getConfigurationList Response", response.data);
-
-    yield put({
-      type: Constants.SAVE_CONFIGURATION_LIST,
-      payload: response.data,
-      // payload: testData,
-    });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 	
+function toBase64(arrayBuffer:any) {
+    const bytes :any= new Uint8Array(arrayBuffer);
+    const base64 = btoa(String.fromCharCode(...bytes));
+    return base64.replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
 }
-
-function* modifyDomainData({ payload, isDomain }: any) {
-  // console.log("getConfigurationList", isDomain, payload,`${configuration.url.getBasePath}/${isDomain ? 'addudpatedomainconfiguration' : 'addudpatesubdomainconfiguration'}`);
-  let response: CustomResponseType = yield APIcall(
-    configuration.method,
-    // `${configuration.url.getBasePath}/${isDomain ? 'addudpatedomainconfiguration' : 'addudpatesubdomainconfiguration'}`,
-    `${configuration.url.getBasePath}/addudpatedomainconfiguration`,
-    payload
-  );
-  if (response.status === 201 || response.status === 200) {
-    console.log({ message: `Rule added successfully` });
-    yield put(configurationTabDetails.getConfigurationList())
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Message",
-        content: "Plan Updated Successfully",
-      },
-    });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
+ 
+export function generateRandomString(length:any) {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0;i<length;i++){
+      const randomIndex = Math.floor(Math.random()*characters.length);
+      result += characters[randomIndex];
+    }
+    return result
 }
-
-function* updateConfigurationListItem({ payload }: any) {
-  const response: any = {};
-  if (response.status === 200) {
-    console.log({ message: `updated successfully` });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
-}
-
-function* deleteConfigurationListItem({ payload }: any) {
-  const response: any = {};
-  if (response.status === 200) {
-    console.log({ message: "Rule deleted successfully" });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
-}
-
-function* getConfigListReferenceData({ payload }: any) {
-  let response: CustomResponseType = yield APIcall(
-    configuration.method,
-    `${configuration.url.getConfigListReferenceData}`,
-    payload
-  );
-  if (response.status === 200 || response.status === 304) {
-    yield put({
-      type: Constants.SAVE_CONFIGURATION_LIST_REFERENCE_DATA,
-      payload: response.data,
-    });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
-}
-
-function* getSubDomainList({ payload }: any) {
-  let response: CustomResponseType = yield APIcall(
-    configuration.method,
-    `${configuration.url.getConfigListReferenceData}`,
-    payload
-  );
-  if (response.status === 200 || response.status === 304) {
-    yield put({ type: "SAVE_SUB_DOMAIN_LIST", payload: response.data });
-  } else if (
-    response?.response?.status === 401 ||
-    response?.response?.status === 403
-  ) {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Session Timeout",
-        content: "Login to start a new session",
-      },
-    });
-  } else {
-    yield put({
-      type: "UPDATE_ALERT",
-      payload: {
-        title: "Alert",
-        content: "Oops, something went wrong. Please try again later.",
-      },
-    });
-  }
-}
-
-export function* configurationTabViewSaga() {
-  yield takeLatest(Constants.GET_CONFIGURATION_LIST, getConfigurationList);
-  yield takeLatest(
-    'modifyPlanData',
-    modifyDomainData
-  );
-  yield takeLatest(
-    Constants.UPDATE_CONFIGURATION_LIST_ITEM,
-    updateConfigurationListItem
-  );
-  yield takeLatest(
-    Constants.DELETE_CONFIGURATION_LIST_ITEM,
-    deleteConfigurationListItem
-  );
-  yield takeLatest(
-    Constants.GET_CONFIGURATION_REFERENCE_DATA,
-    getConfigListReferenceData
-  );
-  yield takeLatest("GET_SUB_DOMAIN_LIST", getSubDomainList);
+export async function encrypt(str:any) {
+    const bytes = new TextEncoder().encode(str);
+    const hash = await crypto.subtle.digest('SHA-256', bytes);
+    return toBase64(hash);
 }
