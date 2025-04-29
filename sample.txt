@@ -1,8 +1,1 @@
-Test suite failed to run
-
-    TypeError: Cannot redefine property: useSelector
-        at Function.defineProperty (<anonymous>)
-
-      19 |  
-      20 | describe("HomeComponent", () => {
-    > 21 |   const useSelectorMock = jest.spyOn(reactRedux, "useSelector");
+                        -Dsonar.exclusions=**/node_modules/**,**/coverage/**,package.json,package-lock.json,reportWebVitals.ts,setupTests.ts,src/components/gantt/**,index.tsx,Styles.ts,src/atoms/explainPopup/**,test/**
