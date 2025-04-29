@@ -1,1 +1,34 @@
-                        -Dsonar.exclusions=**/node_modules/**,**/coverage/**,package.json,package-lock.json,reportWebVitals.ts,setupTests.ts,src/components/gantt/**,index.tsx,Styles.ts,src/atoms/explainPopup/**,test/**
+import moment from "moment"
+
+export const FlightsTableModle = (data:any)=>{
+    console.log('check the data set in FlightsTableModle =>',data)
+    let finalFlightsTableData :any= []
+    data?.length>0&&data.map((el:any,index:number)=>{
+        if(el?.state==='GATE_ADVISORY'||el?.state==='GATE_PUBLISHED'){
+            let mainData = el.metadata?JSON.parse(el.metadata)?.flight:{}
+            console.log('check the mainData mainData => ',mainData)
+            let temp = {
+                "widgetConversationId":el?.widgetConversationId?el.widgetConversationId:'',
+                "flightNo": mainData?.iaoInFlight? mainData?.iaoInFlight : '--',
+                "gate": `${mainData?.iaoAdvisedGate? mainData.iaoAdvisedGate : '--'}(${mainData?.iaoOldGate?mainData.iaoOldGate:'--'})`,
+                "eon": mainData?.iaoLclEstOntheFldTime? mainData.iaoLclEstOntheFldTime : '--',
+                "gwt": mainData?.iaoGateWaitingTime? mainData.iaoGateWaitingTime : '--',
+                "peta": mainData?.iaoArrPrdctLclTime? mainData.iaoArrPrdctLclTime : '--',
+                "aircraftImpact": mainData?.aircraftDownlineImpact? `${mainData.aircraftDownlineImpact}` : '--',
+                "crewImpact": `${mainData?.calculatedCrewConx!=undefined? mainData.calculatedCrewConx:'0'}/${mainData?.totalCrewConx!=undefined? mainData.totalCrewConx:'0'}`,
+                "paxImpact": `${mainData?.calculatedPaxConx!=undefined? mainData.calculatedPaxConx:'0'}/${mainData?.totalPaxConx!=undefined? mainData.totalPaxConx:'0'}`,
+                "tarmacViolation": mainData?.tarmacViolationTime? mainData.tarmacViolationTime ==='--'?'--':mainData.tarmacViolationTime[0]==='-'?`${mainData.tarmacViolationTime.substring(1,mainData.tarmacViolationTime?.length)}`:`${mainData.tarmacViolationTime}`:'--',
+                "gateWalkTime": mainData?.walkingTimeInMin? `${mainData.walkingTimeInMin}`:'--',
+                "towOutProposed": '--',
+                "towOutProposedStatus":'green',
+                "currentAction": el?.state==='GATE_ADVISORY'?'proposed':el?.state==='GATE_PUBLISHED'?'published':'',
+                // "currentActionTime": 'Proposed 11th Mar 7:00',
+                "currentActionTime": `${el?.state==='GATE_ADVISORY'?'Proposed':el?.state==='GATE_PUBLISHED'?'Published':''} ${moment(mainData?.simulationTimeStamp,'YYYY-MM-DDTHH:mm:SS').format('DD')} ${moment(mainData?.simulationTimeStamp,'YYYY-MM-DDTHH:mm:SS').format('MMMM HH:mm')}`,
+                "metadata":el.metadata?JSON.parse(el.metadata):{}
+            }
+            finalFlightsTableData.push(temp)
+        }
+    })
+    console.log('check the FlightsTableModle =>',finalFlightsTableData)
+    return finalFlightsTableData
+}
