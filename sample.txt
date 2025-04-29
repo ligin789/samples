@@ -1,34 +1,22 @@
-import moment from "moment"
-
-export const FlightsTableModle = (data:any)=>{
-    console.log('check the data set in FlightsTableModle =>',data)
-    let finalFlightsTableData :any= []
-    data?.length>0&&data.map((el:any,index:number)=>{
-        if(el?.state==='GATE_ADVISORY'||el?.state==='GATE_PUBLISHED'){
-            let mainData = el.metadata?JSON.parse(el.metadata)?.flight:{}
-            console.log('check the mainData mainData => ',mainData)
-            let temp = {
-                "widgetConversationId":el?.widgetConversationId?el.widgetConversationId:'',
-                "flightNo": mainData?.iaoInFlight? mainData?.iaoInFlight : '--',
-                "gate": `${mainData?.iaoAdvisedGate? mainData.iaoAdvisedGate : '--'}(${mainData?.iaoOldGate?mainData.iaoOldGate:'--'})`,
-                "eon": mainData?.iaoLclEstOntheFldTime? mainData.iaoLclEstOntheFldTime : '--',
-                "gwt": mainData?.iaoGateWaitingTime? mainData.iaoGateWaitingTime : '--',
-                "peta": mainData?.iaoArrPrdctLclTime? mainData.iaoArrPrdctLclTime : '--',
-                "aircraftImpact": mainData?.aircraftDownlineImpact? `${mainData.aircraftDownlineImpact}` : '--',
-                "crewImpact": `${mainData?.calculatedCrewConx!=undefined? mainData.calculatedCrewConx:'0'}/${mainData?.totalCrewConx!=undefined? mainData.totalCrewConx:'0'}`,
-                "paxImpact": `${mainData?.calculatedPaxConx!=undefined? mainData.calculatedPaxConx:'0'}/${mainData?.totalPaxConx!=undefined? mainData.totalPaxConx:'0'}`,
-                "tarmacViolation": mainData?.tarmacViolationTime? mainData.tarmacViolationTime ==='--'?'--':mainData.tarmacViolationTime[0]==='-'?`${mainData.tarmacViolationTime.substring(1,mainData.tarmacViolationTime?.length)}`:`${mainData.tarmacViolationTime}`:'--',
-                "gateWalkTime": mainData?.walkingTimeInMin? `${mainData.walkingTimeInMin}`:'--',
-                "towOutProposed": '--',
-                "towOutProposedStatus":'green',
-                "currentAction": el?.state==='GATE_ADVISORY'?'proposed':el?.state==='GATE_PUBLISHED'?'published':'',
-                // "currentActionTime": 'Proposed 11th Mar 7:00',
-                "currentActionTime": `${el?.state==='GATE_ADVISORY'?'Proposed':el?.state==='GATE_PUBLISHED'?'Published':''} ${moment(mainData?.simulationTimeStamp,'YYYY-MM-DDTHH:mm:SS').format('DD')} ${moment(mainData?.simulationTimeStamp,'YYYY-MM-DDTHH:mm:SS').format('MMMM HH:mm')}`,
-                "metadata":el.metadata?JSON.parse(el.metadata):{}
-            }
-            finalFlightsTableData.push(temp)
+import './flightsTable.css';
+import React from 'react';
+const ButtonForPublish = (props:any)=>{
+    const {onPublish,data,widgetConversationId}=props
+    const [showLoader,setShowLoader]=React.useState(false)
+    const onClickHandeal = ()=>{
+        if(showLoader===false){
+            setShowLoader(true);
+            onPublish(data,widgetConversationId)
+            setTimeout(()=>{setShowLoader(false);},3000)
         }
-    })
-    console.log('check the FlightsTableModle =>',finalFlightsTableData)
-    return finalFlightsTableData
+    }
+    return(
+        <div>
+            {/* <div className='flight-override-button' style={{font: 'normal normal bold 18px/24px Roboto'}} onClick={()=>{onPublish([list?.metadata],list?.widgetConversationId?list.widgetConversationId:'')}}>publish</div> */}
+            <div className='flight-override-button' style={{font: 'normal normal bold 18px/24px Roboto'}} onClick={()=>{onClickHandeal()}}>
+                {showLoader!=true?<div>Publish</div>:<div className='loader-for-publish-button'></div>}
+            </div>
+        </div>
+    )
 }
+export default ButtonForPublish;
