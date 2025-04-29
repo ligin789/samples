@@ -1,22 +1,28 @@
-import './flightsTable.css';
-import React from 'react';
-const ButtonForPublish = (props:any)=>{
-    const {onPublish,data,widgetConversationId}=props
-    const [showLoader,setShowLoader]=React.useState(false)
-    const onClickHandeal = ()=>{
-        if(showLoader===false){
-            setShowLoader(true);
-            onPublish(data,widgetConversationId)
-            setTimeout(()=>{setShowLoader(false);},3000)
-        }
-    }
-    return(
-        <div>
-            {/* <div className='flight-override-button' style={{font: 'normal normal bold 18px/24px Roboto'}} onClick={()=>{onPublish([list?.metadata],list?.widgetConversationId?list.widgetConversationId:'')}}>publish</div> */}
-            <div className='flight-override-button' style={{font: 'normal normal bold 18px/24px Roboto'}} onClick={()=>{onClickHandeal()}}>
-                {showLoader!=true?<div>Publish</div>:<div className='loader-for-publish-button'></div>}
-            </div>
-        </div>
-    )
-}
-export default ButtonForPublish;
+import axios from "axios";
+import React, { useEffect, useReducer, useState } from "react";
+
+const App = () => {
+  const [state, setState] = useState();
+
+  useEffect(() => {
+    axios
+      .get("https://picsum.photos/v2/list?page=2&limit=100")
+      .then((res) => {
+        setState("success", res?.data);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log("errror", err);
+      });
+  }, []);
+
+  return (
+    <div>
+      {state?.map((object, key) => {
+        return <div>{object.author}</div>;
+      })}
+    </div>
+  );
+};
+
+export default App;
