@@ -1,70 +1,53 @@
-import React from 'react';
-import { errorAlert } from "../../components/atoms/CustomAlert";
-// import { BASE_URL } from "../../services/http/service";
-import { getItem } from "../../getAuth";
+fetchDownloadXLSX
+    ✕ should download XLSX successfully (8 ms)
+    ✕ should handle download error (53 ms)
 
-export const fetchDownloadCSV = async (url, name) => {
-    try {
-      const sessionToken = getItem({ key: "SMXInternalApplication" });
-      const response = await fetch(url, {
-        method: "get",
-        headers: new Headers({
-          Authorization: `Bearer ${sessionToken}`,
-        }),
-        data
-      });
-      const data = await response.text();
-      const blob = new Blob([data], { type: "data:text/csv;charset=utf-8," });
-      const blobUrl = window.URL.createObjectURL(blob);
-  
-      const a = document.createElement("a");
-      a.download = name;
-      a.href = blobUrl;
-      a.dataset.downloadurl = ["text/csv", a.download, a.href].join(":");
-      a.click();
-      setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-      }, 5000);
-    } catch (err) {
-      errorAlert({
-        title: "Request Failed",
-        content: err.message,
-      });
-      console.log(err.message, "failed to download csv");
-    }
-  };
+  ● fetchDownloadXLSX › should download XLSX successfully
 
-import { errorAlert } from "../../components/atoms/CustomAlert";
-import { getItem } from "../../getAuth";
+    expect(jest.fn()).toHaveBeenCalled()
 
-export const fetchDownloadXLSX = async (url, name) => {
-    try {
-      const sessionToken = getItem({ key: "SMXInternalApplication" });
-      const response = await fetch(url, {
-        method: "get",
-        headers: new Headers({
-          Authorization: `Bearer ${sessionToken}`,
-        }),
-        data
-      });
-      const type = response.headers['content-type'];	
-      const data = await response.blob();
-      const blob = new Blob([data], { type: type, encoding: 'UTF-8' });
-      const blobUrl = window.URL.createObjectURL(blob);
-  
-      const a = document.createElement("a");
-      a.download = name;
-      a.href = blobUrl;
-      // a.dataset.downloadurl = ["application/json", a.download, a.href].join(":");
-      a.click();
-      setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-      }, 5000);
-    } catch (err) {
-      errorAlert({
-        title: "Request Failed",
-        content: err.message,
-      });
-      console.log(err.message, "failed to download xlsx");
-    }
-};
+    Expected number of calls: >= 1
+    Received number of calls:    0
+
+      54 |     expect(document.createElement).toHaveBeenCalledWith('a');
+      55 |     expect(URL.createObjectURL).toHaveBeenCalled();
+    > 56 |     expect(URL.revokeObjectURL).toHaveBeenCalled();
+         |                                 ^
+      57 |   });
+      58 |  
+      59 |   it('should handle download error', async () => {
+
+      at _callee$ (src/services/http/downloadXlsx.test.js:56:33)
+      at tryCatch (src/services/http/downloadXlsx.test.js:2:1)
+      at Generator.<anonymous> (src/services/http/downloadXlsx.test.js:2:1)
+      at Generator.next (src/services/http/downloadXlsx.test.js:2:1)
+      at asyncGeneratorStep (src/services/http/downloadXlsx.test.js:2:1)
+      at _next (src/services/http/downloadXlsx.test.js:2:1)
+
+  ● fetchDownloadXLSX › should handle download error
+
+    expect(received).toHaveBeenCalledWith(...expected)
+
+    Matcher error: received value must be a mock or spy function
+
+    Received has type:  function
+    Received has value: [Function log]
+
+      73 |       content: 'Network error',
+      74 |     });
+    > 75 |     expect(console.log).toHaveBeenCalledWith('Network error', 'failed to download xlsx');
+         |                         ^
+      76 |   });
+      77 | });
+
+      at _callee2$ (src/services/http/downloadXlsx.test.js:75:25)
+      at tryCatch (src/services/http/downloadXlsx.test.js:2:1)
+      at Generator.<anonymous> (src/services/http/downloadXlsx.test.js:2:1)
+      at Generator.next (src/services/http/downloadXlsx.test.js:2:1)
+      at asyncGeneratorStep (src/services/http/downloadXlsx.test.js:2:1)
+      at _next (src/services/http/downloadXlsx.test.js:2:1)
+
+  console.log
+    Network error failed to download xlsx
+
+      at _callee$ (src/services/http/downloadXlsx.js:32:15)
