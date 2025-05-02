@@ -1,184 +1,70 @@
-import React, { Suspense, lazy, useEffect } from "react";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Redirect,
-  Route,
-} from "react-router-dom";
-import Spinner from "../components/atoms/Spinner";
-import { getItem, clearItem, setLocal } from "../getAuth";
-import IdleTimer from "../components/IdleTimer";
-import { warning } from "../components/atoms/CustomAlert";
-import { historyRef } from "../pages/dashboard/dashboard";
-import moment from "moment";
-import { AUTH_URL } from "../services/http/service";
+import React from 'react';
+import { errorAlert } from "../../components/atoms/CustomAlert";
+// import { BASE_URL } from "../../services/http/service";
+import { getItem } from "../../getAuth";
 
-const Dashboard = lazy(() => import("../pages/dashboard/dashboard"));
-const Login = lazy(() => import("../pages/login/login"));
-const guest = lazy(()=>import("../containers/ServiceabilityGuest/ServiceabilityGuest"))
-
-const PrivateRoute = ({ SMSESSION, component: Component, ...rest }) => {  
-  // const access = localStorage.getItem("Access")
-  return (
-    <Route
-      {...rest}
-      component={(props) =>
-        SMSESSION ? <Component {...props} /> : <Redirect to="/login" />
-        // SMSESSION ? (access.toLowerCase()=== "admin" || access.toLowerCase()==="engineer" ? <Component {...props} access = {access.toLowerCase()}/> : <Redirect to="/main" />) :  <Redirect to="/login" />
-      }
-    />
-  );
-};
-
-const PublicRoute = ({ SMSESSION, component: Component, guestSession, ...rest}) => {
-  const logoutSession = Boolean(sessionStorage.getItem("LogoutSession"));
-  //if there is no login and there is no 
-  return (
-    <Route
-      {...rest}
-      component={(props) =>
-        SMSESSION ? (
-          <Redirect to="/dashboard" />
-        ) : logoutSession ? (
-          <Redirect to="/main" />
-        ) : guestSession ? ( 
-          <Redirect to ="/guest" />
-        ) : (
-          <Component {...props} />
-        )
-      }
-    />
-  );
-};
-
-const Cookies = () => {
-  if (document.cookie.length > 0) {
-    let cookies = document.cookie.split(";").reduce((cookies, cookie) => {
-      const [name, val] = cookie.split("=").map((c) => c.trim());
-      cookies[name] = val;
-      return cookies;
-    }, {});
-    return cookies;
-  } else {
-    return null;
-  }
-};
-
-export const deleteAllCookies = () => {
-  let cookies = document.cookie.split(";");
-  // for (const cookie of cookies) {
-  //   let eqPos = cookie.indexOf("=");
-  //   let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-  //   document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
-  // }
-  for (let i = 0; i < cookies.length; i++) {
-    let cookie = cookies[i];
-    let eqPos = cookie.indexOf("=");
-    let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-  }
-};
-
-const AppNavigation = () => {
-  const SMSESSION = Boolean(getItem({ key: "SMSESSION" }));
-  console.log("SMSession", SMSESSION)
-  const guestSession = "guest"
-  // const access = localStorage.getItem("Access")
-
-  useEffect(() => {
-  setLocal({ str: "SMSESSION", val: "SMSEssion" });
-    // setLocal({
-    //   str: "SMXInternalApplication",
-    //   val: "SMXInternalApplication",
-    // });
-    // setLocal({ str: "username", val: "9Sathish_k" });
-    // setLocal({ str: "role", val: "USER" });
-    // setLocal({ str : "Access" , val : "Engineer"})
-    let cookie = Cookies();
-    if (cookie) {
-      setLocal({ str: "SMSESSION", val: cookie.SMSESSION });
-      setLocal({
-        str: "SMXInternalApplication",
-        val: cookie.SMXInternalApplication,
+export const fetchDownloadCSV = async (url, name) => {
+    try {
+      const sessionToken = getItem({ key: "SMXInternalApplication" });
+      const response = await fetch(url, {
+        method: "get",
+        headers: new Headers({
+          Authorization: `Bearer ${sessionToken}`,
+        }),
+        data
       });
-      setLocal({ str: "username", val: cookie.username });
-      setLocal({ str: "role", val: cookie.role });
-      setLocal({ str: "issuedAt", val: cookie.issued_at });
-      setLocal({ str: "loginDate", val: moment().valueOf() });
-    }  
-  }, []);
+      const data = await response.text();
+      const blob = new Blob([data], { type: "data:text/csv;charset=utf-8," });
+      const blobUrl = window.URL.createObjectURL(blob);
   
-  useEffect(() => {
-    let timer;
-    if (SMSESSION) {
-      timer = new IdleTimer({
-        timeout: 2700, //expire after 45 mins
-        onTimeout: () => {
-          //do something if expired after 45 mins
-          Warning();
-        },
-        onExpired: () => {
-          //do something if expired on load
-          clearItem();
-          deleteAllCookies();
-          window.location.href = AUTH_URL;
-        },
+      const a = document.createElement("a");
+      a.download = name;
+      a.href = blobUrl;
+      a.dataset.downloadurl = ["text/csv", a.download, a.href].join(":");
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 5000);
+    } catch (err) {
+      errorAlert({
+        title: "Request Failed",
+        content: err.message,
       });
+      console.log(err.message, "failed to download csv");
     }
-    return () => timer.cleanUp();
-  }, [SMSESSION]);
-
-  const Warning = () => {
-    warning({
-      title: "Session Timeout",
-      content: "you session expired due to inactivity.",
-      actions: () => {
-        clearItem();
-        deleteAllCookies();
-        sessionStorage.setItem("LogoutSession", "activated");
-        historyRef?.current?.replace("/main");
-      },
-    });
   };
 
-  return (
-    <Router>
-      <Switch>
-        <Suspense fallback={<Spinner />}>
-          <Redirect exact path="/" to="/login" />
-          <PublicRoute
-            exact
-            path="/login"
-            SMSESSION={SMSESSION}
-            component={() => {
-              window.location.href = AUTH_URL;
-              return null;
-            }}
-          />
-          <PublicRoute
-            exact path="/guest"
-            SMSESSION=""
-            guestSession = {guestSession}
-            logoutSession = ""
-            component={() => {
-              // window.location.href = AUTH_URL;
-              return null;
-            }}
-          />
-          <PrivateRoute
-            path="/dashboard"
-            SMSESSION={SMSESSION}
-            component={Dashboard}
-          />
-          <Route exact path="/main" component={Login} />
-          <Route exact path="/guest" component={guest} />
-          {/* <Route exact path="/main" component={() =>
-          access.toLowerCase() === "admin" ||  access.toLowerCase() === "engineer" ? <Login /> : <Login noAuthorization/>
-      }/> */}
-        </Suspense>
-      </Switch>
-    </Router>
-  );
-};
+import { errorAlert } from "../../components/atoms/CustomAlert";
+import { getItem } from "../../getAuth";
 
-export default AppNavigation;
+export const fetchDownloadXLSX = async (url, name) => {
+    try {
+      const sessionToken = getItem({ key: "SMXInternalApplication" });
+      const response = await fetch(url, {
+        method: "get",
+        headers: new Headers({
+          Authorization: `Bearer ${sessionToken}`,
+        }),
+        data
+      });
+      const type = response.headers['content-type'];	
+      const data = await response.blob();
+      const blob = new Blob([data], { type: type, encoding: 'UTF-8' });
+      const blobUrl = window.URL.createObjectURL(blob);
+  
+      const a = document.createElement("a");
+      a.download = name;
+      a.href = blobUrl;
+      // a.dataset.downloadurl = ["application/json", a.download, a.href].join(":");
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(blobUrl);
+      }, 5000);
+    } catch (err) {
+      errorAlert({
+        title: "Request Failed",
+        content: err.message,
+      });
+      console.log(err.message, "failed to download xlsx");
+    }
+};
