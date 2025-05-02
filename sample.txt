@@ -1,28 +1,184 @@
-import axios from "axios";
-import React, { useEffect, useReducer, useState } from "react";
+import React, { Suspense, lazy, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Redirect,
+  Route,
+} from "react-router-dom";
+import Spinner from "../components/atoms/Spinner";
+import { getItem, clearItem, setLocal } from "../getAuth";
+import IdleTimer from "../components/IdleTimer";
+import { warning } from "../components/atoms/CustomAlert";
+import { historyRef } from "../pages/dashboard/dashboard";
+import moment from "moment";
+import { AUTH_URL } from "../services/http/service";
 
-const App = () => {
-  const [state, setState] = useState();
+const Dashboard = lazy(() => import("../pages/dashboard/dashboard"));
+const Login = lazy(() => import("../pages/login/login"));
+const guest = lazy(()=>import("../containers/ServiceabilityGuest/ServiceabilityGuest"))
 
-  useEffect(() => {
-    axios
-      .get("https://picsum.photos/v2/list?page=2&limit=100")
-      .then((res) => {
-        setState("success", res?.data);
-        console.log(res);
-      })
-      .catch((err) => {
-        console.log("errror", err);
-      });
-  }, []);
-
+const PrivateRoute = ({ SMSESSION, component: Component, ...rest }) => {  
+  // const access = localStorage.getItem("Access")
   return (
-    <div>
-      {state?.map((object, key) => {
-        return <div>{object.author}</div>;
-      })}
-    </div>
+    <Route
+      {...rest}
+      component={(props) =>
+        SMSESSION ? <Component {...props} /> : <Redirect to="/login" />
+        // SMSESSION ? (access.toLowerCase()=== "admin" || access.toLowerCase()==="engineer" ? <Component {...props} access = {access.toLowerCase()}/> : <Redirect to="/main" />) :  <Redirect to="/login" />
+      }
+    />
   );
 };
 
-export default App;
+const PublicRoute = ({ SMSESSION, component: Component, guestSession, ...rest}) => {
+  const logoutSession = Boolean(sessionStorage.getItem("LogoutSession"));
+  //if there is no login and there is no 
+  return (
+    <Route
+      {...rest}
+      component={(props) =>
+        SMSESSION ? (
+          <Redirect to="/dashboard" />
+        ) : logoutSession ? (
+          <Redirect to="/main" />
+        ) : guestSession ? ( 
+          <Redirect to ="/guest" />
+        ) : (
+          <Component {...props} />
+        )
+      }
+    />
+  );
+};
+
+const Cookies = () => {
+  if (document.cookie.length > 0) {
+    let cookies = document.cookie.split(";").reduce((cookies, cookie) => {
+      const [name, val] = cookie.split("=").map((c) => c.trim());
+      cookies[name] = val;
+      return cookies;
+    }, {});
+    return cookies;
+  } else {
+    return null;
+  }
+};
+
+export const deleteAllCookies = () => {
+  let cookies = document.cookie.split(";");
+  // for (const cookie of cookies) {
+  //   let eqPos = cookie.indexOf("=");
+  //   let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+  //   document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/";
+  // }
+  for (let i = 0; i < cookies.length; i++) {
+    let cookie = cookies[i];
+    let eqPos = cookie.indexOf("=");
+    let name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+    document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+  }
+};
+
+const AppNavigation = () => {
+  const SMSESSION = Boolean(getItem({ key: "SMSESSION" }));
+  console.log("SMSession", SMSESSION)
+  const guestSession = "guest"
+  // const access = localStorage.getItem("Access")
+
+  useEffect(() => {
+  setLocal({ str: "SMSESSION", val: "SMSEssion" });
+    // setLocal({
+    //   str: "SMXInternalApplication",
+    //   val: "SMXInternalApplication",
+    // });
+    // setLocal({ str: "username", val: "9Sathish_k" });
+    // setLocal({ str: "role", val: "USER" });
+    // setLocal({ str : "Access" , val : "Engineer"})
+    let cookie = Cookies();
+    if (cookie) {
+      setLocal({ str: "SMSESSION", val: cookie.SMSESSION });
+      setLocal({
+        str: "SMXInternalApplication",
+        val: cookie.SMXInternalApplication,
+      });
+      setLocal({ str: "username", val: cookie.username });
+      setLocal({ str: "role", val: cookie.role });
+      setLocal({ str: "issuedAt", val: cookie.issued_at });
+      setLocal({ str: "loginDate", val: moment().valueOf() });
+    }  
+  }, []);
+  
+  useEffect(() => {
+    let timer;
+    if (SMSESSION) {
+      timer = new IdleTimer({
+        timeout: 2700, //expire after 45 mins
+        onTimeout: () => {
+          //do something if expired after 45 mins
+          Warning();
+        },
+        onExpired: () => {
+          //do something if expired on load
+          clearItem();
+          deleteAllCookies();
+          window.location.href = AUTH_URL;
+        },
+      });
+    }
+    return () => timer.cleanUp();
+  }, [SMSESSION]);
+
+  const Warning = () => {
+    warning({
+      title: "Session Timeout",
+      content: "you session expired due to inactivity.",
+      actions: () => {
+        clearItem();
+        deleteAllCookies();
+        sessionStorage.setItem("LogoutSession", "activated");
+        historyRef?.current?.replace("/main");
+      },
+    });
+  };
+
+  return (
+    <Router>
+      <Switch>
+        <Suspense fallback={<Spinner />}>
+          <Redirect exact path="/" to="/login" />
+          <PublicRoute
+            exact
+            path="/login"
+            SMSESSION={SMSESSION}
+            component={() => {
+              window.location.href = AUTH_URL;
+              return null;
+            }}
+          />
+          <PublicRoute
+            exact path="/guest"
+            SMSESSION=""
+            guestSession = {guestSession}
+            logoutSession = ""
+            component={() => {
+              // window.location.href = AUTH_URL;
+              return null;
+            }}
+          />
+          <PrivateRoute
+            path="/dashboard"
+            SMSESSION={SMSESSION}
+            component={Dashboard}
+          />
+          <Route exact path="/main" component={Login} />
+          <Route exact path="/guest" component={guest} />
+          {/* <Route exact path="/main" component={() =>
+          access.toLowerCase() === "admin" ||  access.toLowerCase() === "engineer" ? <Login /> : <Login noAuthorization/>
+      }/> */}
+        </Suspense>
+      </Switch>
+    </Router>
+  );
+};
+
+export default AppNavigation;
