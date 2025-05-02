@@ -1,53 +1,46 @@
-fetchDownloadXLSX
-    ✕ should download XLSX successfully (8 ms)
-    ✕ should handle download error (53 ms)
+src/services/http/downloadService.test.js
+  fetchDownloadXLSX
+    ✕ should download XLSX successfully (4 ms)
+    ✕ should handle download error (1 ms)
 
   ● fetchDownloadXLSX › should download XLSX successfully
 
-    expect(jest.fn()).toHaveBeenCalled()
+    TypeError: (0 , _downloadService.fetchDownloadXLSX) is not a function
 
-    Expected number of calls: >= 1
-    Received number of calls:    0
+      56 |  
+      57 |     // Call function
+    > 58 | await fetchDownloadXLSX('http://test.com', 'test.xlsx');
+         |                        ^
+      59 |  
+      60 |     // Fast-forward time to trigger the setTimeout
+      61 |     jest.runAllTimers();
 
-      54 |     expect(document.createElement).toHaveBeenCalledWith('a');
-      55 |     expect(URL.createObjectURL).toHaveBeenCalled();
-    > 56 |     expect(URL.revokeObjectURL).toHaveBeenCalled();
-         |                                 ^
-      57 |   });
-      58 |  
-      59 |   it('should handle download error', async () => {
-
-      at _callee$ (src/services/http/downloadXlsx.test.js:56:33)
-      at tryCatch (src/services/http/downloadXlsx.test.js:2:1)
-      at Generator.<anonymous> (src/services/http/downloadXlsx.test.js:2:1)
-      at Generator.next (src/services/http/downloadXlsx.test.js:2:1)
-      at asyncGeneratorStep (src/services/http/downloadXlsx.test.js:2:1)
-      at _next (src/services/http/downloadXlsx.test.js:2:1)
+      at _callee$ (src/services/http/downloadService.test.js:58:24)
+      at tryCatch (src/services/http/downloadService.test.js:2:1)
+      at Generator.<anonymous> (src/services/http/downloadService.test.js:2:1)
+      at Generator.next (src/services/http/downloadService.test.js:2:1)
+      at asyncGeneratorStep (src/services/http/downloadService.test.js:2:1)
+      at _next (src/services/http/downloadService.test.js:2:1)
+      at src/services/http/downloadService.test.js:2:1
+      at Object.<anonymous> (src/services/http/downloadService.test.js:2:1)
 
   ● fetchDownloadXLSX › should handle download error
 
-    expect(received).toHaveBeenCalledWith(...expected)
+    TypeError: (0 , _downloadService.fetchDownloadXLSX) is not a function
 
-    Matcher error: received value must be a mock or spy function
+      84 |  
+      85 |     // Call function
+    > 86 | await fetchDownloadXLSX('http://test.com', 'test.xlsx');
+         |                        ^
+      87 |  
+      88 |     // Assertions
+      89 |     expect(errorAlert).toHaveBeenCalledWith({
 
-    Received has type:  function
-    Received has value: [Function log]
-
-      73 |       content: 'Network error',
-      74 |     });
-    > 75 |     expect(console.log).toHaveBeenCalledWith('Network error', 'failed to download xlsx');
-         |                         ^
-      76 |   });
-      77 | });
-
-      at _callee2$ (src/services/http/downloadXlsx.test.js:75:25)
-      at tryCatch (src/services/http/downloadXlsx.test.js:2:1)
-      at Generator.<anonymous> (src/services/http/downloadXlsx.test.js:2:1)
-      at Generator.next (src/services/http/downloadXlsx.test.js:2:1)
-      at asyncGeneratorStep (src/services/http/downloadXlsx.test.js:2:1)
-      at _next (src/services/http/downloadXlsx.test.js:2:1)
-
-  console.log
-    Network error failed to download xlsx
-
-      at _callee$ (src/services/http/downloadXlsx.js:32:15)
+      at _callee2$ (src/services/http/downloadService.test.js:86:24)
+      at tryCatch (src/services/http/downloadService.test.js:2:1)
+      at Generator.<anonymous> (src/services/http/downloadService.test.js:2:1)
+      at Generator.next (src/services/http/downloadService.test.js:2:1)
+      at asyncGeneratorStep (src/services/http/downloadService.test.js:2:1)
+      at _next (src/services/http/downloadService.test.js:2:1)
+      at src/services/http/downloadService.test.js:2:1
+      at Object.<anonymous> (src/services/http/downloadService.test.js:2:1)
