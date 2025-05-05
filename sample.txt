@@ -1,49 +1,59 @@
-ProvFuel SAGAS › should dispatch SUCCESS_PROVISIONAL_FUEL on successful API call
-
-    expect(received).toEqual(expected) // deep equality
-
-    - Expected  - 8
-    + Received  + 1
-
-    - Array [
-    -   Object {
-    -     "payload": Object {
-    -       "some": "data",
-    -     },
-    -     "type": "SUCCESS_PROVISIONAL_FUEL",
-    -   },
-    - ]
-    + Array []
-
-      130 |     ).done;
-      131 |  
-    > 132 |     expect(dispatched).toEqual([
-          |                        ^
-      133 |       ProvisionalFuelAction.getProvisionalFuelMonitoringData(mockResponse),
-      134 |     ]);
-      135 |   });
-
-      at _callee$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:132:24)
-      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-
-  ● ProvFuel SAGAS › should dispatch FAILED_PROVISIONAL_FUEL on failed API call
-
-    TypeError: Cannot read properties of undefined (reading 'type')
-
-      155 |     ).done;
-      156 |  
-    > 157 |     expect(dispatched[0].type).toBe(ProvFuelConstants.FAILED_PROVISIONAL_FUEL);
-          |                          ^
-      158 |   });
-      159 | });
-
-      at _callee2$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:157:26)
-      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
-      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+import { clearItem } from "../getAuth";
+ 
+class IdleTimer {
+  constructor({ timeout, onTimeout, onExpired }) {
+    this.timeout = timeout;
+    this.onTimeout = onTimeout;
+ 
+    const expiredTime = parseInt(localStorage.getItem("_expiredTime"), 10);
+    Iif (expiredTime > 0 && expiredTime < Date.now()) {
+      onExpired();
+      return;
+    }
+ 
+    this.eventHandler = this.updateExpiredTime.bind(this);
+    this.tracker();
+    this.startInterval();
+  }
+ 
+  startInterval() {
+    this.updateExpiredTime();
+ 
+    this.interval = setInterval(() => {
+      const expiredTime = parseInt(localStorage.getItem("_expiredTime"), 10);
+      if (expiredTime < Date.now()) {
+        if (this.onTimeout) {
+          this.onTimeout();
+          this.cleanUp();
+        }
+      }
+    }, 1000);
+  }
+ 
+  updateExpiredTime() {
+    Iif (this.timeoutTracker) {
+      clearTimeout(this.timeoutTracker);
+    }
+    this.timeoutTracker = setTimeout(() => {
+      localStorage.setItem("_expiredTime", Date.now() + this.timeout * 1000);
+    }, 300);
+  }
+ 
+  tracker() {
+    window.addEventListener("mousemove", this.eventHandler);
+    // window.addEventListener("click", this.eventHandler);
+    window.addEventListener("scroll", this.eventHandler);
+    window.addEventListener("keydown", this.eventHandler);
+  }
+ 
+  cleanUp() {
+    localStorage.removeItem("_expiredTime");
+    clearItem();
+    clearInterval(this.interval);
+    window.removeEventListener("mousemove", this.eventHandler);
+    // window.addEventListener("click", this.eventHandler);
+    window.removeEventListener("scroll", this.eventHandler);
+    window.removeEventListener("keydown", this.eventHandler);
+  }
+}
+export default IdleTimer;
