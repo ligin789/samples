@@ -1,25 +1,31 @@
-  requestProvisionalFuel
+  ProvisionalFuelSaga
+    Action Creators
+      ✓ should create requestProvisionalFuelData action (2 ms)
+      ✓ should create getProvisionalFuelMonitoringData action (1 ms)
+      ✓ should create requestFailedToFetchDataProvisionalFuel action (1 ms)
+      ✓ should create errorReset action
+    requestProvisionalFuel
       ✕ should make API call successfully (2 ms)
-      ✕ should handle API call failure
+      ✕ should handle API call failure (1 ms)
     getMonitoringDataProvisionalFuel
-      ✕ should handle successful data fetching (2 ms)
+      ✕ should handle successful data fetching (1 ms)
       ✕ should handle failed data fetching
     ProvisionalFuelSaga
-      ✕ should take latest REQUEST_PROVISIONAL_FUEL action (1 ms)
+      ✓ should take latest REQUEST_PROVISIONAL_FUEL action (1 ms)
 
   ● ProvisionalFuelSaga › requestProvisionalFuel › should make API call successfully
 
-    TypeError: (0 , _actions.requestProvisionalFuel) is not a function
+    TypeError: actions.requestProvisionalFuel is not a function
 
-      74 |       service.get.mockResolvedValue(mockResponse);
-      75 |  
-    > 76 |       const result = await requestProvisionalFuel(payload);
-         |                                                  ^
-      77 |  
-      78 |       expect(service.get).toHaveBeenCalledWith({
-      79 |         url: expect.any(String),
+      68 |       service.get.mockResolvedValue(mockResponse);
+      69 |  
+    > 70 |       const result = await actions.requestProvisionalFuel(payload);
+         |                                    ^
+      71 |  
+      72 |       expect(service.get).toHaveBeenCalledWith({
+      73 |         url: expect.any(String),
 
-      at _callee$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:76:50)
+      at _callee$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:70:36)
       at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
       at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
       at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
@@ -30,17 +36,17 @@
 
   ● ProvisionalFuelSaga › requestProvisionalFuel › should handle API call failure
 
-    TypeError: (0 , _actions.requestProvisionalFuel) is not a function
+    TypeError: actions.requestProvisionalFuel is not a function
 
-      93 |       errorHandler.mockReturnValue('processed-error');
-      94 |  
-    > 95 |       await expect(requestProvisionalFuel(payload)).rejects.toEqual('processed-error');
-         |                                          ^
-      96 |  
-      97 |       expect(errorAlert).toHaveBeenCalledWith({
-      98 |         title: 'Request Failed',
+      87 |       errorHandler.mockReturnValue('processed-error');
+      88 |  
+    > 89 |       await expect(actions.requestProvisionalFuel(payload)).rejects.toEqual('processed-error');
+         |                            ^
+      90 |  
+      91 |       expect(errorAlert).toHaveBeenCalledWith({
+      92 |         title: 'Request Failed',
 
-      at _callee2$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:95:42)
+      at _callee2$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:89:28)
       at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
       at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
       at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
@@ -53,46 +59,32 @@
 
     call: argument fn is undefined or null
 
-      115 |       const mockResponse = { data: 'test' };
-      116 |  
-    > 117 | expect(generator.next().value).toEqual(call(requestProvisionalFuel, payload));
+      109 |       const mockResponse = { data: 'test' };
+      110 |  
+    > 111 | expect(generator.next().value).toEqual(call(actions.requestProvisionalFuel, payload));
           |                                            ^
-      118 | expect(generator.next(mockResponse).value).toEqual(
-      119 |         put(ProvisionalFuelAction.getProvisionalFuelMonitoringData(mockResponse))
-      120 |       );
+      112 | expect(generator.next(mockResponse).value).toEqual(
+      113 |         put(actions.ProvisionalFuelAction.getProvisionalFuelMonitoringData(mockResponse))
+      114 |       );
 
       at check (node_modules/@redux-saga/core/dist/io-a03c6210.js:37:11)
       at validateFnDescriptor (node_modules/@redux-saga/core/dist/io-a03c6210.js:469:3)
       at call (node_modules/@redux-saga/core/dist/io-a03c6210.js:538:5)
-      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:117:44)
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:111:44)
 
   ● ProvisionalFuelSaga › getMonitoringDataProvisionalFuel › should handle failed data fetching
 
     call: argument fn is undefined or null
 
-      126 |       const mockError = new Error('test error');
-      127 |  
-    > 128 | expect(generator.next().value).toEqual(call(requestProvisionalFuel, payload));
+      120 |       const mockError = new Error('test error');
+      121 |  
+    > 122 | expect(generator.next().value).toEqual(call(actions.requestProvisionalFuel, payload));
           |                                            ^
-      129 |       expect(generator.throw(mockError).value).toEqual(
-      130 |         put(ProvisionalFuelAction.requestFailedToFetchDataProvisionalFuel(mockError))
-      131 |       );
+      123 |       expect(generator.throw(mockError).value).toEqual(
+      124 |         put(actions.ProvisionalFuelAction.requestFailedToFetchDataProvisionalFuel(mockError))
+      125 |       );
 
       at check (node_modules/@redux-saga/core/dist/io-a03c6210.js:37:11)
       at validateFnDescriptor (node_modules/@redux-saga/core/dist/io-a03c6210.js:469:3)
       at call (node_modules/@redux-saga/core/dist/io-a03c6210.js:538:5)
-      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:128:44)
-
-  ● ProvisionalFuelSaga › ProvisionalFuelSaga › should take latest REQUEST_PROVISIONAL_FUEL action
-
-    TypeError: (0 , _actions.ProvisionalFuelSaga) is not a function
-
-      136 |   describe('ProvisionalFuelSaga', () => {
-      137 |     it('should take latest REQUEST_PROVISIONAL_FUEL action', () => {
-    > 138 |       const generator = ProvisionalFuelSaga();
-          |                                            ^
-      139 | expect(generator.next().value).toEqual(
-      140 |         takeLatest(ProvFuelConstants.REQUEST_PROVISIONAL_FUEL, getMonitoringDataProvisionalFuel)
-      141 |       );
-
-      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:138:44)
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:122:44)
