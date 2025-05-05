@@ -1,58 +1,81 @@
-import React, { useState } from "react";
-import "./login.scss";
-import { AUTH_URL } from "../../services/http/service";
-
-function LoginScreen({ history, noAuthorization }) {
-  const [loading, setLoading] = useState(false);
-  console.log("Inside login page:::")
-  const login = (e) => {
-    console.log("Inside login page e 456::",e)
-    e.preventDefault();
-    setLoading(true);
-    sessionStorage.clear();
-    window.location.href = AUTH_URL;
-  };
-
+import React, { createRef } from "react";
+import "./dashboard.scss";
+import NavBar from "../../components/features/navbar/navbar";
+import DashboardRoute from "../../containers";
+import Layout from "antd/lib/layout";
+import { useHistory } from "react-router-dom";
+export const historyRef = createRef();
+ 
+const { Content, Sider } = Layout;
+const Dashboard = ({ match ,
+  //  access
+  }) => {
+  const history = useHistory();
+  historyRef.current = history;
+  
   return (
-    <div className="login">
-      {/* No authorozation */}
-      {/* {noAuthorization ? (
-        <div className="login-container">
-          <h1>Unable to Login</h1>
-          <div className="login-sub-container">
-            <p>You've been unable to login.</p>
-            <p>
-              You are unable to log in to smartmx because you are not an admin, however you may still be logged
-              in to your single sign-on identity provider using your admin credentials.
-            </p>
-            <p>
-              Trying to use admin credentials ? 
-              <a onClick={(e) => login(e)}>
-                {loading ? "Loading ... " : "Log in again."}
-              </a>
-            </p>
-          </div>
-        </div>
-      ) : ( */}
-        <div className="login-container">
-          <h1>Logged out</h1>
-          <div className="login-sub-container">
-            <p>You've been logged out.</p>
-            <p>
-              You've been logged out of smartmx, however you may still be logged
-              in to your single sign-on identity provider.
-            </p>
-            <p>
-              Didn't mean to log out?
-              <a onClick={(e) => login(e)}>
-                {loading ? "Loading ... " : "Log in again."}
-              </a>
-            </p>
-          </div>
-        </div>
-      {/* )} */}
-    </div>
+    <Layout>
+      <Sider breakpoint="xl" collapsedWidth="0" className="dashboardnav">
+        <NavBar url={match} 
+        // access = {access}
+         />
+      </Sider>
+      <Layout>
+        <Content className="dashboard-content">
+          <DashboardRoute url={match}  
+          // access = {access} 
+          />
+        </Content>
+      </Layout>
+    </Layout>
   );
-}
+};
+ 
+export default React.memo(Dashboard);
 
-export default LoginScreen;
+
+import Modal from "antd/lib/modal";
+ 
+const info = ({ color = "#161D35", title, content, actions }) => {
+  Modal.info({
+    style: {
+      backgroundColor: color,
+    },
+    title: title,
+    content: content,
+    onOk: actions,
+  });
+};
+const success = ({ color = "#161D35", title, content, actions }) => {
+  Modal.success({
+    style: {
+      backgroundColor: color,
+    },
+    title: title,
+    content: content,
+    onOk: actions,
+  });
+};
+const errorAlert = ({ color = "#161D35", title, content, actions }) => {
+  Modal.error({
+    style: {
+      backgroundColor: color,
+    },
+    title: title,
+    content: content,
+    onOk: actions,
+  });
+};
+ 
+const warning = ({ color = "#161D35", title, content, actions }) => {
+  Modal.warning({
+    style: {
+      backgroundColor: color,
+    },
+    title: title,
+    content: content,
+    onOk: actions,
+  });
+};
+ 
+export { info, success, errorAlert, warning };
