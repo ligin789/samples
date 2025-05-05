@@ -1,59 +1,58 @@
-import { clearItem } from "../getAuth";
- 
-class IdleTimer {
-  constructor({ timeout, onTimeout, onExpired }) {
-    this.timeout = timeout;
-    this.onTimeout = onTimeout;
- 
-    const expiredTime = parseInt(localStorage.getItem("_expiredTime"), 10);
-    Iif (expiredTime > 0 && expiredTime < Date.now()) {
-      onExpired();
-      return;
-    }
- 
-    this.eventHandler = this.updateExpiredTime.bind(this);
-    this.tracker();
-    this.startInterval();
-  }
- 
-  startInterval() {
-    this.updateExpiredTime();
- 
-    this.interval = setInterval(() => {
-      const expiredTime = parseInt(localStorage.getItem("_expiredTime"), 10);
-      if (expiredTime < Date.now()) {
-        if (this.onTimeout) {
-          this.onTimeout();
-          this.cleanUp();
-        }
-      }
-    }, 1000);
-  }
- 
-  updateExpiredTime() {
-    Iif (this.timeoutTracker) {
-      clearTimeout(this.timeoutTracker);
-    }
-    this.timeoutTracker = setTimeout(() => {
-      localStorage.setItem("_expiredTime", Date.now() + this.timeout * 1000);
-    }, 300);
-  }
- 
-  tracker() {
-    window.addEventListener("mousemove", this.eventHandler);
-    // window.addEventListener("click", this.eventHandler);
-    window.addEventListener("scroll", this.eventHandler);
-    window.addEventListener("keydown", this.eventHandler);
-  }
- 
-  cleanUp() {
-    localStorage.removeItem("_expiredTime");
-    clearItem();
-    clearInterval(this.interval);
-    window.removeEventListener("mousemove", this.eventHandler);
-    // window.addEventListener("click", this.eventHandler);
-    window.removeEventListener("scroll", this.eventHandler);
-    window.removeEventListener("keydown", this.eventHandler);
-  }
+import React, { useState } from "react";
+import "./login.scss";
+import { AUTH_URL } from "../../services/http/service";
+
+function LoginScreen({ history, noAuthorization }) {
+  const [loading, setLoading] = useState(false);
+  console.log("Inside login page:::")
+  const login = (e) => {
+    console.log("Inside login page e 456::",e)
+    e.preventDefault();
+    setLoading(true);
+    sessionStorage.clear();
+    window.location.href = AUTH_URL;
+  };
+
+  return (
+    <div className="login">
+      {/* No authorozation */}
+      {/* {noAuthorization ? (
+        <div className="login-container">
+          <h1>Unable to Login</h1>
+          <div className="login-sub-container">
+            <p>You've been unable to login.</p>
+            <p>
+              You are unable to log in to smartmx because you are not an admin, however you may still be logged
+              in to your single sign-on identity provider using your admin credentials.
+            </p>
+            <p>
+              Trying to use admin credentials ? 
+              <a onClick={(e) => login(e)}>
+                {loading ? "Loading ... " : "Log in again."}
+              </a>
+            </p>
+          </div>
+        </div>
+      ) : ( */}
+        <div className="login-container">
+          <h1>Logged out</h1>
+          <div className="login-sub-container">
+            <p>You've been logged out.</p>
+            <p>
+              You've been logged out of smartmx, however you may still be logged
+              in to your single sign-on identity provider.
+            </p>
+            <p>
+              Didn't mean to log out?
+              <a onClick={(e) => login(e)}>
+                {loading ? "Loading ... " : "Log in again."}
+              </a>
+            </p>
+          </div>
+        </div>
+      {/* )} */}
+    </div>
+  );
 }
-export default IdleTimer;
+
+export default LoginScreen;
