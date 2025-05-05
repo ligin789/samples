@@ -1,81 +1,49 @@
-import { takeLatest, put, call } from "redux-saga/effects";
-import { ProvFuelConstants, Url } from "./constants";
-import service, { BASE_URL } from "../../services/http/service";
-import { errorHandler } from "../../services/utils/ErrorHandler";
-import { errorAlert } from "../../components/atoms/CustomAlert";
-import moment from "moment";
-import { getItem } from "../../getAuth";
- 
-export const ProvisionalFuelAction = {
-  requestProvisionalFuelData: (payload) => {
-    // console.log("payload in action::",payload)
-    return {
-      type: ProvFuelConstants.REQUEST_PROVISIONAL_FUEL,
-      payload,
-    };
-  },
-  getProvisionalFuelMonitoringData: (payload) => {
-    return {
-      type: ProvFuelConstants.SUCCESS_PROVISIONAL_FUEL,
-      payload,
-    };
-  },
-  requestFailedToFetchDataProvisionalFuel: (payload) => {
-    return {
-      type: ProvFuelConstants.FAILED_PROVISIONAL_FUEL,
-      payload,
-    };
-  },
-};
- 
-const requestProvisionalFuel = async (payload) => {
-  const from_time = payload.payload.utc_time_from;
-  const to_time = payload.payload.utc_time_to;
-  // console.log("OHF Action payload values::",from_time,to_time)
-  let results;
-  const sessionToken = getItem({ key: "SMXInternalApplication" });
-  const config = {
-    url: Url.get,
-    baseUrl: BASE_URL,
-   params: {
-    utc_time_from: from_time,
-    utc_time_to: to_time
-    },
-    sessionToken: sessionToken,
-  };
-  try {
-    // console.log("OHF Action config value::",config)
-    let response = await service.get(config);
-    
-    // console.log("Provisional Fuel Timestamp Response::",response)
-    results = await response.data;
-    //yield put(OHFAction.getOHFMonitoringData(results));
-    // console.log("Provisional Fuel Timestamp results::",results)
-  } catch (err) {
-    
-    errorAlert({
-      title: "Request Failed",
-      content: errorHandler(err),
-    });
-    throw errorHandler(err);
-  }
-  // console.log("Provisional Fuel Timestamp final results::",results)
-  return results;
-};
- 
-export const errorReset = () => {
-  return { type: ProvFuelConstants.PROVISIONAL_FUEL_ERROR_RESET };
-};
- 
-export function* getMonitoringDataProvisionalFuel(payload) {
-  try {
-    const response = yield call(requestProvisionalFuel,payload);
-    yield put(ProvisionalFuelAction.getProvisionalFuelMonitoringData(response));
-  } catch (err) {
-    yield put(ProvisionalFuelAction.requestFailedToFetchDataProvisionalFuel(err));
-  }
-}
- 
-export default function* ProvisionalFuelSaga() {
-  yield takeLatest(ProvFuelConstants.REQUEST_PROVISIONAL_FUEL, getMonitoringDataProvisionalFuel);
-}
+ProvFuel SAGAS › should dispatch SUCCESS_PROVISIONAL_FUEL on successful API call
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 8
+    + Received  + 1
+
+    - Array [
+    -   Object {
+    -     "payload": Object {
+    -       "some": "data",
+    -     },
+    -     "type": "SUCCESS_PROVISIONAL_FUEL",
+    -   },
+    - ]
+    + Array []
+
+      130 |     ).done;
+      131 |  
+    > 132 |     expect(dispatched).toEqual([
+          |                        ^
+      133 |       ProvisionalFuelAction.getProvisionalFuelMonitoringData(mockResponse),
+      134 |     ]);
+      135 |   });
+
+      at _callee$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:132:24)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+
+  ● ProvFuel SAGAS › should dispatch FAILED_PROVISIONAL_FUEL on failed API call
+
+    TypeError: Cannot read properties of undefined (reading 'type')
+
+      155 |     ).done;
+      156 |  
+    > 157 |     expect(dispatched[0].type).toBe(ProvFuelConstants.FAILED_PROVISIONAL_FUEL);
+          |                          ^
+      158 |   });
+      159 | });
+
+      at _callee2$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:157:26)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
