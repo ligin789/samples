@@ -1,118 +1,90 @@
-import ProvisionalFuelReducer from "./reducer";
-import { ProvFuelConstants } from "./constants";
-import { takeLatest } from "redux-saga/effects";
-import service from "../../services/http/service";
-import { runSaga } from "redux-saga";
-import ProvisionalFuelSaga, { ProvisionalFuelAction ,getMonitoringDataProvisionalFuel, errorReset} from "./actions";
-import ProvisionalFuelData from "./data.json";
+ requestProvisionalFuel
+      ✕ should make successful API call (1 ms)
+      ✕ should handle API error
+    getMonitoringDataProvisionalFuel
+      ✕ should handle successful data fetching
+      ✕ should handle failed data fetching (1 ms)
 
-const initialState = {
-  ProvisionalFuel: [],
-  error: null,
-};
+  ● ProvFuel SAGAS › requestProvisionalFuel › should make successful API call
 
-describe("ProvFuel reducer", () => {
-  it("returns the initial state", () => {
-    expect(ProvisionalFuelReducer(undefined, {})).toEqual(initialState);
-  });
+    TypeError: _getAuth.getItem.mockReturnValue is not a function
 
-  it("handles Message  data request", () => {
-    expect(
-      ProvisionalFuelReducer(initialState, {
-        type: ProvFuelConstants.SUCCESS_PROVISIONAL_FUEL,
-        payload: ProvisionalFuelData,
-      })
-    ).toEqual({
-      ProvisionalFuelData:ProvisionalFuelData,
-      error: null,
-    });
-  });
+      118 |       };
+      119 |       const mockResponse = { data: ProvisionalFuelData };
+    > 120 |       getItem.mockReturnValue("test-token");
+          |               ^
+      121 |       service.get.mockResolvedValue(mockResponse);
+      122 |  
+      123 |       const result = await requestProvisionalFuel(payload);
 
-  it("handles Prov Fuel error request", () => {
-    expect(
-      ProvisionalFuelReducer(initialState, {
-        type:ProvFuelConstants.FAILED_PROVISIONAL_FUEL ,
-        payload: { dummyJson: "" },
-      })
-    ).toEqual({
-      ...initialState,
-      error: { dummyJson: "" },
-    });
-  });
-    it("handles prov error reset", () => {
-      expect(
-        ProvisionalFuelReducer(initialState, {
-          type:ProvFuelConstants.PROVISIONAL_FUEL_ERROR_RESET ,
-          payload: { dummyJson: "" },
-        })
-      ).toEqual({
-        ...initialState,
-        error: null,
-      });
-  });
+      at _callee$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:120:15)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
 
-  describe("Dispatch ProvFuel ACTIONS", () => {
-    
-    it("should create an action with requestmessage", () => {
-      const expectedAction = {
-        type:ProvFuelConstants.REQUEST_PROVISIONAL_FUEL ,
-      };
-      expect(ProvisionalFuelAction.requestProvisionalFuelData()).toEqual(expectedAction);
-    });
-    it("should create an action with get prov fuel", () => {
-      const expectedAction = {
-        type:ProvFuelConstants.SUCCESS_PROVISIONAL_FUEL,
-      };
-      expect(ProvisionalFuelAction.getProvisionalFuelMonitoringData()).toEqual(expectedAction);
-    });
-    it("should create an action with fetchFailure", () => {
-      const expectedAction = {
-        type: ProvFuelConstants.FAILED_PROVISIONAL_FUEL,
-      };
-      expect(ProvisionalFuelAction.requestFailedToFetchDataProvisionalFuel()).toEqual(expectedAction);
-    });
-    it("should create an action with error reset", () => {
-      const expectedAction = {
-        type: ProvFuelConstants.PROVISIONAL_FUEL_ERROR_RESET,
-      };
-      expect(errorReset()).toEqual(expectedAction);
-    });
-   
-  });
+  ● ProvFuel SAGAS › requestProvisionalFuel › should handle API error
 
-  describe("ProvFuel SAGAS", () => {
-    it('should dispatch action "Request prov fuel details"', () => {
-      const generator = ProvisionalFuelSaga();
-      expect(generator.next().value).toEqual(
-        takeLatest(ProvFuelConstants.REQUEST_PROVISIONAL_FUEL, getMonitoringDataProvisionalFuel)
-      );
-    });
+    TypeError: _getAuth.getItem.mockReturnValue is not a function
 
-    it('should dispatch action "SUCCESS_"', async () => {
-      const dispatchedActions = [];
-      const mockResponse = {
-        status: 200,
-      };
-      service.get = jest.fn(() => Promise.resolve(mockResponse));
-      const fakeStore = {
-        dispatch: (action) => dispatchedActions.push(action),
-      };
-      console.log(mockResponse);
-      await runSaga(fakeStore,getMonitoringDataProvisionalFuel ).done;
-      
-    });
-    it('should dispatch action "FALURE_"', async () => {
-      const dispatchedActions = [];
-      const mockResponse = {
-        status: 403,
-      };
-      service.get = jest.fn(() => Promise.resolve(mockResponse));
-      const fakeStore = {
-        dispatch: (action) => dispatchedActions.push(action),
-      };
-      await runSaga(fakeStore, getMonitoringDataProvisionalFuel).done;
-      
-    });
-  });
-});
+      140 |       };
+      141 |       const mockError = new Error("API Error");
+    > 142 |       getItem.mockReturnValue("test-token");
+          |               ^
+      143 |       service.get.mockRejectedValue(mockError);
+      144 |       errorHandler.mockReturnValue("Processed error");
+      145 |  
 
+      at _callee2$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:142:15)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+
+  ● ProvFuel SAGAS › getMonitoringDataProvisionalFuel › should handle successful data fetching
+
+    TypeError: _service.default.get.mockResolvedValue is not a function
+
+      163 |       const dispatchedActions = [];
+      164 |       
+    > 165 |       service.get.mockResolvedValue(mockResponse);
+          |                   ^
+      166 |       await runSaga(
+      167 |         {
+      168 |           dispatch: (action) => dispatchedActions.push(action),
+
+      at _callee3$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:165:19)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+
+  ● ProvFuel SAGAS › getMonitoringDataProvisionalFuel › should handle failed data fetching
+
+    TypeError: _service.default.get.mockRejectedValue is not a function
+
+      188 |       const dispatchedActions = [];
+      189 |       
+    > 190 |       service.get.mockRejectedValue(mockError);
+          |                   ^
+      191 |       errorHandler.mockReturnValue("Processed error");
+      192 |       
+      193 |       await runSaga(
+
+      at _callee4$ (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:190:19)
+      at tryCatch (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at Generator.next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at asyncGeneratorStep (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at _next (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
+      at src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1
+      at Object.<anonymous> (src/store/ProvisionalFuelData/ProvisionalFuelStore.test.js:2:1)
