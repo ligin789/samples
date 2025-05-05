@@ -1,46 +1,81 @@
-src/services/http/downloadService.test.js
-  fetchDownloadXLSX
-    ✕ should download XLSX successfully (4 ms)
-    ✕ should handle download error (1 ms)
-
-  ● fetchDownloadXLSX › should download XLSX successfully
-
-    TypeError: (0 , _downloadService.fetchDownloadXLSX) is not a function
-
-      56 |  
-      57 |     // Call function
-    > 58 | await fetchDownloadXLSX('http://test.com', 'test.xlsx');
-         |                        ^
-      59 |  
-      60 |     // Fast-forward time to trigger the setTimeout
-      61 |     jest.runAllTimers();
-
-      at _callee$ (src/services/http/downloadService.test.js:58:24)
-      at tryCatch (src/services/http/downloadService.test.js:2:1)
-      at Generator.<anonymous> (src/services/http/downloadService.test.js:2:1)
-      at Generator.next (src/services/http/downloadService.test.js:2:1)
-      at asyncGeneratorStep (src/services/http/downloadService.test.js:2:1)
-      at _next (src/services/http/downloadService.test.js:2:1)
-      at src/services/http/downloadService.test.js:2:1
-      at Object.<anonymous> (src/services/http/downloadService.test.js:2:1)
-
-  ● fetchDownloadXLSX › should handle download error
-
-    TypeError: (0 , _downloadService.fetchDownloadXLSX) is not a function
-
-      84 |  
-      85 |     // Call function
-    > 86 | await fetchDownloadXLSX('http://test.com', 'test.xlsx');
-         |                        ^
-      87 |  
-      88 |     // Assertions
-      89 |     expect(errorAlert).toHaveBeenCalledWith({
-
-      at _callee2$ (src/services/http/downloadService.test.js:86:24)
-      at tryCatch (src/services/http/downloadService.test.js:2:1)
-      at Generator.<anonymous> (src/services/http/downloadService.test.js:2:1)
-      at Generator.next (src/services/http/downloadService.test.js:2:1)
-      at asyncGeneratorStep (src/services/http/downloadService.test.js:2:1)
-      at _next (src/services/http/downloadService.test.js:2:1)
-      at src/services/http/downloadService.test.js:2:1
-      at Object.<anonymous> (src/services/http/downloadService.test.js:2:1)
+import { takeLatest, put, call } from "redux-saga/effects";
+import { ProvFuelConstants, Url } from "./constants";
+import service, { BASE_URL } from "../../services/http/service";
+import { errorHandler } from "../../services/utils/ErrorHandler";
+import { errorAlert } from "../../components/atoms/CustomAlert";
+import moment from "moment";
+import { getItem } from "../../getAuth";
+ 
+export const ProvisionalFuelAction = {
+  requestProvisionalFuelData: (payload) => {
+    // console.log("payload in action::",payload)
+    return {
+      type: ProvFuelConstants.REQUEST_PROVISIONAL_FUEL,
+      payload,
+    };
+  },
+  getProvisionalFuelMonitoringData: (payload) => {
+    return {
+      type: ProvFuelConstants.SUCCESS_PROVISIONAL_FUEL,
+      payload,
+    };
+  },
+  requestFailedToFetchDataProvisionalFuel: (payload) => {
+    return {
+      type: ProvFuelConstants.FAILED_PROVISIONAL_FUEL,
+      payload,
+    };
+  },
+};
+ 
+const requestProvisionalFuel = async (payload) => {
+  const from_time = payload.payload.utc_time_from;
+  const to_time = payload.payload.utc_time_to;
+  // console.log("OHF Action payload values::",from_time,to_time)
+  let results;
+  const sessionToken = getItem({ key: "SMXInternalApplication" });
+  const config = {
+    url: Url.get,
+    baseUrl: BASE_URL,
+   params: {
+    utc_time_from: from_time,
+    utc_time_to: to_time
+    },
+    sessionToken: sessionToken,
+  };
+  try {
+    // console.log("OHF Action config value::",config)
+    let response = await service.get(config);
+    
+    // console.log("Provisional Fuel Timestamp Response::",response)
+    results = await response.data;
+    //yield put(OHFAction.getOHFMonitoringData(results));
+    // console.log("Provisional Fuel Timestamp results::",results)
+  } catch (err) {
+    
+    errorAlert({
+      title: "Request Failed",
+      content: errorHandler(err),
+    });
+    throw errorHandler(err);
+  }
+  // console.log("Provisional Fuel Timestamp final results::",results)
+  return results;
+};
+ 
+export const errorReset = () => {
+  return { type: ProvFuelConstants.PROVISIONAL_FUEL_ERROR_RESET };
+};
+ 
+export function* getMonitoringDataProvisionalFuel(payload) {
+  try {
+    const response = yield call(requestProvisionalFuel,payload);
+    yield put(ProvisionalFuelAction.getProvisionalFuelMonitoringData(response));
+  } catch (err) {
+    yield put(ProvisionalFuelAction.requestFailedToFetchDataProvisionalFuel(err));
+  }
+}
+ 
+export default function* ProvisionalFuelSaga() {
+  yield takeLatest(ProvFuelConstants.REQUEST_PROVISIONAL_FUEL, getMonitoringDataProvisionalFuel);
+}
