@@ -1,92 +1,189 @@
- DashboardRoute
-    ✕ renders UsageDashboardComponent for /Transactional_Dashboard (102 ms)
-    ✕ redirects from base /dashboard to /Transactional_Dashboard (15 ms)
-    ✕ renders all routes (16 ms)
+import React from "react";
+import { Redirect, Route } from "react-router-dom";
+import WbReportsComponent from "./WBReports/wbReports";
+import DownloadDataComponent from "./../components/download/downloadData";
+import ServiceMonitoringComponent from "./ServiceablityMonitoring/ServiceabilityMonitoring";
+import UsageDashboardComponent from "./UsageDashboard/UsageDashboard";
+import DefectiveWb from "./DefectiveWeb/DefectiveWbContainer";
+import IntroScreenManagement from "./Introscreen/IntroScreenMangement";
+import Header from "./../components/features/header/header";
+import * as constants from "./../constants/constants";
+import MaintenanceMessage from "./MaintenanceMessage/MaintenanceMessage";
+import ACTagging from "./ACTagging/ACTagging";
+import Feedback from "./Feedback/Feedback";
+import AuditDownload from "./AuditDownload/AuditDownload";
+import OHFMonitoringComponent from "./OHFMonitoring/OHFMonitoring";
+import RoleManagementComponent from "./UserRoleManagement/RoleManagement";
+import UserManagementComponent from "./UserManagement/UserManagement";
+import RoleManagementWebComponent from "./AccessManagement_Web/AccessManagementWeb";
+import HistoralDashboardComponent from "./HistoricalDashboard/historicalDashboard";
+import ProvisionalFuel from "./ProvisionalFuel/ProvisionalFuel";
+const DashboardRoute = (props) => {
+  const url = props.url ? props.url.url : {};
+  console.log("test xx", url)
+  return (
+    <>
+      <Route
+        path={`${url}/Transactional_Dashboard`}
+        render={() => (
+          <ContentLayout
+            title={constants.TRANSACTIONAL_DASHBOARD}
+            component={UsageDashboardComponent}
+          />
+        )}
+      />
+     <Route
+        path={`${url}/Historical_Report`}
+        render={() => (
+          <ContentLayout
+            title={constants.HISTORICAL_DASHBOARD}
+            component={HistoralDashboardComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/datausage`}
+        render={() => (
+          <ContentLayout
+            title={constants.DOWNLOAD_USAGE_DATA}
+            component={DownloadDataComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Serviceability_Monitoring`}
+        render={() => (
+          <ContentLayout
+            title={constants.SERVICEABILITY_MONITORING}
+            component={ServiceMonitoringComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Provisional_Fuel`}
+        render={() => (
+          <ContentLayout
+            title={constants.PROVISIONAL_FUEL}
+            component={ProvisionalFuel}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Defective_W&B`}
+        render={() => (
+          <ContentLayout
+            title={constants.DEFECTIVE_WB}
+            component={DefectiveWb}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/W&B_Report`}
+        render={() => (
+          <ContentLayout
+            title={constants.WB_REPORT}
+            component={WbReportsComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Maintenance_Message`}
+        render={() => (
+          <ContentLayout
+            title={constants.MAINTENANCE_MESSAGE}
+            component={MaintenanceMessage}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/introscreen`}
+        render={() => (
+          <ContentLayout
+            title={constants.INTRO_SCREEN_MANAGEMENT}
+            component={IntroScreenManagement}
+          />
+        )}
+      />
 
-  ● DashboardRoute › renders UsageDashboardComponent for /Transactional_Dashboard
+      <Route
+        path={`${url}/actagging`}
+        render={() => (
+          <ContentLayout title={constants.AC_TAGGING} component={ACTagging} />
+        )}
+      />
+      <Route
+        path={`${url}/Feedback`}
+        render={() => (
+          <ContentLayout title={constants.FEEDBACK} component={Feedback} />
+        )}
+      />
+      <Route
+        path={`${url}/Audit_Download`}
+        render={() => (
+          <ContentLayout
+            title={constants.AUDIT_DOWNLOAD}
+            component={AuditDownload}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/OHF_Monitoring`}
+        render={() => (
+          <ContentLayout
+            title={constants.OHF_MONITORING}
+            component={OHFMonitoringComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/Access_Management`}
+        render={() => (
+          <ContentLayout
+            title={constants.ACCESS_MANAGEMENT}
+            component={RoleManagementComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/User_Management`}
+        render={() => (
+          <ContentLayout
+            title={constants.USER_MANAGEMENT}
+            component={UserManagementComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/Access_Management_Web`}
+        render={() => (
+          <ContentLayout
+            title={constants.ACCESS_MANAGEMENT_WEB}
+            component={RoleManagementWebComponent}
+          />
+        )}
+      />
+      <Redirect from={`${url}`} to={`${url}/Transactional_Dashboard`} />
+      {/* Admin and engineer based nav */}
+      {/* {
+        (props.access === "admin" ? (
+          <Redirect from={`${url}`} to={`${url}/transactional`} />
+        ) : (
+          <Redirect from={`${url}`} to={`${url}/wbreports`} />
+        ))
+      } */}
+    </>
+  );
+};
 
-    TypeError: expect(...).toBeInTheDocument is not a function
-
-      55 |   it("renders UsageDashboardComponent for /Transactional_Dashboard", () => {
-      56 |     renderWithRoute("/dashboard/Transactional_Dashboard");
-    > 57 |     expect(screen.getByText("Transactional Dashboard")).toBeInTheDocument();
-         |                                                         ^
-      58 |     expect(screen.getByText("UsageDashboardComponent")).toBeInTheDocument();
-      59 |   });
-      60 |  
-
-      at Object.<anonymous> (src/containers/index.test.js:57:57)
-
-  ● DashboardRoute › redirects from base /dashboard to /Transactional_Dashboard
-
-    TypeError: expect(...).toBeInTheDocument is not a function
-
-      61 |   it("redirects from base /dashboard to /Transactional_Dashboard", () => {
-      62 |     renderWithRoute("/dashboard");
-    > 63 |     expect(screen.getByText("Transactional Dashboard")).toBeInTheDocument();
-         |                                                         ^
-      64 |   });
-      65 |  
-      66 |   it("renders all routes", () => {
-
-      at Object.<anonymous> (src/containers/index.test.js:63:57)
-
-  ● DashboardRoute › renders all routes
-
-    TestingLibraryElementError: Unable to find an element with the text: HistoralDashboardComponent. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
-
-    Ignored nodes: comments, script, style
-    <body>
+function ContentLayout({ title, component: Component }) {
+  return (
+    <>
+      <Header title={title} />
       <div>
-        <div>
-          Transactional Dashboard
-        </div>
-        <div>
-          <div>
-            UsageDashboardComponent
-          </div>
-        </div>
+        <Component />
       </div>
-    </body>
+    </>
+  );
+}
 
-      85 |     routes.forEach(({ path, text }) => {
-      86 |       renderWithRoute(`/dashboard/${path}`);
-    > 87 |       expect(screen.getByText(text)).toBeInTheDocument();
-         |                     ^
-      88 |     });
-      89 |   });
-      90 | });
-
-      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
-      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
-      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
-      at getByText (node_modules/@testing-library/dom/dist/query-helpers.js:95:19)
-      at forEach (src/containers/index.test.js:87:21)
-          at Array.forEach (<anonymous>)
-      at Object.<anonymous> (src/containers/index.test.js:85:12)
-
-  console.log
-    test xx /dashboard
-
-      at DashboardRoute (src/containers/index.js:23:11)
-
-  console.log
-    test xx /dashboard
-
-      at DashboardRoute (src/containers/index.js:23:11)
-
-  console.log
-    test xx /dashboard
-
-      at DashboardRoute (src/containers/index.js:23:11)
-
-  console.log
-    test xx /dashboard
-
-      at DashboardRoute (src/containers/index.js:23:11)
-
-  console.log
-    test xx /dashboard
-
-      at DashboardRoute (src/containers/index.js:23:11)
-          at Array.forEach (<anonymous>)
+export default DashboardRoute;
