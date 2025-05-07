@@ -1,81 +1,189 @@
-import React, { createRef } from "react";
-import "./dashboard.scss";
-import NavBar from "../../components/features/navbar/navbar";
-import DashboardRoute from "../../containers";
-import Layout from "antd/lib/layout";
-import { useHistory } from "react-router-dom";
-export const historyRef = createRef();
- 
-const { Content, Sider } = Layout;
-const Dashboard = ({ match ,
-  //  access
-  }) => {
-  const history = useHistory();
-  historyRef.current = history;
-  
+import React from "react";
+import { Redirect, Route } from "react-router-dom";
+import WbReportsComponent from "./WBReports/wbReports";
+import DownloadDataComponent from "./../components/download/downloadData";
+import ServiceMonitoringComponent from "./ServiceablityMonitoring/ServiceabilityMonitoring";
+import UsageDashboardComponent from "./UsageDashboard/UsageDashboard";
+import DefectiveWb from "./DefectiveWeb/DefectiveWbContainer";
+import IntroScreenManagement from "./Introscreen/IntroScreenMangement";
+import Header from "./../components/features/header/header";
+import * as constants from "./../constants/constants";
+import MaintenanceMessage from "./MaintenanceMessage/MaintenanceMessage";
+import ACTagging from "./ACTagging/ACTagging";
+import Feedback from "./Feedback/Feedback";
+import AuditDownload from "./AuditDownload/AuditDownload";
+import OHFMonitoringComponent from "./OHFMonitoring/OHFMonitoring";
+import RoleManagementComponent from "./UserRoleManagement/RoleManagement";
+import UserManagementComponent from "./UserManagement/UserManagement";
+import RoleManagementWebComponent from "./AccessManagement_Web/AccessManagementWeb";
+import HistoralDashboardComponent from "./HistoricalDashboard/historicalDashboard";
+import ProvisionalFuel from "./ProvisionalFuel/ProvisionalFuel";
+const DashboardRoute = (props) => {
+  const url = props.url ? props.url.url : {};
+  console.log("test xx", url)
   return (
-    <Layout>
-      <Sider breakpoint="xl" collapsedWidth="0" className="dashboardnav">
-        <NavBar url={match} 
-        // access = {access}
-         />
-      </Sider>
-      <Layout>
-        <Content className="dashboard-content">
-          <DashboardRoute url={match}  
-          // access = {access} 
+    <>
+      <Route
+        path={`${url}/Transactional_Dashboard`}
+        render={() => (
+          <ContentLayout
+            title={constants.TRANSACTIONAL_DASHBOARD}
+            component={UsageDashboardComponent}
           />
-        </Content>
-      </Layout>
-    </Layout>
+        )}
+      />
+     <Route
+        path={`${url}/Historical_Report`}
+        render={() => (
+          <ContentLayout
+            title={constants.HISTORICAL_DASHBOARD}
+            component={HistoralDashboardComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/datausage`}
+        render={() => (
+          <ContentLayout
+            title={constants.DOWNLOAD_USAGE_DATA}
+            component={DownloadDataComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Serviceability_Monitoring`}
+        render={() => (
+          <ContentLayout
+            title={constants.SERVICEABILITY_MONITORING}
+            component={ServiceMonitoringComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Provisional_Fuel`}
+        render={() => (
+          <ContentLayout
+            title={constants.PROVISIONAL_FUEL}
+            component={ProvisionalFuel}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Defective_W&B`}
+        render={() => (
+          <ContentLayout
+            title={constants.DEFECTIVE_WB}
+            component={DefectiveWb}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/W&B_Report`}
+        render={() => (
+          <ContentLayout
+            title={constants.WB_REPORT}
+            component={WbReportsComponent}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/Maintenance_Message`}
+        render={() => (
+          <ContentLayout
+            title={constants.MAINTENANCE_MESSAGE}
+            component={MaintenanceMessage}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/introscreen`}
+        render={() => (
+          <ContentLayout
+            title={constants.INTRO_SCREEN_MANAGEMENT}
+            component={IntroScreenManagement}
+          />
+        )}
+      />
+ 
+      <Route
+        path={`${url}/actagging`}
+        render={() => (
+          <ContentLayout title={constants.AC_TAGGING} component={ACTagging} />
+        )}
+      />
+      <Route
+        path={`${url}/Feedback`}
+        render={() => (
+          <ContentLayout title={constants.FEEDBACK} component={Feedback} />
+        )}
+      />
+      <Route
+        path={`${url}/Audit_Download`}
+        render={() => (
+          <ContentLayout
+            title={constants.AUDIT_DOWNLOAD}
+            component={AuditDownload}
+          />
+        )}
+      />
+      <Route
+        path={`${url}/OHF_Monitoring`}
+        render={() => (
+          <ContentLayout
+            title={constants.OHF_MONITORING}
+            component={OHFMonitoringComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/Access_Management`}
+        render={() => (
+          <ContentLayout
+            title={constants.ACCESS_MANAGEMENT}
+            component={RoleManagementComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/User_Management`}
+        render={() => (
+          <ContentLayout
+            title={constants.USER_MANAGEMENT}
+            component={UserManagementComponent}
+          />
+        )}
+      />
+       <Route
+        path={`${url}/Access_Management_Web`}
+        render={() => (
+          <ContentLayout
+            title={constants.ACCESS_MANAGEMENT_WEB}
+            component={RoleManagementWebComponent}
+          />
+        )}
+      />
+      <Redirect from={`${url}`} to={`${url}/Transactional_Dashboard`} />
+      {/* Admin and engineer based nav */}
+      {/* {
+        (props.access === "admin" ? (
+          <Redirect from={`${url}`} to={`${url}/transactional`} />
+        ) : (
+          <Redirect from={`${url}`} to={`${url}/wbreports`} />
+        ))
+      } */}
+    </>
   );
 };
  
-export default React.memo(Dashboard);
-
-
-import Modal from "antd/lib/modal";
+function ContentLayout({ title, component: Component }) {
+  return (
+    <>
+      <Header title={title} />
+      <div>
+        <Component />
+      </div>
+    </>
+  );
+}
  
-const info = ({ color = "#161D35", title, content, actions }) => {
-  Modal.info({
-    style: {
-      backgroundColor: color,
-    },
-    title: title,
-    content: content,
-    onOk: actions,
-  });
-};
-const success = ({ color = "#161D35", title, content, actions }) => {
-  Modal.success({
-    style: {
-      backgroundColor: color,
-    },
-    title: title,
-    content: content,
-    onOk: actions,
-  });
-};
-const errorAlert = ({ color = "#161D35", title, content, actions }) => {
-  Modal.error({
-    style: {
-      backgroundColor: color,
-    },
-    title: title,
-    content: content,
-    onOk: actions,
-  });
-};
- 
-const warning = ({ color = "#161D35", title, content, actions }) => {
-  Modal.warning({
-    style: {
-      backgroundColor: color,
-    },
-    title: title,
-    content: content,
-    onOk: actions,
-  });
-};
- 
-export { info, success, errorAlert, warning };
+export default DashboardRoute;
