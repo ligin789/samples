@@ -1,85 +1,621 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Route } from 'react-router-dom';
-import DashboardRoute from './index';
-import * as constants from './../constants/constants';
-import '@testing-library/jest-dom';
+import React, { useState, memo, useEffect } from "react";
+import * as constants from "../../constants/constants";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  RoleManagementActions,
+  errorReset,
+} from "../../store/UserRoleManagement/actions";
+import { Radio,Button, Modal } from "antd";
+// import { DownOutlined, UserOutlined } from "@ant-design/icons";
+import Menu from "antd/lib/menu";
+import AccessManagementJson from "../../store/UserRoleManagement/data.json";
+import roleObjectData from "../../store/dashboard/roleObject.json"
+//import FunctionalityData from '../../store/UserRoleManagement/functionlityData.json';
+import { Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+// import './RoleManagement.scss';
+// import Rolemanagementsidebar from "./Rolemanagementsidebar";
+// import { Leaderboard } from "@mui/icons-material";
+import ServiceabilityData from '../../store/dashboard/data.json';
+const { Search } = Input;
+const { SubMenu, Item } = Menu;
+const isButtonDisabled = true;
+// let updatedJson = []
+// console.log("updated json", updatedJson)
+const RoleManagementComponent = () => {
+  // console.log("use screen start")
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOpen = () => {
+    setIsModalOpen(false);
+  };
  
-const renderWithRouter = (ui, { route = '/' } = {}) => {
-  window.history.pushState({}, 'Test page', route);
+  const handleCancel = () => {
+    setIsModalOpen(false)
+  }
+  const dispatch = useDispatch();
+  // let RoleManagement = useSelector(
+  //   (state) => state.UserRoleSource.userRoles
+  // );
+  let RoleManagementPost = useSelector(
+    (state) => state.UserRoleSource.data
+  );
  
-  return render(ui, { wrapper: MemoryRouter });
+  const error = useSelector((state) => state.UserRoleSource.error);
+  let RoleManagement = AccessManagementJson;
+  // console.log("access test main data", RoleManagement)
+  // const dashboardData = useSelector((state) => state.dashboard.dashboardData);     //dashboard data from tx dashboard is used here
+   const dashboardData = ServiceabilityData    //data from json
+  // const FunctionalityList = FunctionalityData    //not used 
+  const [current, setCurrent] = useState(constants.TODAY);
+  // const [roles, ] = useState([]);
+  const [screen, setScreen] = useState([]);
+  const [screenName, setScreenName] = useState("Aircraft List");
+  const [functionality, setFunctionality] = useState([]);
+  const [sidebar, setSideBar] = useState("");
+  const [targetVal, setTargetVal] = useState("");
+  const [targetRole, setTargetRole] = useState("");
+  const [department, setDepartment] = useState([]);
+  const [access, setAccess] = useState(false);
+  const [accessList, setAccessList] = useState([]);
+  const [feature, setFeature] = useState("");
+  const [targetAccess, setTargetAccess] = useState("");
+  const [value, setValue] = useState({});
+  const [updatedValue, setUpdatedValue] = useState({});
+  const [valuebol, setValuebol] = useState("false")
+  const [writePermission, setWritePermission] = useState(null)
+ 
+  //const [updatedJson, setUpdatedJson] = useState({});
+  const [accessObject, setAccessObject] = useState({});
+  //const RoleManagement = RoleManagementSelector.payload
+ 
+  // if(RoleManagement!==null)
+  //   updatedJson = RoleManagement;
+  
+  // const roleObject = useSelector((state) => state.dashboard.navbarData);
+ 
+  const roleObject = roleObjectData
+   
+  useEffect(() => {
+    // console.log("useefect 1")
+    dispatch(errorReset());
+    dispatch(RoleManagementActions.requestUserRoles());
+  }, [dispatch, RoleManagementPost]);
+ 
+  useEffect(()=>{
+ 
+    roleObject?.role_management?.forEach((item) => 
+    // setNavigationLink(item?.access_list, item?.screen_name, item?.screen_mapping_name)
+    {
+      if(item.screen_mapping_name==="Access_Management"){
+        // item.access_list.forEach((data)=>{
+          console.log("writePermission role", item.access.read_write)
+          if (item.access.read_write===true){
+            setWritePermission(true)
+          }
+          else E{
+            setWritePermission(false)
+          }
+        // })
+      }
+    }
+    )
+  },[])
+ 
+  useEffect(() => {
+    // console.log("useefect 2", RoleManagement)
+    let screenList = [],
+      Functionality,
+      FunctionalityList = [],
+      roleManagementArray;
+    Eif (!error && RoleManagement) {
+      //setRoles(RoleManagement.roles);
+      // setDepartment(RoleManagement.departments);
+      //let updatedTempObj = {...updatedValue}
+      let RoleManagementMap = (RoleManagement?.role_management) ? RoleManagement.role_management?.map((item) => {
+        screenList?.push(item?.screen_name);
+        if (item.screen_name === screenName) {
+          Functionality = item?.functionalities;
+          // console.log("useefect 2 Functionality", Functionality)
+          let functionalityMap =  Functionality?.map((functionality) => {
+            FunctionalityList?.push(functionality.feature);
+          })
+          ?? "";
+ 
+        }
+        item.functionalities?.forEach((functionalityList) => {
+          Iif (functionalityList.feature === sidebar) {
+            const tempDept = [];
+            functionalityList.access_management?.forEach(
+              (access_management_list) => {
+                let temp = {};
+                tempDept.push(access_management_list?.department)
+ 
+                // setDepartment(access_management_list?.departments);
+                let AccessManagementList =  access_management_list.access_list?.forEach((access_list) => {
+                  temp = setTempfromAccessListFunction(access_list, targetRole, temp, access_management_list);
+                }) ?? ""
+ 
+              })
+            setDepartment(tempDept)
+            // console.log("access test screen and functionality list::", tempDept);
+          }
+        })
+      }) : ""
+      console.log(
+        "screen and functionality list::",
+        screenList,
+        FunctionalityList,
+      );
+ 
+      setScreen(screenList);
+      setFunctionality(FunctionalityList);   //issue here
+ 
+      /*let functionalityUpper = FunctionalityList.map(item => {
+      item = item.toUpperCase()
+      console.log("Search values item::",item)
+      return item;
+    })*/
+      //setFunctionality(functionalityUpper)
+    }
+ 
+    //dispatch(RoleManagementActions.postUserRoles());
+  }, [RoleManagement, error]);
+ 
+  // useEffect(() => {
+  //   console.log("useefect 3")
+  //   if (!error && dashboardData) {
+  //     setRoles(dashboardData.role)
+  //     //SetDepartment(dashboardData.department[0])
+  //   }
+  // }, [dashboardData, error]);
+ 
+  // console.log("screen loaded 155")
+ 
+ 
+  useEffect(() => {
+    // console.log("useefect 4")
+    let tempObj = { ...value };
+    let RoleManagementMap = (RoleManagement && RoleManagement.role_management) ? RoleManagement.role_management.forEach((screens) => {
+      if (screens.screen_name === screenName) {
+        screens.functionalities && screens.functionalities.forEach((functionalityList) => {
+          Iif (functionalityList.feature === sidebar) {
+            functionalityList.access_management && functionalityList.access_management.forEach(
+              setTempObjectFunction(targetRole, tempObj)
+            );
+          }
+        });
+      }
+    }) : "";
+    setValue(tempObj);
+  }, [screenName, sidebar, targetRole]);
+ 
+ 
+  const handleClick = (e) => {
+    let FunctionalityList = [];
+    // console.log("click menu value::", e);
+    RoleManagement.role_management.map((item) => {
+      if (e.key === item.screen_name) {
+        let Functionality = item.functionalities;
+        let functionalityMap = Functionality
+          ? Functionality.map((functionality) => {
+            FunctionalityList.push(functionality.feature);
+          })
+          : "";
+        setFunctionality(FunctionalityList);
+      }
+    });
+    setScreenName(e.key);
+    // console.log("access test handleClick::", RoleManagement);
+    // loadDepartments(true)
+    setSideBar("")
+  };
+  const onFunctionalityClick = (e) => {
+    let tempDepartment = [];
+    console.log("access test clicked item::", e.target.innerText);
+    let selectedFeature = e.target.innerText;
+    setFeature(e.target.innerText);
+    setSideBar(selectedFeature);
+    // if(RoleManagement===null){
+    //   RoleManagement = updatedJson;
+    // }
+    let RoleManagementMap = RoleManagement.role_management
+      ? RoleManagement.role_management.map((rm) => {
+        let selectedScreen = rm.screen_name;
+        let FunctionalityMap = rm.functionalities
+          ? rm.functionalities.map((item) => {
+            //let feature = item.feature;
+            Iif (screenName === selectedScreen && selectedFeature === item.feature) {
+              setTempDeptFunction(item, tempDepartment, setAccessList, targetRole, setAccess, setDepartment);
+            }
+          })
+          : "";
+      })
+      : "";
+    
+  };
+ 
+ 
+  // const onOpenChangeMenu = (openKeys) => {
+  //   console.log("onOpenChange", openKeys);
+  //   alert("openchangemenu")
+  // };
+  const onSearch = (e) => {
+    setTargetVal(e.target.value);
+  };
+  const saveAccess = () => {
+    console.log("access test save", RoleManagement)
+    // updatedJson = RoleManagement;
+    if(RoleManagement) {
+      dispatch(RoleManagementActions.postUserRoles(RoleManagement));
+    }
+  };
+  const onRoleChange = (e) => {
+    // alert("role change")
+    // console.log('e.target.value',e.target.value)
+    setTargetRole(e.target.value);
+  };
+ 
+  const onAccessChange = (e) => {
+    // console.log("Access check::", e);
+    setTargetAccess(e.target.value);
+  };
+  const tempData = () => {
+    return functionality.filter((item) =>
+      item.toUpperCase().includes(targetVal.toUpperCase())
+    );
+  };
+  const tempedData = tempData();
+  const getRadioButtonValue = (dept, radioBtnName) => {
+    // console.log("getRadioButtonValue", targetRole, dept, radioBtnName, screenName, feature)
+    return false;
+  }
+ 
+  const onChange = (e) => {
+    // setValue(e.target.value)
+    // console.log("access test a", e.target);
+    let temp = JSON.parse(JSON.stringify(value))
+    // console.log("access test 2", temp, targetRole, e.target.name, e.target.value, screenName, feature)
+    const slectedKey = e.target.value === 3 ? 'read_only' : e.target.value === 2 ? 'read_write' : 'not_applicable';
+    Object.keys(temp[e.target.name]) && Object.keys(temp[e.target.name]).forEach((key, i) => {
+      if (i + 1 === e.target.value) {
+        temp[e.target.name][key] = true
+      } else {
+        temp[e.target.name][key] = false
+      }
+    });
+    //looping through the json till the end to get to the access list 
+    roleManagementLoopSetRadioBtnFunction(RoleManagement, screenName, feature, e, targetRole, slectedKey);
+    // console.log('updated rolemanagement object', RoleManagement)
+    setValue(temp)
+    setValuebol(false)
+    setUpdatedValue(temp)
+  };
+ 
+  const objval = (props) => {
+    let index = -1
+    if (value[props]) {
+      Object.keys(value[props]).forEach((key, i) => {
+        if (value[props][key]) {
+          index = i + 1;
+        }
+      });
+    }
+    return index;
+  };
+ 
+  const loadDepartments = () => {
+    console.log("qqq", writePermission)
+    return (
+      <div test-id = "roleManagementPage"
+        style={{
+          marginLeft: "25rem",
+          position: "absolute",
+          height: "478px",
+          width: "38rem",
+        }}
+      >
+        {department.map((departmentItem) => (
+          <>
+            <div
+              style={{
+                color: "white",
+                marginBottom: "20px",
+                background: "#434A64",
+                padding: "6px",
+              }}
+            >
+              {departmentItem}
+            </div>
+            {/* {console.log('ACCESS test 3 radio buttons', access, accessList)} */}
+            {access && accessList ? (
+              <Radio.Group
+                style={{ marginBottom: "20px" }}
+                onChange={onChange}
+                value={objval(departmentItem)}
+                name={departmentItem}
+                data-testid='onchange'
+                className={writePermission?'':'ant-radio-disabled'}
+                disabled = {!writePermission}
+              >
+                <Radio
+                  style={{ color: "white" }}
+                  value={1}
+                  defaultChecked={false}
+                  checked={accessList.not_applicable}  
+                  // disabled={true}               
+                >
+                  Not Applicable
+                </Radio>
+                <Radio
+                  style={{ color: "white" }}
+                  value={3}
+                  defaultChecked={false}
+                  checked={accessList.read_only}
+                  // disabled={true}
+                >
+                  Read-only
+                </Radio>
+                <Radio
+                  style={{ color: "white" }}
+                  value={2}
+                  defaultChecked={false}
+                  checked={accessList.read_write}
+                  // disabled={true}
+                >
+                  Read & write
+                </Radio>
+ 
+              </Radio.Group>
+            ) : (
+              ""
+            )}
+          </>
+        ))}
+      <div style={{ marginTop: "30px", marginLeft: "35rem" }}>
+        {valuebol ? <Button disabled={isButtonDisabled} type="primary" style={{ color: "white", position: "absolute" }} onClick={() => { showModal() }}>Save</Button> :
+        <Button style={{ background: "#00266A", borderColor: "#00266A", color: "white" }} onClick={() => { showModal() }}>Save</Button>
+ 
+        }
+        <Modal open={isModalOpen} closable={true} onCancel={handleCancel} className="role-modal" footer={[<Button style={{ borderRadius: "1.2rem", background: "#1E4180", color: "white", marginTop: "28.5px", marginLeft: "20px" }} key="done" onClick={handleCancel}>Cancel</Button>, 
+        <Button style={{ borderRadius: "1.2rem", background: "#1E4180", color: "white", marginTop: "28.5px", marginLeft: "20px" }} key="done" onClick={() => { handleOpen(); saveAccess() }}>OK</Button>]}>
+          <div style={{ color: "black" }} className="role-modal">Do you want to save the changes?</div>
+        </Modal>
+      </div>
+      </div>
+      
+    );
+  };
+ 
+  // console.log("Screen items check::", RoleManagement,updatedJson);
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "70rem",
+        position: "absolute",
+      }}
+    >
+      <div style={{ width: "25rem", background: "#161b32" }}>
+        <div
+          style={{ color: "white", marginBottom: "20px", marginLeft: "15px" }}
+        >
+          USER TYPE
+        </div>
+        {dashboardData && dashboardData.role
+          ? dashboardData.role.map((item,index) => (
+            <Radio.Group
+              style={{ marginLeft: "15px" }}
+              onChange={onRoleChange}
+              data-testid={`rolechange_${index}`}
+              value={targetRole}
+            >
+              <Radio style={{ color: "white" }} value={item}>
+                {item}
+              </Radio>
+            </Radio.Group>
+          ))
+          : ""}
+ 
+        <div
+          style={{
+            color: "white",
+            marginTop: "20px",
+            width: "70rem",
+            marginLeft: "15px",
+          }}
+        >
+          SELECT SCREEN
+        </div>
+        <div style={{ marginLeft: "15px", marginTop: "-15px" }}>
+          <Menu
+            onClick={handleClick}
+            data-testid='handleclick'
+            // onOpenChange={onOpenChangeMenu}
+            className="userheader serviceabilityheader"
+            mode="horizontal"
+          >
+            {" "}
+            <SubMenu
+              key="SubMenu"
+              title={`${screenName}  ▼ 	`}
+              className="headerBlockhead"
+            >
+              {" "}
+              {screen ? screen.map((item) => {
+                  return <Item key={item}>{item}</Item>;
+                })
+                : ""}
+            </SubMenu>
+          </Menu>
+        </div>
+        <div
+          style={{
+            color: "white",
+            marginBottom: "10px",
+            width: "70rem",
+            marginLeft: "15px",
+          }}
+        >
+          SELECT FUNCTIONALITY
+        </div>
+        <div style={{ marginLeft: "15px", marginBottom: "15px" }}>
+          <Input
+            //value={ACTypeArrsearchVal}
+            type="search"
+            placeholder="Functionality"
+            onChange={(e) => onSearch(e)}
+            data-testid='search'
+            suffix={<SearchOutlined />}
+          />
+          <ul style={{ maxHeight: "20rem", overflowY: "scroll" }}>
+            {functionality
+              ? tempedData.map((item,index) => {
+                return (
+                  <div>
+                    <div
+                      style={{
+                        color: "white",
+                        marginLeft: "-2.5rem",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div>
+                        <li
+                          style={{
+                            color: sidebar === item ? "black" : "",
+                            backgroundColor: sidebar === item ? "white" : "",
+                            marginTop: "0.5rem",
+                          }}
+                          onClick={(item) => onFunctionalityClick(item)}
+                          data-testid={`onfunctional_${index}`}
+                          key={item}
+                        >
+                          {item}
+                        </li>
+                      </div>
+                    </div>
+                    <hr
+                      style={{
+                        height: "0.3px",
+                        borderWidth: "0",
+                        backgroundColor: "grey",
+                        marginLeft: "-50px",
+                      }}
+                    />
+                  </div>
+                );
+              })
+              : ""}
+          </ul>
+        </div>
+      </div>
+      {sidebar ? loadDepartments() : null}
+      {/* moved this code to loadDepartment function */}
+      {/* {loadDepartments()} */}
+      {/* <div style={{ marginTop: "30px", marginLeft: "35rem" }}>
+        {valuebol ? <Button disabled={isButtonDisabled} type="primary" style={{ color: "white", position: "absolute" }} onClick={() => { showModal() }}>Save</Button> :
+        <Button style={{ background: "#00266A", borderColor: "#00266A", color: "white" }} onClick={() => { showModal() }}>Save</Button>
+ 
+        }
+        <Modal open={isModalOpen} closable={true} onCancel={handleCancel} className="role-modal" footer={[<Button style={{ borderRadius: "1.2rem", background: "#1E4180", color: "white", marginTop: "28.5px", marginLeft: "20px" }} key="done" onClick={handleCancel}>Cancel</Button>, <Button style={{ borderRadius: "1.2rem", background: "#1E4180", color: "white", marginTop: "28.5px", marginLeft: "20px" }} key="done" onClick={() => { handleOpen(); saveAccess() }}>OK</Button>]}>
+          <div style={{ color: "black" }} className="role-modal">Do you want to save the changes?</div>
+        </Modal>
+      </div> */}
+    </div>
+  );
 };
  
-// Mock all child components used in the routes
-jest.mock('./WBReports/wbReports', () => () => <div>WBReportsComponent</div>);
-jest.mock('./../components/download/downloadData', () => () => <div>DownloadDataComponent</div>);
-jest.mock('./ServiceablityMonitoring/ServiceabilityMonitoring', () => () => <div>ServiceMonitoringComponent</div>);
-jest.mock('./UsageDashboard/UsageDashboard', () => () => <div>UsageDashboardComponent</div>);
-jest.mock('./DefectiveWeb/DefectiveWbContainer', () => () => <div>DefectiveWb</div>);
-jest.mock('./Introscreen/IntroScreenMangement', () => () => <div>IntroScreenManagement</div>);
-jest.mock('./../components/features/header/header', () => ({ title }) => <div data-testid="header">{title}</div>);
-jest.mock('./MaintenanceMessage/MaintenanceMessage', () => () => <div>MaintenanceMessage</div>);
-jest.mock('./ACTagging/ACTagging', () => () => <div>ACTagging</div>);
-jest.mock('./Feedback/Feedback', () => () => <div>Feedback</div>);
-jest.mock('./AuditDownload/AuditDownload', () => () => <div>AuditDownload</div>);
-jest.mock('./OHFMonitoring/OHFMonitoring', () => () => <div>OHFMonitoringComponent</div>);
-jest.mock('./UserRoleManagement/RoleManagement', () => () => <div>RoleManagementComponent</div>);
-jest.mock('./UserManagement/UserManagement', () => () => <div>UserManagementComponent</div>);
-jest.mock('./AccessManagement_Web/AccessManagementWeb', () => () => <div>RoleManagementWebComponent</div>);
-jest.mock('./HistoricalDashboard/historicalDashboard', () => () => <div>HistoralDashboardComponent</div>);
-jest.mock('./ProvisionalFuel/ProvisionalFuel', () => () => <div>ProvisionalFuel</div>);
+export default memo(RoleManagementComponent);
  
-const routes = [
-  { path: 'Transactional_Dashboard', title: constants.TRANSACTIONAL_DASHBOARD },
-  { path: 'Historical_Report', title: constants.HISTORICAL_DASHBOARD },
-  { path: 'datausage', title: constants.DOWNLOAD_USAGE_DATA },
-  { path: 'Serviceability_Monitoring', title: constants.SERVICEABILITY_MONITORING },
-  { path: 'Provisional_Fuel', title: constants.PROVISIONAL_FUEL },
-  { path: 'Defective_W&B', title: constants.DEFECTIVE_WB },
-  { path: 'W&B_Report', title: constants.WB_REPORT },
-  { path: 'Maintenance_Message', title: constants.MAINTENANCE_MESSAGE },
-  { path: 'introscreen', title: constants.INTRO_SCREEN_MANAGEMENT },
-  { path: 'actagging', title: constants.AC_TAGGING },
-  { path: 'Feedback', title: constants.FEEDBACK },
-  { path: 'Audit_Download', title: constants.AUDIT_DOWNLOAD },
-  { path: 'OHF_Monitoring', title: constants.OHF_MONITORING },
-  { path: 'Access_Management', title: constants.ACCESS_MANAGEMENT },
-  { path: 'User_Management', title: constants.USER_MANAGEMENT },
-  { path: 'Access_Management_Web', title: constants.ACCESS_MANAGEMENT_WEB },
-];
+function roleManagementLoopSetRadioBtnFunction(RoleManagement, screenName, feature, e, targetRole, slectedKey) {
+  RoleManagement?.role_management?.map((rmItem) => {
+    if (rmItem?.screen_name?.toLowerCase() === screenName?.toLowerCase()) {
+      rmItem?.functionalities?.map((funItem) => {
+        if (funItem?.feature?.toLowerCase() === feature?.toLowerCase()) {
+          funItem?.access_management?.map((amItem) => {
+            if (amItem?.department?.toLowerCase() === e.target.name?.toLowerCase()) {
+              amItem?.access_list?.map((alItem) => {
+                innerLoopFunction(alItem);
+              });
+            }
+          });
+        }
+      });
+    }
+  });
  
-describe('DashboardRoute', () => {
-
-  it('redirects to /Transactional_Dashboard by default', () => {
-    renderWithRouter(
-      <>
-        <DashboardRoute url={{ url: '/dashboard' }} />
-        <Route path="/dashboard/Transactional_Dashboard">
-          <div data-testid="default-redirect">Default Dashboard</div>
-        </Route>
-      </>,
-      { route: '/dashboard' }
-    );
-    expect(screen.getByTestId('header')).toHaveTextContent(constants.TRANSACTIONAL_DASHBOARD);
+  function innerLoopFunction(alItem) {
+    if (alItem?.role?.toLowerCase() === targetRole?.toLowerCase()) {
+      let accessObj = alItem?.access ?? {};
+      for (let [key, val] of Object.entries(accessObj)) {
+        // console.log("access loop", key, val);
+        if (key === slectedKey) {
+          accessObj[key] = true;
+        } else {
+          accessObj[key] = false;
+        }
+      }
+      alItem.access = accessObj;
+    }
+  }
+}
+ 
+function setTempfromAccessListFunction(access_list, targetRole, temp, access_management_list) {
+  if (access_list.role === targetRole) {
+    temp = { ...access_list.access };
+    let AccessListUpdate = temp;
+    // if(access_list.access['Not_Applicable']){
+    //   temp.Not_Applicable=
+    // }else if(access_list.access['Read_Write']){
+    //   temp = 2
+    // }else if(access_list.access['Read_only']){
+    //   temp = 3
+    // }
+    // console.log("access check::", access_management_list.department, temp);
+ 
+  }
+  return temp;
+}
+ 
+function setTempDeptFunction(item, tempDepartment, setAccessList, targetRole, setAccess, setDepartment) {
+  let AccessManagement = item.access_management
+    ? item.access_management.map((am) => {
+ 
+      tempDepartment.push(am.department);
+ 
+      let roleAccess = am.access_list ? setAccessFunction(am, setAccessList, targetRole, setAccess)
+        : "";
+    })
+    : "";
+  setDepartment(tempDepartment);
+  // console.log("access test dept", tempDepartment);
+}
+ 
+function setAccessFunction(am, setAccessList, targetRole, setAccess) {
+  return am.access_list.map((al) => {
+    setAccessList(al.access);
+ 
+    if (targetRole === al.role) {
+      setAccess(true);
+    }
   });
-  it('redirects to /Access_Management_Web by default', () => {
-    renderWithRouter(
-      <>
-        <DashboardRoute url={{ url: '/dashboard' }} />
-        <Route path="/dashboard/Access_Management_Web">
-          <div data-testid="default-redirect">Default Dashboard</div>
-        </Route>
-      </>,
-      { route: '/dashboard' }
-    );
-    expect(screen.getByTestId('header')).toHaveTextContent(constants.TRANSACTIONAL_DASHBOARD);
-  });
-  it(`renders the Historical Report route with correct title`, () => {
-    renderWithRouter(
-      <DashboardRoute url={{ url: '/dashboard' }} />,
-      { route: `/dashboard/Historical_Report` }
-    );
-    expect(screen.getByTestId('header')).toHaveTextContent(constants.HISTORICAL_DASHBOARD);
-  });
-});
+}
+ 
+function setTempObjectFunction(targetRole, tempObj) {
+  return (access_management_list) => {
+    let temp = {};
+    let AccessManagementList = access_management_list.access_list ? access_management_list.access_list.forEach((access_list) => {
+      if (access_list.role === targetRole) {
+        temp = { ...access_list.access };
+        let AccessListUpdate = temp;
+      }
+ 
+    }) : "";
+    tempObj[access_management_list.department] = temp;
+ 
+  };
+}
