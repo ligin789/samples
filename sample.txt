@@ -1,189 +1,340 @@
-import React from "react";
-import { Redirect, Route } from "react-router-dom";
-import WbReportsComponent from "./WBReports/wbReports";
-import DownloadDataComponent from "./../components/download/downloadData";
-import ServiceMonitoringComponent from "./ServiceablityMonitoring/ServiceabilityMonitoring";
-import UsageDashboardComponent from "./UsageDashboard/UsageDashboard";
-import DefectiveWb from "./DefectiveWeb/DefectiveWbContainer";
-import IntroScreenManagement from "./Introscreen/IntroScreenMangement";
-import Header from "./../components/features/header/header";
-import * as constants from "./../constants/constants";
-import MaintenanceMessage from "./MaintenanceMessage/MaintenanceMessage";
-import ACTagging from "./ACTagging/ACTagging";
-import Feedback from "./Feedback/Feedback";
-import AuditDownload from "./AuditDownload/AuditDownload";
-import OHFMonitoringComponent from "./OHFMonitoring/OHFMonitoring";
-import RoleManagementComponent from "./UserRoleManagement/RoleManagement";
-import UserManagementComponent from "./UserManagement/UserManagement";
-import RoleManagementWebComponent from "./AccessManagement_Web/AccessManagementWeb";
-import HistoralDashboardComponent from "./HistoricalDashboard/historicalDashboard";
-import ProvisionalFuel from "./ProvisionalFuel/ProvisionalFuel";
-const DashboardRoute = (props) => {
-  const url = props.url ? props.url.url : {};
-  console.log("test xx", url)
-  return (
-    <>
-      <Route
-        path={`${url}/Transactional_Dashboard`}
-        render={() => (
-          <ContentLayout
-            title={constants.TRANSACTIONAL_DASHBOARD}
-            component={UsageDashboardComponent}
-          />
-        )}
-      />
-     <Route
-        path={`${url}/Historical_Report`}
-        render={() => (
-          <ContentLayout
-            title={constants.HISTORICAL_DASHBOARD}
-            component={HistoralDashboardComponent}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/datausage`}
-        render={() => (
-          <ContentLayout
-            title={constants.DOWNLOAD_USAGE_DATA}
-            component={DownloadDataComponent}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/Serviceability_Monitoring`}
-        render={() => (
-          <ContentLayout
-            title={constants.SERVICEABILITY_MONITORING}
-            component={ServiceMonitoringComponent}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/Provisional_Fuel`}
-        render={() => (
-          <ContentLayout
-            title={constants.PROVISIONAL_FUEL}
-            component={ProvisionalFuel}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/Defective_W&B`}
-        render={() => (
-          <ContentLayout
-            title={constants.DEFECTIVE_WB}
-            component={DefectiveWb}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/W&B_Report`}
-        render={() => (
-          <ContentLayout
-            title={constants.WB_REPORT}
-            component={WbReportsComponent}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/Maintenance_Message`}
-        render={() => (
-          <ContentLayout
-            title={constants.MAINTENANCE_MESSAGE}
-            component={MaintenanceMessage}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/introscreen`}
-        render={() => (
-          <ContentLayout
-            title={constants.INTRO_SCREEN_MANAGEMENT}
-            component={IntroScreenManagement}
-          />
-        )}
-      />
- 
-      <Route
-        path={`${url}/actagging`}
-        render={() => (
-          <ContentLayout title={constants.AC_TAGGING} component={ACTagging} />
-        )}
-      />
-      <Route
-        path={`${url}/Feedback`}
-        render={() => (
-          <ContentLayout title={constants.FEEDBACK} component={Feedback} />
-        )}
-      />
-      <Route
-        path={`${url}/Audit_Download`}
-        render={() => (
-          <ContentLayout
-            title={constants.AUDIT_DOWNLOAD}
-            component={AuditDownload}
-          />
-        )}
-      />
-      <Route
-        path={`${url}/OHF_Monitoring`}
-        render={() => (
-          <ContentLayout
-            title={constants.OHF_MONITORING}
-            component={OHFMonitoringComponent}
-          />
-        )}
-      />
-       <Route
-        path={`${url}/Access_Management`}
-        render={() => (
-          <ContentLayout
-            title={constants.ACCESS_MANAGEMENT}
-            component={RoleManagementComponent}
-          />
-        )}
-      />
-       <Route
-        path={`${url}/User_Management`}
-        render={() => (
-          <ContentLayout
-            title={constants.USER_MANAGEMENT}
-            component={UserManagementComponent}
-          />
-        )}
-      />
-       <Route
-        path={`${url}/Access_Management_Web`}
-        render={() => (
-          <ContentLayout
-            title={constants.ACCESS_MANAGEMENT_WEB}
-            component={RoleManagementWebComponent}
-          />
-        )}
-      />
-      <Redirect from={`${url}`} to={`${url}/Transactional_Dashboard`} />
-      {/* Admin and engineer based nav */}
-      {/* {
-        (props.access === "admin" ? (
-          <Redirect from={`${url}`} to={`${url}/transactional`} />
-        ) : (
-          <Redirect from={`${url}`} to={`${url}/wbreports`} />
-        ))
-      } */}
-    </>
-  );
-};
- 
-function ContentLayout({ title, component: Component }) {
-  return (
-    <>
-      <Header title={title}  data-testid="header"/>
-      <div>
-        <Component />
-      </div>
-    </>
-  );
-}
- 
-export default DashboardRoute;
+  DashboardRoute
+    ✕ renders the Transactional_Dashboard route with correct title (101 ms)
+    ✕ renders the Historical_Report route with correct title (15 ms)
+    ✕ renders the datausage route with correct title (11 ms)
+    ✕ renders the Serviceability_Monitoring route with correct title (10 ms)
+    ✕ renders the Provisional_Fuel route with correct title (9 ms)
+    ✕ renders the Defective_W&B route with correct title (6 ms)
+    ✕ renders the W&B_Report route with correct title (8 ms)
+    ✕ renders the Maintenance_Message route with correct title (6 ms)
+    ✕ renders the introscreen route with correct title (6 ms)
+    ✕ renders the actagging route with correct title (12 ms)
+    ✕ renders the Feedback route with correct title (4 ms)
+    ✕ renders the Audit_Download route with correct title (3 ms)
+    ✕ renders the OHF_Monitoring route with correct title (3 ms)
+    ✕ renders the Access_Management route with correct title (4 ms)
+    ✕ renders the User_Management route with correct title (4 ms)
+    ✕ renders the Access_Management_Web route with correct title (4 ms)
+    ✕ redirects to /Transactional_Dashboard by default (5 ms)
+
+  ● DashboardRoute › renders the Transactional_Dashboard route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Historical_Report route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the datausage route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Serviceability_Monitoring route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Provisional_Fuel route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Defective_W&B route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the W&B_Report route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Maintenance_Message route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the introscreen route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the actagging route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Feedback route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Audit_Download route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the OHF_Monitoring route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Access_Management route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the User_Management route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › renders the Access_Management_Web route with correct title
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      56 |         { route: `/dashboard/${path}` }
+      57 |       );
+    > 58 |       expect(screen.getByTestId('header')).toHaveTextContent(title);
+         |                                            ^
+      59 |     });
+      60 |   });
+      61 |  
+
+      at Object.<anonymous> (src/containers/index.test.js:58:44)
+
+  ● DashboardRoute › redirects to /Transactional_Dashboard by default
+
+    TypeError: expect(...).toHaveTextContent is not a function
+
+      70 |       { route: '/dashboard' }
+      71 |     );
+    > 72 |     expect(screen.getByTestId('header')).toHaveTextContent(constants.TRANSACTIONAL_DASHBOARD);
+         |                                          ^
+      73 |   });
+      74 | });
+
+      at Object.<anonymous> (src/containers/index.test.js:72:42)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
+
+  console.log
+    test xx /dashboard
+
+      at DashboardRoute (src/containers/index.js:23:11)
