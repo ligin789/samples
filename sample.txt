@@ -104,7 +104,7 @@ const DashboardRoute = (props) => {
           />
         )}
       />
-
+ 
       <Route
         path={`${url}/actagging`}
         render={() => (
@@ -174,16 +174,16 @@ const DashboardRoute = (props) => {
     </>
   );
 };
-
+ 
 function ContentLayout({ title, component: Component }) {
   return (
     <>
-      <Header title={title} />
+      <Header title={title}  data-testid="header"/>
       <div>
         <Component />
       </div>
     </>
   );
 }
-
+ 
 export default DashboardRoute;
