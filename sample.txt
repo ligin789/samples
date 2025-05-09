@@ -938,3 +938,458 @@ function setLoadingIconFunction(error, UserManagementData) {
   return !error && !Array.isArray(UserManagementData);
 }
 export default memo(UserManagement);
+
+
+
+testcase
+
+
+
+import React from "react"
+import * as reactRedux from 'react-redux'
+import { applyMiddleware } from 'redux'
+import UserManagementReducer from "../../store/UserManagement/reducer"
+import { render, fireEvent, screen, cleanup } from '@testing-library/react';
+import createSagaMiddleware from 'redux-saga'
+import { Provider, Router } from 'react-redux'
+import configureStore from 'redux-mock-store';
+import UserManagement from "./UserManagement";
+
+
+const sagaMiddleware = createSagaMiddleware()
+const userManagementData = [
+
+  {
+    "win2k_id": "Anisha_K",
+    "staff_name": "Anisha",
+    "staff_id": "NS729086",
+    "job_description": "ENGINEERING SUPERVISOR",
+    "email_id": "Anisha_K@singaporeair.com.sg",
+    "division": "ECS209",
+    "department": "FHSQ",
+    "roles": ["Engineer", "Technician", "Driver"],
+    "status": "active"
+  },
+
+  {
+    "win2k_id": "Jayalakshmi_RS"
+  },
+
+  {
+    "win2k_id": "Barath_N",
+    "division": "ECS209",
+    "department": "FHSQ",
+    "roles": [
+      "Engineer"
+    ]
+  },
+  {
+    "win2k_id": "Timothy_Misso"
+  },
+  {},
+  {
+    "win2k_id": "HuiMin_Heng"
+  },
+  {
+    "win2k_id": "9Shilpa_P"
+  },
+  {},
+  {
+    "win2k_id": "KiranKumar_Koduri"
+  },
+  {
+    "win2k_id": "Anisha_K",
+    "division": "ECS209",
+    "department": "FHSQ",
+    "roles": [
+      "Engineer"
+    ]
+  }
+]
+const roleObject = [
+{
+  "user_profile": {
+    "win2k_id": "Barath_N",
+    "staff_name": "Barath",
+    "staff_id": "00313263",
+    "email_id": "b@a.com",
+    "division": "ECS209",
+    "department": "FHSQ",
+    "roles": [
+      "Admin", "Engineer", "Secondary Admin"
+    ],
+    "ohf_access": "Y",
+    "apns_notfcn_reqd": "Y",
+    "sms_notfcn_reqd": "Y",
+    "device_id": "DMPX9NC2JF88",
+    "device_type": "iOS",
+    "user_contact_number": "89898766"
+  },
+  "role_management": [
+    {
+      "screen_name": "Transactional Dashboard",
+      "screen_mapping_name": "Transactional_Dashboard",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Historical Report",
+      "screen_mapping_name": "Historical_Report",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Serviceability Monitoring",
+      "screen_mapping_name": "Serviceability_Monitoring",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Provisional Fuel",
+      "screen_mapping_name": "Provisional_Fuel",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Defective W&B",
+      "screen_mapping_name": "Defective_W&B",
+      "access": {
+        "not_applicable": false,
+        "read_write": true,
+        "read_only": false
+      }
+    },
+    {
+      "screen_name": "W&B Report",
+      "screen_mapping_name": "W&B_Report",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Maintenance Message",
+      "screen_mapping_name": "Maintenance_Message",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Feedback",
+      "screen_mapping_name": "Feedback",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Audit Download",
+      "screen_mapping_name": "Audit_Download",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "OHF Monitoring",
+      "screen_mapping_name": "OHF_Monitoring",
+      "access": {
+        "not_applicable": false,
+        "read_write": false,
+        "read_only": true
+      }
+    },
+    {
+      "screen_name": "Access Management",
+      "screen_mapping_name": "Access_Management",
+      "access": {
+        "not_applicable": false,
+        "read_write": true,
+        "read_only": false
+      }
+    },
+    {
+      "screen_name": "User Management",
+      "screen_mapping_name": "User_Management",
+      "access": {
+        "not_applicable": false,
+        "read_write": true,
+        "read_only": false
+      }
+    },
+    {
+      "screen_name": "Access Management Web",
+      "screen_mapping_name": "Access_Management_Web",
+      "access": {
+        "not_applicable": false,
+        "read_write": true,
+        "read_only": false
+      }
+    }
+  ]
+}
+]
+
+const mockStore = configureStore([]);
+const store = mockStore({
+  UserDetailsSource: {
+    userDetails: null,
+    error: null,
+    navbarData : null
+  },
+  dashboard:{
+    navbarData: roleObject
+  }
+  
+});
+applyMiddleware(sagaMiddleware)
+
+
+
+describe("Run UserManagement test cases", () => {
+
+  beforeAll(() => {
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: jest.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: jest.fn(), // Deprecated
+        removeListener: jest.fn(), // Deprecated
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+        dispatchEvent: jest.fn(),
+      })),
+    });
+  });
+  const useSelectorMock = jest.spyOn(reactRedux, 'useSelector')
+  const useDispatchMock = jest.spyOn(reactRedux, 'useDispatch')
+
+  afterEach(() => {
+    cleanup();
+    useSelectorMock.mockClear()
+    useDispatchMock.mockClear()
+  })
+
+  afterAll(() => {
+    jest.clearAllMocks();
+  })
+
+
+
+  test('renders the landing page', () => {
+    <Provider store={store}>
+      <Router>
+        <UserManagement />
+      </Router>
+    </Provider>
+    const { queryByTestId } = render(<Provider store={store} >
+      <UserManagement />
+    </Provider>);
+    expect(queryByTestId("userManagementPage")).toBeDefined();
+  });
+
+  it("render usermanagement page ", () => {
+    const store1 = mockStore({
+      UserDetailsSource: {
+        userDetails: userManagementData,
+        error: null,
+      },
+      dashboard:{
+        navbarData: roleObject
+      }
+    });
+    <Provider store={store1}>
+      <Router>
+        <UserManagement />
+      </Router>
+    </Provider>
+    const { queryByTestId } = render(<Provider store={store} >
+      <UserManagement />
+    </Provider>);
+    expect(queryByTestId("userManagementPage")).toBeDefined();
+  });
+
+  it('"Select screen department" button is click', () => {
+    const mockHandleClick = jest.fn();
+
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const button = queryByTestId('selectButtondept');
+
+    fireEvent.click(button);
+
+
+  });
+  it('"Select screen Costcenter" button is click', () => {
+    const mockHandleClick = jest.fn();
+
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const button = queryByTestId('selectButtoncost');
+
+    fireEvent.click(button);
+
+
+  });
+  it('"Select screen Role" button is click', () => {
+    const mockHandleClick = jest.fn();
+
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const button = queryByTestId('selectButtonrole');
+
+    fireEvent.click(button);
+
+
+  });
+  it('Textarea Username', () => {
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const textarea = screen.queryByTestId('username');
+    fireEvent.change(textarea, { target: { value: 'Username' } });
+    expect(textarea.value).toBe('Username');
+  });
+
+  it('Textarea win2kid', () => {
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const textarea = screen.queryByTestId('win2kid');
+    fireEvent.change(textarea, { target: { value: 'Win2kid' } });
+    expect(textarea.value).toBe('Win2kid');
+  });
+  it('Textarea Email', () => {
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const textarea = screen.queryByTestId('email');
+    fireEvent.change(textarea, { target: { value: 'Email' } });
+    expect(textarea.value).toBe('Email');
+  });
+  it('Textarea Staffid', () => {
+    const { queryByTestId } = render(
+      <Provider store={store} >
+        {/* <Router> */}
+        <UserManagement />
+        {/* </Router> */}
+      </Provider>
+    );
+    const textarea = screen.queryByTestId('staffid');
+    fireEvent.change(textarea, { target: { value: 'Staffid' } });
+    expect(textarea.value).toBe('Staffid');
+  });
+
+  it('resetbutton click', async () => {
+    const store1 = mockStore({
+      UserDetailsSource: {
+        userDetails: userManagementData,
+        error: null,
+      },
+      dashboard:{
+        navbarData: roleObject
+      }
+    });
+    render(
+      <Provider store={store1} >
+        <UserManagement />
+      </Provider>);
+    const addBtn = screen.getByTestId("addbutton")
+    fireEvent.click(addBtn)
+    const button = screen.getByTestId("resetButton")
+    fireEvent.click(button)
+    // jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it('edit button click', async () => {
+    const store1 = mockStore({
+      UserDetailsSource: {
+        userDetails: userManagementData,
+        error: null,
+      },
+      dashboard:{
+        navbarData: roleObject
+      }
+    });
+    render(
+      <Provider store={store1} >
+        <UserManagement />
+      </Provider>);
+    const addBtn = screen.getByTestId("editbutton")
+    fireEvent.click(addBtn)
+    // jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  it('cancelmodal click', async () => {
+    const store1 = mockStore({
+      UserDetailsSource: {
+        userDetails: userManagementData,
+        error: null,
+      },
+      dashboard:{
+        navbarData: roleObject
+      }
+    });
+    render(
+      <Provider store={store1} >
+        <UserManagement />
+      </Provider>);
+    const addBtn = screen.getByTestId("cancelModal")
+    fireEvent.click(addBtn)
+    // jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+
+
+})
+
+
