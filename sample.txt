@@ -12,46 +12,16 @@ switch (ColorVarible) {
       (blackColor = "#000");
 
     break;
-
-    headerColorTheme = "#015B25";
-    headerLabelColor = "#FFFFFF";
-    searchDropdownBorderColor = "#015B25";
-    tableHeaderBgColor = "#015B25";
-    tableHeaderTextColor = "#FFFFFF";
-    popupBgColor = "#015B25";
-    notificationPeriodSelectBgColor = "#3E8518";
-    notificationPeriodCountColor = "#015B25";
-    commonColorTheme = "#015B25";
-    languageOptionBg = "#abfecc";
-    menuItemHover = "#e6fff0";
-    tableCheckboxUncheckedBorderColor = "#9AA7CE";
-    columnsSelected = "#E4EBFF";
-    menuUnSelctedViewOptionBg = "#3E8518";
-    orHeaderBg = "#3E8518";
-    filtersBg = "#dbe4ff";
-    filterBorder = "#DBE4FE";
-    unSelectedQuick = "#DBE4FF";
-    customButtonContainer = "#F0F0F0";
-    loginButtonBg = "#027430";
-    notificationTabHeaderColor = "#015B25";
-    notificationSeperator = "#BDBDBD";
-    notificationSearchBox = "rgb(17, 105, 71)";
-    lineColor = "#3E8518";
-    searchIconBorder = "#8e94a6";
-    pinIconColor = "#8e94a6";
-    mapBorderColor = "#3E8518";
-    loginAvianaColor = "#015B25";
-    break;
+    
   default:
     break;
 }
 
 const GlobalColor = {
- primaryColor,
+  primaryColor,
   SecondaryColor,
   whiteColor,
-  blackColor
- 
+  blackColor,
 };
 
 export default GlobalColor;
