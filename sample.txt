@@ -1,27 +1,16 @@
-import { ColorVarible } from "./tenantConfig";
-let primaryColor = "",
-  SecondaryColor = "",
-  whiteColor = "#fff",
-  blackColor = "";
+export type TenantConfig = "airCraftAi" | "default";
+const ASSET_FOLDER = "airCraftAi";
 
-switch (ColorVarible) {
-  case "airCraftAi":
-    (primaryColor = ""),
-      (SecondaryColor = ""),
-      (whiteColor = "#fff"),
-      (blackColor = "#000");
-
-    break;
-    
-  default:
-    break;
-}
-
-const GlobalColor = {
-  primaryColor,
-  SecondaryColor,
-  whiteColor,
-  blackColor,
+// JSON Files Mapping
+const jsonFiles: any = {
+  airCraftAi: {
+    // mapData: require("../assets/jsons/mapData.json"),
+    //import json here
+  },
 };
 
-export default GlobalColor;
+// Images Mapping //svg add .default for geting actual path
+
+
+// Function to Get JSON Data
+export const getJsonData = (key: any) => jsonFiles[ASSET_FOLDER]?.[key] || null;
