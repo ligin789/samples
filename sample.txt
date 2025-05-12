@@ -1,16 +1,16 @@
 export type TenantConfig = "airCraftAi" | "default";
 const ASSET_FOLDER = "airCraftAi";
 
-// JSON Files Mapping
-const jsonFiles: any = {
+
+// Images Mapping //svg add .default for geting actual path
+const imageFiles: any = {
   airCraftAi: {
-    // mapData: require("../assets/jsons/mapData.json"),
-    //import json here
+    closeButton: require("../assets/images/closeButton.png"),
+    //import img like this use svg
   },
 };
 
-// Images Mapping //svg add .default for geting actual path
 
 
-// Function to Get JSON Data
-export const getJsonData = (key: any) => jsonFiles[ASSET_FOLDER]?.[key] || null;
+// Function to Get Image Path
+export const getImage = (key: any) => imageFiles[ASSET_FOLDER]?.[key] || null;
