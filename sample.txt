@@ -1,253 +1,62 @@
-[
-  {
-    "flightStation": "BOS",
-    "flights": [
-      {
+ const flights = [
+    
+    {
+      id: "flight1",
+      origin: [ -71.056804,42.35888],
+      destination: [-77.032, 38.913],
+      speed: 10000,
+      distance: 5000,
+      time: 360,
+    },
+    {
+      id: "flight2",
+      origin: [-80.1918, 25.7617],
+      destination: [-73.935242, 40.73061],
+      speed: 700,
+      distance: 3490,
+      time: 300,
+    },
+    {
+      id: "flight3",
+      origin: [-118.2437, 34.0522],
+      destination: [-95.3698, 29.7604],
+      speed: 400,
+      distance: 2000,
+      time: 260,
+    },
+  ];
+  const flights2 = [
+   {
         "carrierCode": "XA",
+        "id": "XA",
         "flightNumber": "119",
         "origin": [-71.056804, 42.35888],
         "destination": [-122.419359, 37.779238],
         "speed": 10000,
         "distance": 5000,
         "time": 360,
-        "widgetAttributes": {
-          "mainStation": "BOS",
-          "#stationList": [
-            {
-              "name": "DEN",
-              "isAnyException": false
-            },
-            {
-              "name": "MSP",
-              "isAnyException": false
-            },
-            {
-              "name": "BOS",
-              "isAnyException": true,
-              "exceptionType": "MxD"
-            },
-            {
-              "name": "DEN",
-              "isAnyException": false
-            }
-          ],
-          "tailNumber": "N-3672",
-          "aircraftType": "737",
-          "actGroundTime": null,
-          "schGroundTime": "75",
-          "tasksCompleted": 1,
-          "totalTasks": 3,
-          "defectsFixed": 1,
-          "totalDefects": 1,
-          "carrierCode": "XA",
-          "flightNo": "119",
-          "departureStation": "BOS",
-          "actDepTime": null,
-          "schDepTime": "2025-05-16T06:16:42.246Z",
-          "paxConx": 13,
-          "crewConx": 4
-        }
+       
       },
       {
         "carrierCode": "XA",
+        "id": "XA",
         "flightNumber": "114",
         "origin": [-71.056804, 42.35888],
         "destination": [-105.604997, 39.190246],
         "speed": 10000,
         "distance": 5000,
         "time": 360,
-        "widgetAttributes": {
-          "mainStation": "BOS",
-          "#stationList": [
-            {
-              "name": "DEN",
-              "isAnyException": false
-            },
-            {
-              "name": "OMA",
-              "isAnyException": true,
-              "exceptionType": "DIV"
-            },
-            {
-              "name": "MSP (BOS)",
-              "isAnyException": false
-            },
-            {
-              "name": "IAH",
-              "isAnyException": false
-            },
-            {
-              "name": "DEN",
-              "isAnyException": false
-            }
-          ],
-          "tailNumber": "N-1234",
-          "aircraftType": "737",
-          "actGroundTime": null,
-          "schGroundTime": "75",
-          "tasksCompleted": 2,
-          "totalTasks": 3,
-          "defectsFixed": 1,
-          "totalDefects": 1,
-          "carrierCode": "XA",
-          "flightNo": "114",
-          "departureStation": "BOS",
-          "actDepTime": null,
-          "schDepTime": "2025-05-16T06:16:42.246Z",
-          "paxConx": 17,
-          "crewConx": 6
-        }
        
       },
       {
         "carrierCode": "XA",
-        "flightNumber": "114",
-        "origin": [-71.056804, 42.35888],
-        "destination": [-95.363433, 29.760496],
-        "speed": 10000,
-        "distance": 5000,
-        "time": 360,
-        "widgetAttributes": {
-          "mainStation": "BOS",
-          "#stationList": [
-            {
-              "name": "DEN",
-              "isAnyException": false
-            },
-            {
-              "name": "OMA",
-              "isAnyException": true,
-              "exceptionType": "DIV"
-            },
-            {
-              "name": "MSP (BOS)",
-              "isAnyException": false
-            },
-            {
-              "name": "IAH",
-              "isAnyException": false
-            },
-            {
-              "name": "DEN",
-              "isAnyException": false
-            }
-          ],
-          "tailNumber": "N-1234",
-          "aircraftType": "737",
-          "actGroundTime": null,
-          "schGroundTime": "75",
-          "tasksCompleted": 2,
-          "totalTasks": 3,
-          "defectsFixed": 1,
-          "totalDefects": 1,
-          "carrierCode": "XA",
-          "flightNo": "114",
-          "departureStation": "BOS",
-          "actDepTime": null,
-          "schDepTime": "2025-05-16T06:16:42.246Z",
-          "paxConx": 17,
-          "crewConx": 6
-        }
-       
+        "id": "XA",
+       "origin": [-80.1918, 25.7617],
+      "destination": [-73.935242, 40.73061],
+         "speed": 10000,
+      "distance": 5000,
+      "time": 360,
+        
       }
-    ]
-  },
-  {
-    "flightStation": "LAX",
-    "flights": [
-      {
-        "carrierCode": "XA",
-        "flightNumber": "119",
-         "origin": [-71.056804, 42.35888],
-        "destination": [-95.363433, 29.760496],
-        "speed": 10000,
-        "distance": 5000,
-        "time": 360,
-        "widgetAttributes": {
-          "mainStation": "BOS",
-          "#stationList": [
-            {
-              "name": "DEN",
-              "isAnyException": false
-            },
-            {
-              "name": "MSP",
-              "isAnyException": false
-            },
-            {
-              "name": "BOS",
-              "isAnyException": true,
-              "exceptionType": "MxD"
-            },
-            {
-              "name": "DEN",
-              "isAnyException": false
-            }
-          ],
-          "tailNumber": "N-3672",
-          "aircraftType": "737",
-          "actGroundTime": null,
-          "schGroundTime": "75",
-          "tasksCompleted": 1,
-          "totalTasks": 3,
-          "defectsFixed": 1,
-          "totalDefects": 1,
-          "carrierCode": "XA",
-          "flightNo": "119",
-          "departureStation": "BOS",
-          "actDepTime": null,
-          "schDepTime": "2025-05-16T06:16:42.246Z",
-          "paxConx": 13,
-          "crewConx": 4
-        },
-       
-      },
-      {
-        "carrierCode": "XA",
-        "flightNumber": "114",
-        "widgetAttributes": {
-          "mainStation": "BOS",
-          "#stationList": [
-            {
-              "name": "DEN",
-              "isAnyException": false
-            },
-            {
-              "name": "OMA",
-              "isAnyException": true,
-              "exceptionType": "DIV"
-            },
-            {
-              "name": "MSP (BOS)",
-              "isAnyException": false
-            },
-            {
-              "name": "IAH",
-              "isAnyException": false
-            },
-            {
-              "name": "DEN",
-              "isAnyException": false
-            }
-          ],
-          "tailNumber": "N-1234",
-          "aircraftType": "737",
-          "actGroundTime": null,
-          "schGroundTime": "75",
-          "tasksCompleted": 2,
-          "totalTasks": 3,
-          "defectsFixed": 1,
-          "totalDefects": 1,
-          "carrierCode": "XA",
-          "flightNo": "114",
-          "departureStation": "BOS",
-          "actDepTime": null,
-          "schDepTime": "2025-05-16T06:16:42.246Z",
-          "paxConx": 17,
-          "crewConx": 6
-        }
-       
-      }
-    ]
-  }
-]
+  ];
+ 
