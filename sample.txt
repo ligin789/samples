@@ -1,16 +1,230 @@
-export type TenantConfig = "airCraftAi" | "default";
-const ASSET_FOLDER = "airCraftAi";
+import "./style.css";
+import React, { useRef, useEffect, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import * as turf from "@turf/turf";
 
+mapboxgl.accessToken =
+  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
 
-// Images Mapping //svg add .default for geting actual path
-const imageFiles: any = {
-  airCraftAi: {
-    closeButton: require("../assets/images/closeButton.png"),
-    //import img like this use svg
-  },
+const MapboxMap = () => {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const routesRef = useRef([]);
+  const pointsRef = useRef({});
+  const countersRef = useRef({});
+  const speedsRef = useRef({});
+  const [disabled, setDisabled] = useState(false);
+
+  const flights = [
+    {
+      id: "flight1",
+      origin: [-122.414, 37.776],
+      destination: [-77.032, 38.913],
+      speed: 10000,
+      distance: 5000,
+      time: 360,
+    },
+    {
+      id: "flight2",
+      origin: [-80.1918, 25.7617],
+      destination: [-73.935242, 40.73061],
+      speed: 700,
+      distance: 3490,
+      time: 300,
+    },
+    {
+      id: "flight3",
+      origin: [-118.2437, 34.0522],
+      destination: [-95.3698, 29.7604],
+      speed: 400,
+      distance: 2000,
+      time: 260,
+    },
+  ];
+
+  function handleClick() {
+    flights.forEach(({ id }) => {
+      countersRef.current[id] = 0;
+      pointsRef.current[id].features[0].geometry.coordinates = flights.find(
+        (f) => f.id === id
+      ).origin;
+      map.current.getSource(id).setData(pointsRef.current[id]);
+      animate(id);
+    });
+    setDisabled(true);
+  }
+
+  function animate(flightId) {
+    const route = routesRef.current.find((f) => f.id === flightId);
+    if (!route) return;
+
+    const { speed } = speedsRef.current[flightId];
+    const counter = countersRef.current[flightId];
+
+    if (counter >= speed) {
+      setDisabled(false);
+      return;
+    }
+
+    const start = route.features[0].geometry.coordinates[counter];
+    const end = route.features[0].geometry.coordinates[counter + 1];
+
+    if (!start || !end) return;
+
+    pointsRef.current[flightId].features[0].geometry.coordinates = start;
+    pointsRef.current[flightId].features[0].properties.bearing = turf.bearing(
+      turf.point(start),
+      turf.point(end)
+    );
+
+    map.current.getSource(flightId).setData(pointsRef.current[flightId]);
+
+    countersRef.current[flightId] += 1;
+    requestAnimationFrame(() => animate(flightId));
+  }
+
+  useEffect(() => {
+    //calculate speed
+
+    flights.map((item: any) => {});
+    if (map.current) return;
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [-96, 37.8],
+      zoom: 4,
+      pitch: 0,
+      bearing: 0,
+      antialias: true,
+      projection: "mercator",
+    });
+
+    map.current.on("load", () => {
+      flights.forEach(({ id, origin, destination, speed }) => {
+        const route = {
+          id,
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: [origin, destination],
+              },
+            },
+          ],
+        };
+
+        const lineDistance = turf.length(route.features[0]);
+        const arc = [];
+        for (let i = 0; i < lineDistance; i += lineDistance / speed) {
+          const segment = turf.along(route.features[0], i);
+          arc.push(segment.geometry.coordinates);
+        }
+
+        route.features[0].geometry.coordinates = arc;
+        routesRef.current.push(route);
+        speedsRef.current[id] = { speed };
+
+        map.current.addSource(id + "-route", { type: "geojson", data: route });
+        map.current.addLayer({
+          id: id + "-route",
+          source: id + "-route",
+          type: "line",
+          paint: { "line-width": 4, "line-color": "#FF1D00" ,"line-dasharray":[2,1]},
+        });
+
+        const point = {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              properties: {},
+              geometry: { type: "Point", coordinates: origin },
+            },
+          ],
+        };
+
+        pointsRef.current[id] = point;
+        countersRef.current[id] = 0;
+
+        map.current.addSource(id, { type: "geojson", data: point });
+        map.current.addLayer({
+          id: id,
+          source: id,
+          type: "symbol",
+          layout: {
+            "icon-image": "airport",
+            "icon-size": 1.5,
+            "icon-rotate": ["get", "bearing"],
+            "icon-rotation-alignment": "map",
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+          },
+        });
+      });
+
+      // **ADDING RED DOTS FOR ORIGINS & DESTINATIONS**
+      const redDotFeatures = flights.flatMap(({ origin, destination }) => [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: origin },
+          properties: {},
+        },
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: destination },
+          properties: {},
+        },
+      ]);
+
+      map.current.addSource("red-dots", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: redDotFeatures },
+      });
+
+      map.current.addLayer({
+        id: "red-dots-layer",
+        type: "circle",
+        source: "red-dots",
+        paint: {
+          "circle-radius": 5,
+          "circle-color": "#FF1D00",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#fff",
+        },
+      });
+
+      // Start animation
+      flights.forEach(({ id }) => animate(id));
+    });
+  }, []);
+
+  return (
+    <div>
+      <div ref={mapContainer} className="map-container" />
+      <div
+        style={{ position: "absolute", top: "10px", left: "10px", zIndex: 900 }}
+      >
+        {/* <button
+                    disabled={disabled}
+                    style={{
+                        backgroundColor: disabled ? '#f5f5f5' : '#3386c0',
+                        color: disabled ? '#c3c3c3' : '#fff',
+                        padding: '10px 20px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '3px'
+                    }}
+                    onClick={handleClick}
+                >
+                    Replay
+                </button> */}
+      </div>
+    </div>
+  );
 };
 
-
-
-// Function to Get Image Path
-export const getImage = (key: any) => imageFiles[ASSET_FOLDER]?.[key] || null;
+export default MapboxMap;
