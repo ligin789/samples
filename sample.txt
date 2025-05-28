@@ -1,316 +1,976 @@
-import { useEffect, useState } from "react";
-import HomeComponent from "./HomeComponent";
-import Header from "../../components/header";
-import { Dashboard } from "../../components/dahboard";
-import homeComponentDataJson from "../../assets/jsons/flightCard.json";
-import resolverComponentData from "../../assets/jsons/swapJson.json";
-import ResolverComponent from "../resolverScreen/index";
-import DashboardColored from "../../components/dashboardColored/dashboardColoredComponent";
-import { filterFlightData } from "../../utils/datafilterCommon";
-import data from "../../assets/jsons/data.json";
-import moment from "moment";
-
-let checker = true;
-let filter = false;
-const index = () => {
-  useEffect(() => {
-    checker = true;
-  }, [window.location.pathname]);
-
-  const homeComponentData = homeComponentDataJson;
-  const [tab, setTab] = useState(1);
-  const [runResolver, setRunResolver] = useState(false);
-  const [selectedStation, setSelectedStation] = useState("ALL");
-  const [showPopup, setShowPopup] = useState(false);
-  const [popupData, setPopupData] = useState<any>(null);
-  const [resolveOptionData, setResolveOptionData] = useState<any>(null);
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [stationData, setStationData] = useState();
-  const [airlineData, setAirlineData] = useState();
-  const [tailData, setTailData] = useState<any>([]);
-  const [flightData, setFlightData] = useState<any>([]);
-  const [filterdData, setFilterdData] = useState<any>(null);
-  const [dashbordData, setDashboradData] = useState<any>(null);
-  const [isGanttClicked, setIsGanttClicked] = useState(false);
-
-  useEffect(() => {
-    const formatStartDate = moment().format("YYYY-MM-DDT13:20:00Z"); // 'YYYY-MM-DDTHH:MM'
-    const formatEndDate = moment().add(1, "day").format("YYYY-MM-DDT13:20:00Z"); // 'YYYY-MM-DDTHH:MM'
-    setStartDate(formatStartDate);
-    setEndDate(formatEndDate);
-    setTimeout(() => {
-      setTab(0);
-    }, 10);
-  }, []);
-  useEffect(() => {
-    if(data)
+[
     {
-      
-    }
-    //set station data for header
-    const airLineDataLocal: any = [
-      { value: "ALL", isSelected: true },
-      ...Array.from(
-        new Set(
-          data.flatMap((option: any) =>
-            Array.isArray(option.flights)
-              ? option.flights.map(
-                  (subOption: any) =>
-                    subOption.carrierCode + subOption.flightNumber
-                )
-              : []
-          )
-        )
-      ).map((value) => ({ value, isSelected: false })),
-    ];
-    const stationDataLocal: any = [
-      { value: "ALL", isSelected: true },
-      ...Array.from(
-        new Set(
-          data.flatMap((option: any) =>
-            Array.isArray(option.flights)
-              ? option.flights.map((subOption: any) => option.baseStation)
-              : []
-          )
-        )
-      ).map((value) => ({ value, isSelected: false })),
-    ];
-    setStationData(stationDataLocal);
-    setAirlineData(airLineDataLocal);
-  }, [data]);
-  useEffect(() => {
-    console.log("useEffect");
-    if (checker && tailData.length > 0) {
-      checker = false;
-      let selectedTail = tailData
-        .filter((item: any) => item.isSelected)
-        .map((ite: any) => ite.value);
-      let selectedFlight = flightData
-        .filter((item: any) => item.isSelected)
-        .map((ite: any) => ite.value);
-      let selectedAirline = airlineData
-        .filter((item: any) => item.isSelected)
-        .map((ite: any) => ite.value);
-      let prepareFilterdata = filterFlightData(
-        data,
-        selectedStation,
-        selectedAirline[0],
-        selectedTail[0],
-        selectedFlight[0]
-      );
-      setFilterdData(prepareFilterdata);
-    }
-  }, [data, tailData, airlineData, selectedStation, flightData]);
-
-  useEffect(() => {
-    // if(checker&& filterdData){
-    // checker=false
-    if (!filter) {
-      // filter=false
-      const { flights, tails } = extractFlightAndTailOptions(filterdData);
-      setFlightData(flights);
-      setTailData(tails);
-    }
-
-    // }
-    const dashboard = dashboardData(filterdData);
-
-    setDashboradData(dashboard);
-  }, [filterdData]);
-
-  useEffect(() => {
-    if (runResolver) {
-      let data = resolverComponentData.filter(
-        (item) => item.baseStation === selectedStation
-      );
-      console.log(data, "popupData");
-      setPopupData(data?.[0]?.options);
-      setResolveOptionData(data);
-    }
-  }, [selectedStation, runResolver, resolverComponentData]);
-
-  const showPopupFunction = (data: any) => {
-    console.log(data);
-    // setPopupData(data)
-    setShowPopup((prev) => !prev);
-  };
-  const resolveClickFunction = () => {
-    setRunResolver(true);
-  };
-  const statusData = [
-    { label: "PUBLISHED", value: 6, color: "#249015" },
-    { label: "ADVISED", value: 4, color: "#F5760B" },
-    { label: "PENDING", value: 3, color: "#E63B3B" },
-    { label: "TOTAL", value: 13, color: "#2B2B2B" },
-  ];
-  const statusData2 = [
-    { label: "MAX DELAY", value: 60, color: "#E63B3B" },
-    { label: "MIN DELAY", value: 10, color: "#F5760B" },
-    { label: "AVG. DELAY", value: 20, color: "#2B2B2B" },
-  ];
-  const extractFlightAndTailOptions = (data: any) => {
-    const flightSet: any = new Set();
-    const tailSet: any = new Set();
-
-    data?.forEach((item: any) => {
-      item.flights.forEach((flight: any) => {
-        flightSet.add(flight.carrierCode + flight.flightNumber);
-        tailSet.add(flight.tailNumber);
-      });
-
-      // item.alternateTails.forEach(alt => {
-      //   flightSet.add(alt.carrierCode+alt.flightNumber);
-      //   tailSet.add(alt.tailNumber);
-      // });
-    });
-    const flights = [
-      { value: "ALL", isSelected: true },
-      ...Array.from(flightSet).map((f) => ({ value: f, isSelected: false })),
-    ];
-
-    const tails = [
-      { value: "ALL", isSelected: true },
-      ...Array.from(tailSet).map((t) => ({ value: t, isSelected: false })),
-    ];
-
-    return { flights, tails };
-  };
-  const dashboardData = (data: any) => {
-    const tailSet = new Set();
-    let totalFlights = 0;
-    let paxConnection = 0;
-    let crewConnection = 0;
-
-    data?.forEach((entry: any) => {
-      entry.flights.forEach((flight: any) => {
-        if (flight.tailNumber) {
-          tailSet.add(flight.tailNumber);
+      "baseStation": "DAL",
+      "flights": [
+        {
+          "carrierCode": "XA",
+          "flightNumber": "760",
+          "aircraftType": "737",
+          "tailNumber": "N-1234",
+          "id": "flight1",
+          "origin": [
+              -96.84005236737103,
+              32.846864565192085
+            ],
+            "destination": [
+                -84.43314464438126,
+              33.634355831555936
+            ],
+          "speed": 10000,
+          "distance": 5000,
+          "time": 360,
+        
+            "ganttData": {
+              "aircraftNo": "N-1234",
+              "flightData": [
+                {
+                  "startTime": "2025-05-28T10:35:00Z",
+                  "endTime": "2025-05-28T13:50:00Z",
+                  "estArrTime": "2025-05-28T10:35:00Z",
+                  "schArrTime": "2025-05-28T10:35:00Z",
+                  "estDepTime": "2025-05-28T13:50:00Z",
+                  "schDepTime": "2025-05-28T13:50:00Z",
+                  "flightNo": "XA110",
+                  "aircraftType": "737",
+                  "inBoundStn": "DEN",
+                  "outBoundStn": "DAL",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"160",
+                  "shedGrounTime":"100 mins"
+                },
+                {
+                  "startTime": "2025-05-28T15:30:00Z",
+                  "endTime": "2025-05-28T17:30:00Z",
+                  "estArrTime": "2025-05-28T16:30:00Z",
+                  "schArrTime": "2025-05-28T15:30:00Z",
+                  "estDepTime": "2025-05-28T17:30:00Z",
+                  "schDepTime": "2025-05-28T17:30:00Z",
+                  "flightNo": "XA760",
+                  "inBoundStn": "DAL",
+                  "outBoundStn": "ATL",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "OT",
+                  "anamolyColor": "#C90E0E",
+                  "popupData":"ALC: 0, Maintenance delay by 60 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-28T18:50:00Z",
+                  "endTime": "2025-05-28T20:20:00Z",
+                  "estArrTime": "2025-05-28T18:50:00Z",
+                  "schArrTime": "2025-05-28T18:50:00Z",
+                  "estDepTime": "2025-05-28T20:20:00Z",
+                  "schDepTime": "2025-05-28T20:20:00Z",
+                  "flightNo": "XA125",
+                  "inBoundStn": "ATL",
+                  "outBoundStn": "MCO",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OUT",
+                  "depFlightStatus": "ON",
+                  "anamolyColor": "#097FFB",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-28T21:35:00Z",
+                  "endTime": "2025-05-28T23:45:00Z",
+                  "estArrTime": "2025-05-28T21:35:00Z",
+                  "schArrTime": "2025-05-28T21:35:00Z",
+                  "estDepTime": "2025-05-28T23:45:00Z",
+                  "schDepTime": "2025-05-28T23:45:00Z",
+                  "flightNo": "XA686",
+                  "inBoundStn": "MCO",
+                  "outBoundStn":"DEN", 
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "ON",
+                  "anamolyColor": "#097FFB",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                }
+              ]
+            }
+        },
+        {
+          "carrierCode": "XA",
+          "flightNumber": "668",
+          "aircraftType": "737",
+          "tailNumber": "N-3672",
+          "id": "flight2",
+          "origin": [
+              -96.84005236737103,
+              32.846864565192085
+            ],
+            "destination": [
+             -104.67656675425908,
+                39.85717204654732
+            ],
+          "speed": 10000,
+          "distance": 5000,
+          "time": 360,
+          
+            "ganttData": {
+              "aircraftNo": "N-3672",
+              "flightData": [
+                {
+                  "startTime": "2025-05-28T10:15:00Z",
+                  "endTime": "2025-05-28T15:00:00Z",
+                  "estArrTime": "2025-05-28T10:20:00Z",
+                  "schArrTime": "2025-05-28T10:15:00Z",
+                  "estDepTime": "2025-05-28T15:00:00Z",
+                  "schDepTime": "2025-05-28T15:00:00Z",
+                  "flightNo": "XA662 (MSY)",
+                  "inBoundStn": "LAS",
+                  "outBoundStn": "DAL",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "#FF9D00",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"45",
+                  "shedGrounTime":"45 mins"
+                },
+                {
+                  "startTime": "2025-05-28T15:45:00Z",
+                  "endTime": "2025-05-28T18:15:00Z",
+                  "estArrTime": "2025-05-28T15:45:00Z",
+                  "schArrTime": "2025-05-28T15:45:00Z",
+                  "estDepTime": "2025-05-28T18:15:00Z",
+                  "schDepTime": "2025-05-28T18:10:00Z",
+                  "flightNo": "XA668",
+                  "inBoundStn": "DAL",
+                  "outBoundStn": "DEN",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "ON",
+                  "depFlightStatus": "OUT",
+                  "anamolyColor": "#C90E0E",
+                  "popupData":"ALC : 0, Previous flight XA662 got diverted to MSY",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-28T21:10:00Z",
+                  "endTime": "2025-05-28T22:50:00Z",
+                  "estArrTime": "2025-05-28T21:10:00Z",
+                  "schArrTime": "2025-05-28T21:10:00Z",
+                  "estDepTime": "2025-05-28T22:50:00Z",
+                  "schDepTime": "2025-05-28T22:50:00Z",
+                  "flightNo": "XA678",
+                  "inBoundStn": "DEN",
+                  "outBoundStn":"SFO", 
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "ON",
+                  "depFlightStatus": "OT",
+                  "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-29T05:40:00Z",
+                  "endTime": "2025-05-29T07:10:00Z",
+                  "estArrTime": "2025-05-29T05:40:00Z", 
+                  "schArrTime": "2025-05-29T05:40:00Z",
+                  "estDepTime":"2025-05-29T07:10:00Z",
+                  "schDepTime": "2025-05-29T07:10:00Z",
+                  "flightNo": "XA522",
+                  "inBoundStn": "SFO",
+                  "outBoundStn": "LAS",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "ON",
+                  "depFlightStatus": "OT",
+                  "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                }
+              ]
+            }
+        },
+        {
+          "carrierCode": "XA",
+          "flightNumber": "723",
+          "aircraftType": "737",
+          "tailNumber": "N-6583",
+          "id": "flight3",
+          "origin": [
+              -96.84005236737103,
+              32.846864565192085
+            ],
+            "destination": [
+              -110.93922690453243,
+              32.11475552769886
+            ],
+          "speed": 10000,
+          "distance": 5000,
+          "time": 360,
+         
+          "ganttData": {
+            "aircraftNo": "N-6583",
+            "flightData": [
+              {
+                "startTime": "2025-05-28T10:50:00Z",
+                "endTime": "2025-05-28T15:20:00Z",
+                "estArrTime": "2025-05-28T10:50:00Z",
+                "schArrTime": "2025-05-28T10:50:00Z",
+                "estDepTime": "2025-05-28T15:20:00Z",
+                "schDepTime": "2025-05-28T14:20:00Z",
+                "flightNo": "XA721",
+                "inBoundStn": "AUS",
+                "outBoundStn": "DAL",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": true,
+                "arrFlightStatus": "CNL",
+                "depFlightStatus": "OFF",
+                "anamolyColor": "#FF9D00",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"90",
+                  "shedGrounTime":"90 mins"
+              },
+              {
+                "startTime": "2025-05-28T15:50:00Z",
+                "endTime": "2025-05-28T18:50:00Z",
+                "estArrTime": "2025-05-28T16:50:00Z",
+                "schArrTime": "2025-05-28T15:50:00Z",
+                "estDepTime": "2025-05-28T18:50:00Z",
+                "schDepTime": "2025-05-28T18:50:00Z",
+                "flightNo": "XA723",
+                "inBoundStn": "DAL",
+                "outBoundStn": "TUS",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "IN",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#C90E0E",
+                  "popupData":"ALC: 0,XA721 Arrival delay by 60 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              },
+              {
+                "startTime": "2025-05-28T19:20:00Z",
+                "endTime": "2025-05-28T20:10:00Z",
+                "estArrTime": "2025-05-28T19:20:00Z",
+                "schArrTime": "2025-05-28T19:20:00Z",
+                "estDepTime": "2025-05-28T20:10:00Z",
+                "schDepTime": "2025-05-28T20:10:00Z",
+                "flightNo": "XA789",
+                "inBoundStn": "TUS",
+                "outBoundStn": "LAX",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OT",
+                "depFlightStatus": "OT",
+                "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              },
+              {
+                "startTime": "2025-05-28T20:40:00Z",
+                "endTime": "2025-05-28T21:50:00Z",
+                "estArrTime": "2025-05-28T20:40:00Z",
+                "schArrTime": "2025-05-28T20:40:00Z",
+                "estDepTime": "2025-05-28T21:50:00Z",
+                "schDepTime": "2025-05-28T21:50:00Z",
+                "flightNo": "XA437",
+                "inBoundStn": "LAX",
+                "outBoundStn":"PHX", 
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "IN",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              },
+              {
+                "startTime": "2025-05-29T05:30:00Z",
+                "endTime": "2025-05-29T09:50:00Z",
+                "estArrTime": "2025-05-29T05:30:00Z",
+                "schArrTime": "2025-05-29T05:30:00Z",
+                "estDepTime": "2025-05-29T09:50:00Z",
+                "schDepTime": "2025-05-29T09:50:00Z",
+                "flightNo": "XA439",
+                "inBoundStn": "PHX", 
+                "outBoundStn":"DAL",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "IN",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              }
+            ]
+          }
         }
-
-        const stationList = flight.widgetAttributes?.["#stationList"] || [];
-        totalFlights += Math.max(0, stationList.length - 1);
-
-        paxConnection += flight.widgetAttributes?.paxConx || 0;
-        crewConnection += flight.widgetAttributes?.crewConx || 0;
-      });
-    });
-
-    return {
-      totalTails: tailSet.size,
-      totalFlights,
-      paxConnection,
-      crewConnection,
-      totalConnection: paxConnection + crewConnection,
-    };
-  };
-  return (
-    <>
-      <div
-        style={{
-          height:
-            tab === 1 && isGanttClicked ? "90px" : tab === 2 ? "90px" : "160px",
-          zoom: "var(--zoomPercentage)",
-        }}
-      >
-        <Header
-          startDate={startDate}
-          endDate={endDate}
-          stationData={stationData}
-          checker={checker}
-          airlineData={airlineData}
-          setStartDate={(value: any) => {
-            setStartDate(value);
-          }}
-          setEndDate={(value: any) => {
-            setEndDate(value);
-          }}
-          setStationData={(value: any) => {
-            setFilterdData(data);
-            setStationData(value);
-            checker = true;
-            filter = false;
-            setTailData([]);
-          }}
-          setAirlineData={(value: any) => {
-            setFilterdData(data);
-            setAirlineData(value);
-            checker = true;
-            filter = false;
-            setFilterdData(data);
-          }}
-          showPopupFunction={showPopupFunction}
-          setTab={(tabValue: number) => {
-            setTab(tabValue);
-            setRunResolver(false);
-          }}
-          tab={tab}
-          setSelectedStation={setSelectedStation}
-        />
-        {tab !== 2 &&
-          (!runResolver ? (
-            tab === 1 && isGanttClicked ? null : (
-              <Dashboard
-                tailData={tailData}
-                flightData={flightData}
-                setTailData={(value: any) => {
-                  console.log(value, "value");
-                  setFilterdData(data);
-                  setTailData(value);
-                  checker = true;
-                  filter = true;
-                }}
-                setFlightData={(value: any) => {
-                  setFlightData(value);
-                  checker = true;
-                  filter = true;
-                  setFilterdData(data);
-                }}
-                dashbordData={dashbordData}
-              />
-            )
-          ) : (
-            <div className="coloredDashboardContainer">
-              <div className="coloredDashboard">
-                {" "}
-                <DashboardColored data={statusData} />
-              </div>
-              <div className="coloredDashboard">
-                {" "}
-                <DashboardColored data={statusData2} />
-              </div>
-            </div>
-          ))}
-      </div>
-
-      {!runResolver || tab != 1 ? (
-        <HomeComponent
-          filterdData={!checker ? filterdData : []}
-          showPopupFunction={showPopupFunction}
-          resolveClickFunction={resolveClickFunction}
-          runResolver={runResolver}
-          flightcardJson={homeComponentData}
-          tab={tab}
-          selectedStation={selectedStation}
-          showPopup={showPopup}
-          isGanttClicked={isGanttClicked}
-          setIsGanttClicked={setIsGanttClicked}
-        />
-      ) : (
-        <ResolverComponent
-          popupData={popupData}
-          setPopupData={setPopupData}
-          showPopupFunction={showPopupFunction}
-          resolveClickFunction={resolveClickFunction}
-          runResolver={runResolver}
-          flightcardJson={resolveOptionData}
-          tab={tab}
-          selectedStation={selectedStation}
-          showPopup={showPopup}
-        />
-      )}
-    </>
-  );
-};
-
-export default index;
+      ],
+      "alternateTails": [
+        {
+          "carrierCode": "XA",
+          "flightNumber": "539",
+          "aircraftType": "737",
+          "tailNumber": "N-5217",
+          "widgetAttributes": {
+            "mainStation": "DAL",
+            "#stationList": [
+              {
+                  "name": "DAL -",
+                  "isAnyException": false
+                },
+              {
+                  "name": "ATL -",
+                  "isAnyException": false
+              },
+              {
+                "name": "DEN -",
+                "isAnyException": false
+              },
+              {
+                "name": "DAL",
+                "isAnyException": false
+              }
+            ],
+            "tailNumber": "N-5217",
+            "aircraftType": "737",
+            "actGroundTime": "60",
+            "schGroundTime": "60",
+            "tasksCompleted": 0,
+            "totalTasks": 2,
+            "defectsFixed": 0,
+            "totalDefects": 1,
+            "carrierCode": "XA",
+            "flightNo": "539",
+            "departureStation": "DAL",
+            "actDepTime": null,
+            "schDepTime": "2025-05-28T14:29:42.246Z",
+            "paxConx": 13,
+            "crewConx": 4
+          },
+         
+          "ganttData": {
+            "aircraftNo": "N-5217",
+            "flightData": [
+              {
+                "startTime": "2025-05-28T15:29:00Z",
+                "endTime": "2025-05-28T18:40:00Z",
+                "estArrTime": "2025-05-28T15:40:00Z",
+                "schArrTime": "2025-05-28T15:29:00Z",
+                "estDepTime": "2025-05-28T18:40:00Z",
+                "schDepTime": "2025-05-28T18:40:00Z",
+                "flightNo": "XA666",
+                "inBoundStn": "DEN",
+                "outBoundStn": "DAL",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OT",
+                "depFlightStatus": "DYLD",
+                "anamolyColor": "#0481FD"
+              }
+            ]
+          }
+        },
+        {
+          "carrierCode": "XA",
+          "flightNumber": "709",
+          "aircraftType": "737",
+          "tailNumber": "N-7874",
+          
+          "ganttData": {
+            "aircraftNo": "N-7874",
+            "flightData": [
+              {
+                  "startTime": "2025-05-28T13:29:00Z",
+                  "endTime": "2025-05-28T15:40:00Z",
+                  "estArrTime":"2025-05-28T13:40:00Z", 
+                  "schArrTime": "2025-05-28T13:29:00Z",
+                  "estDepTime": "2025-05-28T15:40:00Z",
+                  "schDepTime": "2025-05-28T15:40:00Z",
+                  "flightNo": "XA705",
+                  "inBoundStn":"LAX", 
+                  "outBoundStn":"DAL",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "#0481FD"
+                },
+              {
+                "startTime": "2025-05-28T16:29:00Z",
+                "endTime": "2025-05-28T19:40:00Z",
+                "estArrTime":"2025-05-28T16:40:00Z", 
+                "schArrTime": "2025-05-28T16:29:00Z",
+                "estDepTime": "2025-05-28T19:40:00Z",
+                "schDepTime": "2025-05-28T19:40:00Z",
+                "flightNo": "XA709",
+                "inBoundStn":"DAL", 
+                "outBoundStn":"LAX",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OT",
+                "depFlightStatus": "DYLD",
+                "anamolyColor": "#0481FD"
+              }
+            ]
+          }
+        },
+        {
+          "carrierCode": "XA",
+          "flightNumber": "708",
+          "aircraftType": "737",
+          "tailNumber": "N-8122",
+          "widgetAttributes": {
+            "mainStation": "DAL",
+            "#stationList": [
+              {
+                "name": "ATL",
+                "isAnyException": false
+              },
+              {
+                "name": "DAL",
+                "isAnyException": false
+              },
+              {
+                  "name": "ATL",
+                  "isAnyException": false
+              }
+            ],
+            "tailNumber": "N-8122",
+            "aircraftType": "737",
+            "actGroundTime": "70",
+            "schGroundTime": "70",
+            "tasksCompleted": 1,
+            "totalTasks": 2,
+            "defectsFixed": 0,
+            "totalDefects": 1,
+            "carrierCode": "XA",
+            "flightNo": "708",
+            "departureStation": "DAL",
+            "actDepTime": null,
+            "schDepTime": "2025-05-28T16:10:42.246Z",
+            "paxConx": 13,
+            "crewConx": 4
+          },
+          
+          "ganttData": {
+            "aircraftNo": "N-8122",
+            "flightData": [
+              {
+                  "startTime": "2025-05-28T13:40:00Z",
+                  "endTime": "2025-05-28T16:20:00Z",
+                  "estArrTime":"2025-05-28T13:49:00Z", 
+                  "schArrTime": "2025-05-28T13:40:00Z",
+                  "estDepTime": "2025-05-28T16:20:00Z",
+                  "schDepTime": "2025-05-28T16:20:00Z",
+                  "flightNo": "XA707",
+                  "inBoundStn":"ATL", 
+                  "outBoundStn":"DAL",
+                  "baseStn": "DAL",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "#0481FD"
+                },
+              {
+                "startTime": "2025-05-28T17:10:00Z",
+                "endTime": "2025-05-28T19:40:00Z",
+                "estArrTime": "2025-05-28T17:10:00Z",
+                "schArrTime": "2025-05-28T17:10:00Z",
+                "estDepTime": "2025-05-28T19:40:00Z",
+                "schDepTime": "2025-05-28T19:40:00Z",
+                "flightNo": "XA708",
+                "inBoundStn": "DAL",
+                "outBoundStn": "ATL",
+                "baseStn": "DAL",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OT",
+                "depFlightStatus": "DYLD",
+                "anamolyColor": "#0481FD"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "baseStation": "LAX",
+      "flights": [
+        {
+          "carrierCode": "XA",
+          "flightNumber": "2303",
+          "aircraftType": "737",
+          "tailNumber": "N-7582",
+          "id": "flight4",
+          "origin": [
+              -118.40365982472672,
+              33.94290584875108
+            ],
+            "destination": [
+             -122.38177553414374,
+                37.61991070325962
+            ],
+          "speed": 10000,
+          "distance": 5000,
+          "time": 360,
+          "widgetAttributes": {
+            "mainStation": "LAX",
+            "#stationList": [
+              {
+                "name": "AUS -",
+                "isAnyException": false,
+                "color": "#666666"
+              },
+              {
+                "name": "LAX -",
+                "isAnyException": true,
+                "color": "#D12424",
+                "exceptionType": "MxD"
+              },
+              {
+                "name": "SFO -",
+                "isAnyException": false
+              },
+              {
+                "name": "DEN -",
+                "isAnyException": false
+              },
+              {
+                "name": "AUS",
+                "isAnyException": false
+              }
+            ],
+            "tailNumber": "N-7582",
+            "aircraftType": "737",
+            "actGroundTime": "190",
+            "schGroundTime": "170",
+            "tasksCompleted": 3,
+            "totalTasks": 4,
+            "defectsFixed": 0,
+            "totalDefects": 1,
+            "carrierCode": "XA",
+            "flightNo": "230",
+            "departureStation": "LAX",
+            "actDepTime": null,
+            "schDepTime": "2025-05-28T15:00:42.246Z",
+            "paxConx": 12,
+            "crewConx": 4
+          },
+        
+          "ganttData": {
+            "aircraftNo": "N-7582",
+            "flightData": [
+              {
+                "startTime": "2025-05-28T13:20:00Z",
+                "endTime": "2025-05-28T15:30:00Z",
+                "estArrTime": "2025-05-28T13:55:00Z",
+                "schArrTime": "2025-05-28T13:40:00Z",
+                "estDepTime": "2025-05-28T15:15:00Z",
+                "schDepTime": "2025-05-28T15:00:00Z",
+                "flightNo": "XA3297",
+                "aircraftType": "737",
+                "inBoundStn": "AUS",
+                "outBoundStn": "LAX",
+                "baseStn": "LAX",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OT",
+                "depFlightStatus": "DYLD",
+                "anamolyColor": "#FF9D00",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"190",
+                  "shedGrounTime":"170 mins"
+              },
+              {
+                "startTime": "2025-05-28T16:00:00Z",
+                "endTime": "2025-05-28T18:10:00Z",
+                "estArrTime": "2025-05-28T16:20:00Z",
+                "schArrTime": "2025-05-28T16:00:00Z",
+                "estDepTime": "2025-05-28T18:10:00Z",
+                "schDepTime": "2025-05-28T18:10:00Z",
+                "flightNo": "XA230",
+                "inBoundStn":"LAX", 
+                "outBoundStn": "SFO",
+                "baseStn": "LAX",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "DYLD",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#C90E0E",
+                  "popupData":"ALC: Q, Maintenance delay by 20 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              },
+              {
+                "startTime": "2025-05-28T19:10:00Z",
+                "endTime": "2025-05-28T23:30:00Z",
+                "estArrTime": "2025-05-28T19:30:00Z",
+                "schArrTime":"2025-05-28T19:10:00Z",
+                "estDepTime":"2025-05-28T23:30:00Z",
+                "schDepTime": "2025-05-28T23:25:00Z",
+                "flightNo": "XA431",
+                "inBoundStn": "SFO",
+                "outBoundStn": "DEN",
+                "baseStn": "LAX",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OUT",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#097FFB",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              },
+              {
+                "startTime": "2025-05-29T07:00:00Z",
+                "endTime": "2025-05-29T10::05:40:00Z",
+                "estArrTime": "2025-05-29T07:00:00Z",
+                "schArrTime": "2025-05-29T07:00:00Z",
+                "estDepTime": "2025-05-29T10:05:00Z",
+                "schDepTime": "2025-05-29T10:05:00Z",
+                "flightNo": "XA469",
+                "inBoundStn": "DEN",
+                "outBoundStn": "AUS",
+                "baseStn": "LAX",
+                "taxiIn": 10,
+                "taxiOut": 5,
+                "defect": false,
+                "arrFlightStatus": "OUT",
+                "depFlightStatus": "ON",
+                "anamolyColor": "#097FFB",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+              }
+            ]
+          }
+        },
+        {
+          "carrierCode": "XA",
+          "flightNumber": "432",
+          "aircraftType": "737",
+          "tailNumber": "N-9211",
+          "id": "flight5",
+          "destination": [
+              -104.67656675425908,
+                 39.85717204654732
+             ],
+              "origin": [
+               -118.40365982472672,
+               33.94290584875108
+             ],
+          "speed": 10000,
+          "distance": 5000,
+          "time": 360,
+          "widgetAttributes": {
+              "mainStation": "LAX",
+              "#stationList": [
+                {
+                  "name": "PHX -",
+                  "isAnyException": true,
+                  "exceptionType": "CNL",
+                  "color": "#666666"
+                },
+                {
+                  "name": "LAX -",
+                  "isAnyException": false,
+                  "color": "#D12424"
+                },
+                {
+                  "name": "DEN -",
+                  "isAnyException": false
+                  
+                },
+                {
+                  "name": "LAS -",
+                  "isAnyException": false
+                },
+                {
+                  "name": "PHX",
+                  "isAnyException": false
+                }
+              ],
+              "tailNumber": "N-9211",
+              "aircraftType": "737",
+              "actGroundTime": "70",
+              "schGroundTime": "70",
+              "tasksCompleted": 2,
+              "totalTasks": 3,
+              "defectsFixed": 1,
+              "totalDefects": 1,
+              "carrierCode": "XA",
+              "flightNo": "432",
+              "departureStation": "LAX",
+              "actDepTime": null,
+              "schDepTime": "2025-05-28T14:25:25.246Z",
+              "paxConx": 17,
+              "crewConx": 6
+            },
+          
+            "ganttData": {
+              "aircraftNo": "N-9211",
+              "flightData": [
+                {
+                  "startTime": "2025-05-28T09:10:00Z",
+                  "endTime": "2025-05-28T14:15:00Z",
+                  "estArrTime": "2025-05-28T09:10:00Z",
+                  "schArrTime": "2025-05-28T09:00:00Z",
+                  "estDepTime": "2025-05-28T14:15:00Z",
+                  "schDepTime": "2025-05-28T14:15:00Z",
+                  "flightNo": "XA114",
+                  "inBoundStn": "PHX",
+                  "outBoundStn": "LAX",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"70",
+                  "shedGrounTime":"70 mins"
+                },
+                {
+                  "startTime": "2025-05-28T15:25:00Z",
+                  "endTime": "2025-05-28T18:40:00Z",
+                  "estArrTime": "2025-05-28T15:25:00Z",
+                  "schArrTime":"2025-05-28T15:25:00Z",
+                  "estDepTime": "2025-05-28T18:40:00Z",
+                  "schDepTime": "2025-05-28T18:40:00Z",
+                  "flightNo": "XA432",
+                  "inBoundStn": "LAX",
+                  "outBoundStn": "DEN",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "ON",
+                  "depFlightStatus": "OUT",
+                  "anamolyColor": "#C90E0E",
+                  "popupData":"ALC : 0, Previous flight XA114 got cancelled",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-28T19:10:00Z",
+                  "endTime": "2025-05-28T20:30:00Z",
+                  "estArrTime": "2025-05-28T19:10:00Z",
+                  "schArrTime": "2025-05-28T19:10:00Z",
+                  "estDepTime": "2025-05-28T20:30:00Z",
+                  "schDepTime": "2025-05-28T20:30:00Z",
+                  "flightNo": "XA419",
+                  "inBoundStn":"DEN", 
+                  "outBoundStn": "LAS",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "IN",
+                  "depFlightStatus": "ON",
+                  "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                },
+                {
+                  "startTime": "2025-05-28T21:10:00Z",
+                  "endTime": "2025-05-28T22:45:00Z",
+                  "estArrTime": "2025-05-28T21:10:00Z",
+                  "schArrTime":"2025-05-28T21:10:00Z", 
+                  "estDepTime": "2025-05-28T22:45:00Z",
+                  "schDepTime": "2025-05-28T22:45:00Z",
+                  "flightNo": "XA421",
+                  "inBoundStn": "LAS",
+                  "outBoundStn": "PHX",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "IN",
+                  "depFlightStatus": "ON",
+                  "anamolyColor": "#0981FD",
+                  "popupData":"ALC: Q, Maintenance delay by 10 mins",
+                  "actGroundTime":"",
+                  "shedGrounTime":""
+                }
+              ]
+            }
+        }
+      ],
+      "alternateTails": [
+          {
+            "carrierCode": "XA",
+            "flightNumber": "705",
+            "aircraftType": "737",
+            "tailNumber": "N-5557",
+            "widgetAttributes": {
+              "mainStation": "LAX",
+              "#stationList": [
+                {
+                  "name": "DEN",
+                  "isAnyException": false
+                },
+                {
+                  "name": "LAX",
+                  "isAnyException": false
+                }
+              ],
+              "tailNumber": "N-5557",
+              "aircraftType": "737",
+              "actGroundTime": "60",
+              "schGroundTime": "60",
+              "tasksCompleted": 0,
+              "totalTasks": 2,
+              "defectsFixed": 0,
+              "totalDefects": 1,
+              "carrierCode": "XA",
+              "flightNo": "705",
+              "departureStation": "LAX",
+              "actDepTime": "2025-05-28T16:50:42.246Z",
+              "schDepTime": "2025-05-28T16:50:42.246Z",
+              "paxConx": 13,
+              "crewConx": 4
+            },
+         
+            "ganttData": {
+              "aircraftNo": "N-5557",
+              "flightData": [
+                {
+                  "startTime": "2025-05-28T15:29:00Z",
+                  "endTime": "2025-05-28T18:40:00Z",
+                  "estArrTime": "2025-05-28T15:40:00Z",
+                  "schArrTime": "2025-05-28T15:29:00Z",
+                  "estDepTime": "2025-05-28T18:40:00Z",
+                  "schDepTime": "2025-05-28T18:55:00Z",
+                  "flightNo": "XA705",
+                  "inBoundStn": "DEN",
+                  "outBoundStn": "LAX",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "#0481FD"
+                }
+              ]
+            }
+          },
+          {
+            "carrierCode": "XA",
+            "flightNumber": "888",
+            "aircraftType": "737",
+            "tailNumber": "N-5307",
+            "widgetAttributes": {
+              "mainStation": "LAX",
+              "#stationList": [
+                {
+                  "name": "AUS",
+                  "isAnyException": false
+                },
+                {
+                  "name": "LAX",
+                  "isAnyException": false
+                }
+              ],
+              "tailNumber": "N-5307",
+              "aircraftType": "737",
+              "actGroundTime": "60",
+              "schGroundTime": "60",
+              "tasksCompleted": 0,
+              "totalTasks": 2,
+              "defectsFixed": 0,
+              "totalDefects": 1,
+              "carrierCode": "XA",
+              "flightNo": "888",
+              "departureStation": "LAX",
+              "actDepTime": "2025-05-28T15:45:42.246Z",
+              "schDepTime": "2025-05-28T15:45:42.246Z",
+              "paxConx": 13,
+              "crewConx": 4
+            },
+           
+            "ganttData": {
+              "aircraftNo": "N-5307",
+              "flightData": [
+                {
+                  "startTime": "2025-05-28T18:29:00Z",
+                  "endTime": "2025-05-28T22:50:00Z",
+                  "estArrTime": "2025-05-28T18:40:00Z",
+                  "schArrTime":"2025-05-28T18:29:00Z", 
+                  "estDepTime": "2025-05-28T22:50:00Z",
+                  "schDepTime": "2025-05-28T22:40:00Z",
+                  "flightNo": "XA888",
+                  "inBoundStn": "AUS",
+                  "outBoundStn":"LAX",
+                  "baseStn": "LAX",
+                  "taxiIn": 10,
+                  "taxiOut": 5,
+                  "defect": false,
+                  "arrFlightStatus": "OT",
+                  "depFlightStatus": "DYLD",
+                  "anamolyColor": "#0481FD"
+                }
+              ]
+            }
+          }
+        ]
+    }
+  ]
