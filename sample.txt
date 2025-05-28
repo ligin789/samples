@@ -1,50 +1,316 @@
-import  { useState } from "react";
-import "./styles.css";
-import MapboxMap from "../../components/mapContainer";
-import GanttView from "../../components/ganttViewNew";
-import FlightCards from "../../components/flightCards";
+import { useEffect, useState } from "react";
+import HomeComponent from "./HomeComponent";
+import Header from "../../components/header";
+import { Dashboard } from "../../components/dahboard";
+import homeComponentDataJson from "../../assets/jsons/flightCard.json";
+import resolverComponentData from "../../assets/jsons/swapJson.json";
+import ResolverComponent from "../resolverScreen/index";
+import DashboardColored from "../../components/dashboardColored/dashboardColoredComponent";
+import { filterFlightData } from "../../utils/datafilterCommon";
+import data from "../../assets/jsons/data.json";
+import moment from "moment";
 
-import PopupComponent from "../../components/popup/popupComponent";
-import GanttFlightCards from "../../components/ganntFlight";
-import WorkSpaceComponent from "../../components/workspace";
+let checker = true;
+let filter = false;
+const index = () => {
+  useEffect(() => {
+    checker = true;
+  }, [window.location.pathname]);
 
-const HomeComponent = (props: any) => {
-  const { tab, selectedStation , showPopup,showPopupFunction,flightcardJson,runResolver,resolveClickFunction,filterdData,isGanttClicked, setIsGanttClicked} = props;
+  const homeComponentData = homeComponentDataJson;
+  const [tab, setTab] = useState(1);
+  const [runResolver, setRunResolver] = useState(false);
+  const [selectedStation, setSelectedStation] = useState("ALL");
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupData, setPopupData] = useState<any>(null);
+  const [resolveOptionData, setResolveOptionData] = useState<any>(null);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [stationData, setStationData] = useState();
+  const [airlineData, setAirlineData] = useState();
+  const [tailData, setTailData] = useState<any>([]);
+  const [flightData, setFlightData] = useState<any>([]);
+  const [filterdData, setFilterdData] = useState<any>(null);
+  const [dashbordData, setDashboradData] = useState<any>(null);
+  const [isGanttClicked, setIsGanttClicked] = useState(false);
 
- 
-  const [flightNo, setFlightNo] = useState("");
+  useEffect(() => {
+    const formatStartDate = moment().format("YYYY-MM-DDT13:20:00Z"); // 'YYYY-MM-DDTHH:MM'
+    const formatEndDate = moment().add(1, "day").format("YYYY-MM-DDT13:20:00Z"); // 'YYYY-MM-DDTHH:MM'
+    setStartDate(formatStartDate);
+    setEndDate(formatEndDate);
+    setTimeout(() => {
+      setTab(0);
+    }, 10);
+  }, []);
+  useEffect(() => {
+    if(data)
+    {
+      
+    }
+    //set station data for header
+    const airLineDataLocal: any = [
+      { value: "ALL", isSelected: true },
+      ...Array.from(
+        new Set(
+          data.flatMap((option: any) =>
+            Array.isArray(option.flights)
+              ? option.flights.map(
+                  (subOption: any) =>
+                    subOption.carrierCode + subOption.flightNumber
+                )
+              : []
+          )
+        )
+      ).map((value) => ({ value, isSelected: false })),
+    ];
+    const stationDataLocal: any = [
+      { value: "ALL", isSelected: true },
+      ...Array.from(
+        new Set(
+          data.flatMap((option: any) =>
+            Array.isArray(option.flights)
+              ? option.flights.map((subOption: any) => option.baseStation)
+              : []
+          )
+        )
+      ).map((value) => ({ value, isSelected: false })),
+    ];
+    setStationData(stationDataLocal);
+    setAirlineData(airLineDataLocal);
+  }, [data]);
+  useEffect(() => {
+    console.log("useEffect");
+    if (checker && tailData.length > 0) {
+      checker = false;
+      let selectedTail = tailData
+        .filter((item: any) => item.isSelected)
+        .map((ite: any) => ite.value);
+      let selectedFlight = flightData
+        .filter((item: any) => item.isSelected)
+        .map((ite: any) => ite.value);
+      let selectedAirline = airlineData
+        .filter((item: any) => item.isSelected)
+        .map((ite: any) => ite.value);
+      let prepareFilterdata = filterFlightData(
+        data,
+        selectedStation,
+        selectedAirline[0],
+        selectedTail[0],
+        selectedFlight[0]
+      );
+      setFilterdData(prepareFilterdata);
+    }
+  }, [data, tailData, airlineData, selectedStation, flightData]);
 
-  const [flightCardGanttData,setFlightCardGanttData] = useState(null)
+  useEffect(() => {
+    // if(checker&& filterdData){
+    // checker=false
+    if (!filter) {
+      // filter=false
+      const { flights, tails } = extractFlightAndTailOptions(filterdData);
+      setFlightData(flights);
+      setTailData(tails);
+    }
 
-  const handleGanttClick = (flightNum: string,data:any) => {
-    setFlightNo(flightNum)
-    setFlightCardGanttData(data)
-    setIsGanttClicked(true)
-  }
+    // }
+    const dashboard = dashboardData(filterdData);
 
+    setDashboradData(dashboard);
+  }, [filterdData]);
+
+  useEffect(() => {
+    if (runResolver) {
+      let data = resolverComponentData.filter(
+        (item) => item.baseStation === selectedStation
+      );
+      console.log(data, "popupData");
+      setPopupData(data?.[0]?.options);
+      setResolveOptionData(data);
+    }
+  }, [selectedStation, runResolver, resolverComponentData]);
+
+  const showPopupFunction = (data: any) => {
+    console.log(data);
+    // setPopupData(data)
+    setShowPopup((prev) => !prev);
+  };
+  const resolveClickFunction = () => {
+    setRunResolver(true);
+  };
+  const statusData = [
+    { label: "PUBLISHED", value: 6, color: "#249015" },
+    { label: "ADVISED", value: 4, color: "#F5760B" },
+    { label: "PENDING", value: 3, color: "#E63B3B" },
+    { label: "TOTAL", value: 13, color: "#2B2B2B" },
+  ];
+  const statusData2 = [
+    { label: "MAX DELAY", value: 60, color: "#E63B3B" },
+    { label: "MIN DELAY", value: 10, color: "#F5760B" },
+    { label: "AVG. DELAY", value: 20, color: "#2B2B2B" },
+  ];
+  const extractFlightAndTailOptions = (data: any) => {
+    const flightSet: any = new Set();
+    const tailSet: any = new Set();
+
+    data?.forEach((item: any) => {
+      item.flights.forEach((flight: any) => {
+        flightSet.add(flight.carrierCode + flight.flightNumber);
+        tailSet.add(flight.tailNumber);
+      });
+
+      // item.alternateTails.forEach(alt => {
+      //   flightSet.add(alt.carrierCode+alt.flightNumber);
+      //   tailSet.add(alt.tailNumber);
+      // });
+    });
+    const flights = [
+      { value: "ALL", isSelected: true },
+      ...Array.from(flightSet).map((f) => ({ value: f, isSelected: false })),
+    ];
+
+    const tails = [
+      { value: "ALL", isSelected: true },
+      ...Array.from(tailSet).map((t) => ({ value: t, isSelected: false })),
+    ];
+
+    return { flights, tails };
+  };
+  const dashboardData = (data: any) => {
+    const tailSet = new Set();
+    let totalFlights = 0;
+    let paxConnection = 0;
+    let crewConnection = 0;
+
+    data?.forEach((entry: any) => {
+      entry.flights.forEach((flight: any) => {
+        if (flight.tailNumber) {
+          tailSet.add(flight.tailNumber);
+        }
+
+        const stationList = flight.widgetAttributes?.["#stationList"] || [];
+        totalFlights += Math.max(0, stationList.length - 1);
+
+        paxConnection += flight.widgetAttributes?.paxConx || 0;
+        crewConnection += flight.widgetAttributes?.crewConx || 0;
+      });
+    });
+
+    return {
+      totalTails: tailSet.size,
+      totalFlights,
+      paxConnection,
+      crewConnection,
+      totalConnection: paxConnection + crewConnection,
+    };
+  };
   return (
-    <div className={tab===2 || (tab == 1 && isGanttClicked) ?"home-workSpace-Container":"home-container"}>
-      {tab === 0 && <div className="side-bar-left-container" >
-        <FlightCards data={filterdData}  />
-      </div>}
-      <div className={tab !== 0 ? "side-bar-right-container-gantt" : "side-bar-right-container"}>
-        {tab == 0 ? (
-          <MapboxMap flightData={filterdData}/>
-        ): tab == 1 && !isGanttClicked ? (
-          <GanttView 
-          filterdData={filterdData}
-          resolveClickFunction={resolveClickFunction}
-           runResolver={runResolver} flightcardJson={flightcardJson}
-           selectedStation={selectedStation} handleGanttClick={handleGanttClick} isGanttClicked={isGanttClicked} />
-        ) : tab == 1 ?
-          <GanttFlightCards setIsGanttClicked={setIsGanttClicked} flightCardGanttData={flightCardGanttData} flightNo={flightNo} />
-          : (
-            <WorkSpaceComponent/>
-          )}
+    <>
+      <div
+        style={{
+          height:
+            tab === 1 && isGanttClicked ? "90px" : tab === 2 ? "90px" : "160px",
+          zoom: "var(--zoomPercentage)",
+        }}
+      >
+        <Header
+          startDate={startDate}
+          endDate={endDate}
+          stationData={stationData}
+          checker={checker}
+          airlineData={airlineData}
+          setStartDate={(value: any) => {
+            setStartDate(value);
+          }}
+          setEndDate={(value: any) => {
+            setEndDate(value);
+          }}
+          setStationData={(value: any) => {
+            setFilterdData(data);
+            setStationData(value);
+            checker = true;
+            filter = false;
+            setTailData([]);
+          }}
+          setAirlineData={(value: any) => {
+            setFilterdData(data);
+            setAirlineData(value);
+            checker = true;
+            filter = false;
+            setFilterdData(data);
+          }}
+          showPopupFunction={showPopupFunction}
+          setTab={(tabValue: number) => {
+            setTab(tabValue);
+            setRunResolver(false);
+          }}
+          tab={tab}
+          setSelectedStation={setSelectedStation}
+        />
+        {tab !== 2 &&
+          (!runResolver ? (
+            tab === 1 && isGanttClicked ? null : (
+              <Dashboard
+                tailData={tailData}
+                flightData={flightData}
+                setTailData={(value: any) => {
+                  console.log(value, "value");
+                  setFilterdData(data);
+                  setTailData(value);
+                  checker = true;
+                  filter = true;
+                }}
+                setFlightData={(value: any) => {
+                  setFlightData(value);
+                  checker = true;
+                  filter = true;
+                  setFilterdData(data);
+                }}
+                dashbordData={dashbordData}
+              />
+            )
+          ) : (
+            <div className="coloredDashboardContainer">
+              <div className="coloredDashboard">
+                {" "}
+                <DashboardColored data={statusData} />
+              </div>
+              <div className="coloredDashboard">
+                {" "}
+                <DashboardColored data={statusData2} />
+              </div>
+            </div>
+          ))}
       </div>
-      <div>{showPopup && <PopupComponent showPopupFunction={showPopupFunction} />}</div>
-    </div>
+
+      {!runResolver || tab != 1 ? (
+        <HomeComponent
+          filterdData={!checker ? filterdData : []}
+          showPopupFunction={showPopupFunction}
+          resolveClickFunction={resolveClickFunction}
+          runResolver={runResolver}
+          flightcardJson={homeComponentData}
+          tab={tab}
+          selectedStation={selectedStation}
+          showPopup={showPopup}
+          isGanttClicked={isGanttClicked}
+          setIsGanttClicked={setIsGanttClicked}
+        />
+      ) : (
+        <ResolverComponent
+          popupData={popupData}
+          setPopupData={setPopupData}
+          showPopupFunction={showPopupFunction}
+          resolveClickFunction={resolveClickFunction}
+          runResolver={runResolver}
+          flightcardJson={resolveOptionData}
+          tab={tab}
+          selectedStation={selectedStation}
+          showPopup={showPopup}
+        />
+      )}
+    </>
   );
 };
 
-export default HomeComponent;
+export default index;
