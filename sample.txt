@@ -1,13 +1,11 @@
- const formatDateTime = (datetimeStr: any) => {
-    const date = new Date(datetimeStr);
-    if (isNaN(date)) return "";
-    const options = { day: "2-digit", month: "short", year: "2-digit" };
-    const datePart = date.toLocaleDateString("en-GB", options).split(" ");
-    const [day, month, year] = datePart;
-    const timePart = date.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-    return `${day} ${month.toUpperCase()} ${year}, ${timePart}`;
-  };
+ //set station data for header
+    let stationDataLocal:any=[];
+    data.map((option:any)=>
+    {
+      option.flights.map((subOption:any)=>
+      {
+        stationDataLocal.push(subOption.carrierCode+subOption.flightNumber)
+
+      })
+    })
+    setStationData(stationDataLocal)
