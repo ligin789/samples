@@ -1,11 +1,50 @@
- //set station data for header
-    let stationDataLocal:any=[];
-    data.map((option:any)=>
-    {
-      option.flights.map((subOption:any)=>
-      {
-        stationDataLocal.push(subOption.carrierCode+subOption.flightNumber)
+import  { useState } from "react";
+import "./styles.css";
+import MapboxMap from "../../components/mapContainer";
+import GanttView from "../../components/ganttViewNew";
+import FlightCards from "../../components/flightCards";
 
-      })
-    })
-    setStationData(stationDataLocal)
+import PopupComponent from "../../components/popup/popupComponent";
+import GanttFlightCards from "../../components/ganntFlight";
+import WorkSpaceComponent from "../../components/workspace";
+
+const HomeComponent = (props: any) => {
+  const { tab, selectedStation , showPopup,showPopupFunction,flightcardJson,runResolver,resolveClickFunction,filterdData,isGanttClicked, setIsGanttClicked} = props;
+
+ 
+  const [flightNo, setFlightNo] = useState("");
+
+  const [flightCardGanttData,setFlightCardGanttData] = useState(null)
+
+  const handleGanttClick = (flightNum: string,data:any) => {
+    setFlightNo(flightNum)
+    setFlightCardGanttData(data)
+    setIsGanttClicked(true)
+  }
+
+  return (
+    <div className={tab===2 || (tab == 1 && isGanttClicked) ?"home-workSpace-Container":"home-container"}>
+      {tab === 0 && <div className="side-bar-left-container" >
+        <FlightCards data={filterdData}  />
+      </div>}
+      <div className={tab !== 0 ? "side-bar-right-container-gantt" : "side-bar-right-container"}>
+        {tab == 0 ? (
+          <MapboxMap flightData={filterdData}/>
+        ): tab == 1 && !isGanttClicked ? (
+          <GanttView 
+          filterdData={filterdData}
+          resolveClickFunction={resolveClickFunction}
+           runResolver={runResolver} flightcardJson={flightcardJson}
+           selectedStation={selectedStation} handleGanttClick={handleGanttClick} isGanttClicked={isGanttClicked} />
+        ) : tab == 1 ?
+          <GanttFlightCards setIsGanttClicked={setIsGanttClicked} flightCardGanttData={flightCardGanttData} flightNo={flightNo} />
+          : (
+            <WorkSpaceComponent/>
+          )}
+      </div>
+      <div>{showPopup && <PopupComponent showPopupFunction={showPopupFunction} />}</div>
+    </div>
+  );
+};
+
+export default HomeComponent;
