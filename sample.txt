@@ -1,34 +1,59 @@
-import { createContext, useState, ReactNode, useContext } from 'react';
- 
-type dataTypeOf = any;
- 
-interface FilterContextType {
-  data: dataTypeOf;
-  filterData: dataTypeOf;
-  filterDataFunction: (responseContext:any,airLineContext:any,stationContext:any,tailsContext:any,flightContext:any) => void;
-}
- 
-const FilterContext = createContext<FilterContextType | undefined>(undefined);
- 
-export const FilterProvider = ({ children }: { children: ReactNode }) => {
-  const [fullData, setFullData] = useState()
-  const [contextFilterData, setcontextFilterData] = useState()
- 
-  const filterDataFunction = () => {
-    // setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-  };
- 
-  return (
-    <FilterContext.Provider value={{ data, filterData ,filterDataFunction}}>
-      {children}
-    </FilterContext.Provider>
-  );
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { refArrayOfDates } from './GetFormatData';
+import moment from 'moment';
+
+export const ExportGridToExcel = async (rowData, colDefs) => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('IOCC Dashboard');
+
+  const headers = colDefs.map((col:any) => (col.headerName));
+  worksheet.addRow(headers);
+
+  rowData.forEach((dataRow:any) => {
+    const rowValues = colDefs.map((col:any) => {
+      const cellObj = getNestedObject(dataRow, col.field);
+      if(refArrayOfDates.includes(col.headerName) && typeof cellObj !== 'object'&& cellObj !== '—' && cellObj!==''){
+        return moment(cellObj).format('HH:mm')
+      }
+      return typeof cellObj === 'object' ? cellObj.value : cellObj;
+    });
+
+    const excelRow = worksheet.addRow(rowValues);
+
+    colDefs.forEach((col:any, colIndex:any) => {
+      const cellObj = getNestedObject(dataRow, col.key);
+      const cellColor = typeof cellObj === 'object' ? cellObj.color : null;
+      const cell = excelRow.getCell(colIndex + 1)
+      cell.alignment = {vertical:'middle', horizontal:'center'}
+      if (cellColor) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: cellColor.replace('#', '') }
+        };
+      }
+    });
+  });
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '015B25' }
+    };
+    cell.font = { bold: true, color:{argb:'FFFFFF'} };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+  headerRow.height = 20;
+  worksheet.columns.forEach(col => col.width = 15);
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), 'IOCC Dashboard.xlsx');
 };
- 
-// Custom hook (optional)
-export const useFilter = () => {
-  const context = useContext(FilterContext);
-  if (!context) throw new Error('useTheme must be used within ThemeProvider');
-  return context;
+
+// Helper: safely get nested value (e.g., "AIRCRAFT.value")
+const getNestedObject = (obj:any, path:any) => {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj);
 };
- 
