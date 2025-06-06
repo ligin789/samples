@@ -1,23 +1,800 @@
-● Test suite failed to run
+import React, { useEffect, useMemo, useState, useRef } from "react";
+import "./styles.css";
+import FocusFlight from "../../components/focusFlights";
+import FirstHeader from "../../components/Header/firstHeader";
+import ReferenceData from "../../components/referenceData";
+import SecondHeader from "../../components/Header/secondHeader";
+import ThirdHeader from "../../components/Header/thirdHeader/index";
+import InfiniteScrollGrid from "../../components/table";
+import FlightFeed from "../../components/flightFeed";
+import Notification from "../../components/notification";
+import { getLocalTimeAndGMT } from "../../utils/GetLocalTime";
 
-    Cannot find module 'moment-range' from 'node_modules/react-daterange-picker/dist/moment-range.js'
+import { referenceViewAction } from '../../redux/referenceData/action'
+import moment from "moment";
+import { useDispatch, useSelector, connect } from "react-redux";
+import { getRequest } from "../../utils/GetRequest";
+import CreateAlert from "../../components/createAlert";
+import AddNotes from "../../components/addNotes";
+import CriticalPopup from "../../components/criticalPopup";
+import { useTranslation } from "react-i18next";
+import Map from "../../components/map/mapbox";
+import {ColorVarible, getJsonData} from '../../global/tenantConfig'
+import store from "../../redux/store/store";
+import { AlertComponent } from "../../components/alertComponent/Alert";
+import CrewPopUp from "../../components/crewPopup";
+//import GanttView from "../../components/ganttView";
+import GanttView from "../../components/ganttViewNew";
+import { Connections } from "../../components/connectionsPopUp";
+import { getFlightLegId } from "../../utils/GetFlightLegId";
+import Chrono from "../../components/chrono";
+import Color from "../../global/Color";
+import FileUpload from "../../components/referenceData/fileUpload";
+import PreventSwipeBack from "../../atoms/preventSwipeBack";
+import ProcessControl from "../../components/processControl";
+var utcToggle:boolean = false
+const Home = (props: any) => {
+  type TranslationKey = ''
+  const { t, i18n } = useTranslation<TranslationKey>();
+  const menuArray = [t("ioccDiscovery"), t("referenceData"), t("dashboard"),t("processControl"), t("settings"), t("logout")];
+  const viewArray = [{ name: "Map View", isSelected: true, tKey: "mapView" }, { name: "Gantt View", isSelected: false, tKey: "ganttView" }, { name: "Grid View", isSelected: false, tKey: "gridView" }];
+  const langArray = [{ name: "English", key: "en" }, { name: "Portuguese (Portugal)", key: "pt" }]
+  const mapViewArray = [{ name: "Departure", isSelected: true, tKey: "departure" }, { name: "Arrival", isSelected: false, tKey: "arrival" }];
+  const ganttViewArray = [{ name: "Flight View", isSelected: true, tKey: "flightView" }, { name: "Ground View", isSelected: false, tKey: "groundView" }];
 
-    Require stack:
-      node_modules/react-daterange-picker/dist/moment-range.js
-      node_modules/react-daterange-picker/dist/DateRangePicker.js
-      src/atoms/dateRangePicker/index.js
-      src/components/processControl/processAnalyticsDetails/index.tsx
-      src/components/processControl/index.tsx
-      src/screens/home/index.tsx
-      test/screens/home/Home.test.tsx
+  const dispatch = useDispatch();
+  const referenceData = useSelector((state: any) => state?.HomeScreenReducer?.data);
+  const gridData = useSelector((state: any) => state?.FlightReducer?.gridData);
+  const isSearchByPatternError = useSelector((state: any) => state?.HomeScreenReducer?.isSearchByPatternError);
+  const isSearchByPatternComplete = useSelector((state: any) => state?.HomeScreenReducer?.isSearchByPatternComplete);
+  const showLoader = useSelector((state: any) => state?.HomeScreenReducer?.showGridDataLoader)
+  const criticalFlightUpdate = useSelector((state: any) => state?.HomeScreenReducer?.criticalFlightUpdate)
+  const notesUpdated= useSelector((state:any)=>state?.HomeScreenReducer?.notesUpdated)
+  const [focusClick, setFocusClick] = useState(false);
+  const [displayTime, setDisplayTime] = useState<any>(null);
+  const [isUTCToggled, setIsUTCToggled] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState(0);
+  const [menuModalDisplay, setMenuModalDisplay] = useState(false);
+  const [gridSelected, setGridSelected] = useState(false);
+
+  const [modalDisplay, setModalDisplay] = useState({ item: "", isSelected: false })
+  const [searchFlightModalDisplay, setsearchFlightModalDisplay] = useState(false);
+  const [ViewFlightModalDisplay, setViewFlightModalDisplay] = useState(false);
+  const [fliterFlightModalDisplay, setFliterFlightModalDisplay] = useState(false);
+  const [addRemoveModalDisplay, setAddRemoveModalDisplay] = useState(false);
+  const [quickMenuModalDisplay, setQuickMenuModalDisplay] = useState(false);
+
+  const [periodMenuModalDisplay, setPeriodMenuModalDisplay] = useState(false);
+  const [depMenuModalDisplay, setDepMenuModalDisplay] = useState(false);
+  const [arrMenuModalDisplay, setArrMenuModalDisplay] = useState(false);
+
+  const [flightFeedClick, setFlightFeedClick] = useState(false);
+  const [notificationClick, setNotificationClick] = useState(false);
+  const [isButtonDisable, setIsButtonDisable] = useState(false)
+  const [selectedCount, setSelectedCount] = useState(0)
+  const [searchPatternText, setSearchPatternText] = useState('')
+  const [userPreference, setUserPreference] = useState<any>({})
+  const [selectedDepartureStation, setSelectedDepartureStation] = useState("ALL");
+  const [selectedArrivalStation, setSelectedArrivalStation] = useState("ALL");
+  const [selectedPeriod, setSelectedPeriod] = useState("2 Hrs");
+  const [selectedStart, setSelectedStart] = useState(moment.utc(new Date()).format('YYYY-MM-DD'));
+  const [selectedEnd, setSelectedEnd] = useState(moment.utc(new Date()).format('YYYY-MM-DD'))
+  const [selectedStartTime, setSelectedStartTime] = useState('00:00')
+  const [selectedEndTime, setSelectedEndTime] = useState('23:59')
+  const [selectedColumnsArray, setSelectedColumnsArray] = useState([])
+  const [selectedColumnsGroupArray, setSelectedColumnsGroupArray] = useState([])
+  const [noOfRowsSelected, setNoOfRowsSelected] = useState(0);
+  const [colSearchText, setColSearchText] = useState('')
+  const [createAlertClicked, setCreateAlertClicked] = useState(false)
+  const [addNotesClicked, setAddNotesClicked] = useState(false)
+  const [criticalPopupVisible, setCriticalPopupVisible] = useState(false)
+  const [flightNoValue, setFlightNoValue] = useState(null)
+  const [dropDownIndex, setDropDownIndex] = useState(-1);
+  const [isDateRangeDoneClicked, setIsDateRangeDoneClicked] = useState(false)
+  const [prevSelectedValue, setPrevSelectedValue] = useState('');
+  const [langSelected, setLangSelected] = useState("English")
+  const [menuHoverIndex, setMenuHoverIndex] = useState(-1)
+  const [viewOptions, setViewOption] = useState(viewArray)
+  const [selectedView, setSelectedView] = useState("Map View")
+  const [carrierCodeValue, setCarrierCodeValue] = useState()
+  const [gridDataIdValue, setGridDataIdValue] = useState("")
+  const [flightClicked, setFlightClicked] = useState(false)
+  const [flightClickedData, setFlightClickedData] = useState<any>({})
+  const [userConfirmAlert, setUserConfirmAlert] = useState(false)
+  const [gantCardClicked,setGantCardClicked] = useState(false)
+  const [gantCardClickedData, setGantCardClickedData] = useState<any>({})
+  const [weatherHoverModal, setWeatherHoverModal] = useState(false);
+  const [weatherModal, setWeatherModal] = useState(false);
+  const [runwayModal, setRunwayModal] = useState(false);
+  const [pilotCrewConxModal, setPilotCrewConxModal] = useState(false);
+  const [paxConxIbModal, setPaxConxIbModal] = useState(false)
+  const [toolTipHoverModal, setToolTipHoverModal] = useState(false)
+  const [paxConxObModal, setPaxConxObModal] = useState(false)
+  const [petdModal, setPetdModal] = useState(false)
+  const [petaModal, setPetaModal] = useState(false)
+  const [runWayClickModal, setRunwayClickModal] = useState(false)
+  const [_stationTerminalZone, setstationTerminalZone] = useState();
+  const [selectedTerminal, setSelectedTerminal] = useState("Terminal 1");
+  const [selectedGanttView,setSelectedGanttView] = useState("Flight View")
+  const [selectedMapView,setSelectedMapView] = useState("Departure")
+  const [mapViewOptions, setMapViewOption] = useState(mapViewArray)
+  const [ganttViewOptions, setGanttViewOption] = useState(ganttViewArray)
+  const [mapviewData,setMapviewData] = useState<any> ([])
+  const [scrollToObject, setScrollToObject] = useState(null)
+  const [selectedIndex,setSelectedIndex] = useState('')
+  const [downloadExcelClicked, setDownloadExcelClicked] = useState(false)
+  const [gantclickflightNum,setGantclickflightNum]= useState('')
+  //let gantclickflightNum =""
+  let mapGate = ''
+  const[crewPopup,setCrewPopup]:any=useState(false)
+  const[connectionsPopup,setConnectionsPopup]=useState(false)
+  const[fileUploadVisible,setFileUploadVisible]=useState(false)
+  const [refMenuData, setRefMenuData] = useState<any[]>([]);
+  let tempItems: any[] = [{name:'MGT', tkey:'mgt'}, {name:'Airports', tkey:'airports'},{name:'PAX MCT', tkey:'pax_mct'},{name:'Crew MCT', tkey:'crew_mct'}]
+  const [selectedItem, setSelectedItem] = useState(tempItems[0].name);
+
+  const gridContainerRef = useRef<HTMLDivElement>(null);
+  // const focusFlightRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    dispatch(referenceViewAction.referenceDataRequest())   
+  }, [])
+
+  useEffect(() => {
+    if(selectedDepartureStation !=="ALL"){
+     let mapDataJson:any = getJsonData("mapData")
+     let filteredData:any = [];
+     let matchObject= mapDataJson.find(item => item.stationName === selectedDepartureStation)
+     matchObject&&filteredData.push(matchObject)
+     setMapviewData(filteredData)
+    }
+  }, [selectedDepartureStation])
+
+  useEffect(() => {
+    showLoader && handleLoader(false)
+  }, [gridData])
 
 
-    However, Jest was able to find:
-        './moment-range.js'
+  useEffect(() => {
+    if (referenceData !== null && JSON.stringify(userPreference) !== JSON.stringify(referenceData)) {
+      setUserPreference(referenceData)
+      const filterArr = referenceData?.search_filters || []
+      const requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod })
+      handleGetGridData(requestObj)
+    }
+  }, [referenceData])
 
-    You might want to include a file extension in your import, or update your 'moduleFileExtensions', which is currently ['js', 'mjs', 'cjs', 'jsx', 'ts', 'tsx', 'json', 'node'].
+  useEffect(() => {
+    if (criticalFlightUpdate) {
+        if (searchPatternText.trim().length) {
+          handlePatternSearch()
+        }else{
+          getGridRequest()
+        }
+        
+        store.dispatch({ type: "CHECK_CRITICAL_UPDATE", payload: false })
+    } if(notesUpdated){
+        if (searchPatternText.trim().length) {
+          handlePatternSearch()
+        }else{
+          getGridRequest()
+        }
+    }
+  }, [criticalFlightUpdate,notesUpdated])
 
-    See https://jestjs.io/docs/configuration#modulefileextensions-arraystring
+  useEffect(() => {
+    isDateRangeDoneClicked && getGridRequest()
+  }, [isDateRangeDoneClicked])
 
-      1 | import React from "react";
-    > 2 | import DateRangePicker from "react-daterange-picker";
+  useEffect(() => {
+    if (referenceData !== null && selectedPeriod !== 'Custom') {
+      setSearchPatternText("")
+      dispatch(referenceViewAction.updatePatternSearchStatus())
+      getGridRequest()
+      setSelectedStart(moment.utc(new Date()).format('YYYY-MM-DD'))
+      setSelectedEnd(moment.utc(new Date()).format('YYYY-MM-DD'))
+      setSelectedStartTime('00:00')
+      setSelectedEndTime('23:59')
+    }
+    if(selectedDepartureStation =="ALL"){
+      setGanttViewOption(ganttViewArray)
+      setSelectedGanttView("Flight View")
+    }
+  }, [selectedDepartureStation, selectedArrivalStation, selectedPeriod])
+
+  useEffect(() => {
+    userPreference?.search_filters && getGridRequest();
+  }, [userPreference?.search_filters])
+
+  useEffect(() => {
+    utcToggle = isUTCToggled
+    handleDisplayTime()
+    const id = setInterval(() => {
+      handleDisplayTime()
+    }, 1000)
+    return () => {
+      clearInterval(id);
+    }
+  }, [isUTCToggled]);
+  
+  const handleCancelMethod = () => {
+    setUserConfirmAlert(false)
+  }
+  const handleDone = () => {
+    store.dispatch({ type: "REMOVE_CRITICAL", payload: gridDataIdValue })
+    setUserConfirmAlert(false)
+  }
+
+  const handleDisplayTime = () => {
+    const iso = new Date().toISOString();
+    const { localStringValue = "", gmtString = "" } = getLocalTimeAndGMT(iso)
+    const val = isUTCToggled ? `LIS  |  UTC ${moment.utc(iso).format('HH:mm')} (${gmtString})` : `LIS  | ${localStringValue} (${gmtString})`
+    setDisplayTime(val);
+  }
+
+  const toggleHover = (index) => {
+    setMenuHoverIndex(index)
+  }
+
+  const handleLoader = (value: boolean) => {
+    dispatch(referenceViewAction.updateLoaderStatus(value))
+  }
+
+  const handleGetGridData = (getDataRequestObj) => {
+    dispatch(referenceViewAction.getGridData(getDataRequestObj))
+  }
+
+  const handleCancel = () => {
+    setNoOfRowsSelected(0)
+  }
+
+  const handleMarkCritical = () => {
+    alert("mark critical clicked")
+  }
+
+  const handleRemoveCritical = () => {
+    alert("Remove critical clicked")
+  }
+
+  const handleDownload = () => {
+    setDownloadExcelClicked(true)
+  }
+
+  const handlePatternSearch = () => {
+    if (searchPatternText.trim().length) {
+      dispatch(referenceViewAction.getGridByText({ text: searchPatternText }))
+      return
+    }
+    alert('Please enter some text')
+  }
+
+  const clearPatternSearchError = () => {
+    setSearchPatternText('');
+    dispatch(referenceViewAction.clearPatternSearchError())
+    getGridRequest()
+  }
+
+  const clearPatternSearchErrorWithoutGetGrid = () => {
+    dispatch(referenceViewAction.clearPatternSearchError())
+  }
+
+  const handleCancelPatternSearch = () => {
+    setSearchPatternText('');
+    dispatch(referenceViewAction.updatePatternSearchStatus())
+    getGridRequest()
+  }
+  const changeLanguage = (lng: any) => {
+    i18n.changeLanguage(lng?.key);
+    setLangSelected(lng?.name)
+  };
+  const toggleSidebar = () => {
+    setNotificationClick(false)
+    setFocusClick(!focusClick);
+    if(gridContainerRef.current)
+      gridContainerRef.current.style.width = '100%';
+    // if(focusFlightRef.current)
+    //   focusFlightRef.current.style.width = '400px';
+  };
+  const toggleNotificationClick = () => {
+    setFocusClick(false);
+    setNotificationClick(!notificationClick)
+  };
+
+  const getGridRequest = () => {
+    const filterArr = userPreference?.search_filters || []
+    let requestObj: any = {}
+    if (isDateRangeDoneClicked) {
+      const selectedStartPeriod = moment.utc(selectedStart).format(`YYYY-MM-DDT${selectedStartTime}:00`) + 'Z'
+      const selectedEndPeriod = moment.utc(selectedEnd).format(`YYYY-MM-DDT${selectedEndTime}:00`) + 'Z'
+      const diff = Math.floor(moment(selectedEndPeriod).diff(moment(selectedStartPeriod)) / (1000))
+      if (diff < 1) {
+        alert('End date and time should be greater than start date and time.')
+        return
+      } else {
+        requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod, selectedStartPeriod, selectedEndPeriod })
+      }
+      handleLoader(true)
+      // setSelectedStart(moment.utc(new Date()).format('YYYY-MM-DD'))
+      // setSelectedEnd(moment.utc(new Date()).format('YYYY-MM-DD'))
+      // setSelectedStartTime('00:00')
+      // setSelectedEndTime('23:59')
+      handleGetGridData(requestObj)
+      setIsDateRangeDoneClicked(false)
+    } else {
+      handleLoader(true)
+      requestObj = getRequest({ filterArr, selectedDepartureStation, selectedArrivalStation, selectedPeriod })
+      handleGetGridData(requestObj)
+    }
+  }
+
+  const handleDoneFlightsBy = (userPreferencefilterOptions: any) => {
+    handleDropDownIndex(-1);
+    setUserPreference(userPreferencefilterOptions);
+  }
+
+  const handleDoneForCustom = () => {
+    setIsDateRangeDoneClicked(true)
+    handleDropDownIndex(-1, true);
+  }
+
+  const handleCancelForCustom = () => {
+    // setSelectedPeriod(prevSelectedValue)
+    setSelectedStart(moment.utc(new Date()).format('YYYY-MM-DD'))
+    setSelectedEnd(moment.utc(new Date()).format('YYYY-MM-DD'))
+    setSelectedStartTime('00:00')
+    setSelectedEndTime('23:59')
+    handleDropDownIndex(-1);
+  }
+
+  const handleResetFlightsBy = () => {
+    setUserPreference((prevState: any) => ({ ...prevState, search_filters: referenceData?.search_filters }))
+  }
+
+  const handleNotesClick = (p: any) => {
+    // console.log("pValue",p?.data["flightob"]?.value)
+    // setFlightNoValue(p?.data["flightob"]?.value)
+    //or condition needs to be commented
+    // (p?.value!==""||p?.data["flightob"]?.value==="306/08")? setAddNotesClicked(true):setAddNotesClicked(false)
+  (p?.value!=="")? setAddNotesClicked(true):setAddNotesClicked(false)
+  // setFlightNoValue(p?.data["flightob"]?.value)
+  const flightLegId = getFlightLegId(p.node.rowIndex)
+      setGridDataIdValue(flightLegId)
+  
+}
+
+  const handleNotesClose = (data: any) => {
+    setAddNotesClicked(false)
+  }
+
+  const handleDropDownIndex = (index: number, value: boolean = false) => {
+    // if (dropDownIndex === 9 && !value) {
+    //   setSelectedPeriod(prevSelectedValue)
+    //   const userPreferencePeriodArray = userPreference?.period?.map((item: any) => {
+    //     return { ...item, isSelected: item?.PERIOD === prevSelectedValue };
+    //   })
+    //   setUserPreference((previousState: any) => ({ ...previousState, period: userPreferencePeriodArray }))
+    // }
+    setDropDownIndex((prevIndex) => index === prevIndex ? -1 : index)
+    setMenuHoverIndex(-1)
+  }
+  const onClickFlight = (clickedData: any) => {
+    if (clickedData.id === mapGate) {
+      mapGate = ''
+      setFlightClicked(false)
+    } else {
+      mapGate = clickedData.id
+      setFlightClickedData(clickedData)
+      setFlightClicked(true)
+    }
+  };
+  const onGantCardClickHandle =(gantCardData:any,gantclickflightNumber:any) => {
+    if (gantCardData.id === gantclickflightNumber) {
+      setGantclickflightNum("")
+      setSelectedIndex('')
+      setGantCardClicked(false)
+    } else {
+      setGantclickflightNum(gantCardData.id)
+      setGantCardClickedData(gantCardData)
+      setSelectedIndex(gantCardData.id)
+      setGantCardClicked(true)
+    }
+  };
+  const handleMapViewChange = (indexValue:number,selectedValue:any) => {
+    setMapViewOption((prev:any) => 
+      prev?.map((item,index)=>({...item,isSelected:index===indexValue})
+    ))
+    setSelectedMapView(selectedValue)
+  };
+  const handleGanttViewChange = (indexValue:number,selectedValue:any) => {
+    setGanttViewOption((prev:any) => 
+      prev?.map((item,index)=>({...item,isSelected:index===indexValue})
+    ))
+    setSelectedGanttView(selectedValue)
+  };
+  const chatClickHandler = () => {
+    alert('chat clicked')
+  }
+  const getTabScreenOnSelect = () => {
+    if (selectedTab === 0) {
+      return (
+        <>
+          <SecondHeader
+            isSidebarVisible={focusClick}
+            setSidebarVisible={setFocusClick}
+            notificationVisible={setNotificationClick}
+            setNotificationVisible={setNotificationClick}
+            searchFlightModalDisplay={searchFlightModalDisplay}
+            setsearchFlightModalDisplay={setsearchFlightModalDisplay}
+            periodMenuModalDisplay={periodMenuModalDisplay}
+            setPeriodMenuModalDisplay={setPeriodMenuModalDisplay}
+            depMenuModalDisplay={depMenuModalDisplay}
+            setDepMenuModalDisplay={setDepMenuModalDisplay}
+            arrMenuModalDisplay={arrMenuModalDisplay}
+            setArrMenuModalDisplay={setArrMenuModalDisplay}
+            isToggled={isUTCToggled}
+            setIsUTCToggled={setIsUTCToggled}
+            viewArray={viewArray}
+            userPreference={userPreference}
+            setUserPreference={setUserPreference}
+            handlePatternSearch={handlePatternSearch}
+            searchPatternText={searchPatternText}
+            setSearchPatternText={setSearchPatternText}
+            handleDoneFlightsBy={handleDoneFlightsBy}
+            handleResetFlightsBy={handleResetFlightsBy}
+            selectedDepartureStation={selectedDepartureStation}
+            setSelectedDepartureStation={setSelectedDepartureStation}
+            selectedArrivalStation={selectedArrivalStation}
+            setSelectedArrivalStation={setSelectedArrivalStation}
+            selectedPeriod={selectedPeriod}
+            setSelectedPeriod={setSelectedPeriod}
+            isSearchByPatternError={isSearchByPatternError}
+            clearPatternSearchError={clearPatternSearchError}
+            clearPatternSearchErrorWithoutGetGrid={clearPatternSearchErrorWithoutGetGrid}
+            isSearchByPatternComplete={isSearchByPatternComplete}
+            handleCancelPatternSearch={handleCancelPatternSearch}
+            selectedStart={selectedStart}
+            setSelectedStart={setSelectedStart}
+            selectedEnd={selectedEnd}
+            setSelectedEnd={setSelectedEnd}
+            selectedStartTime={selectedStartTime}
+            setSelectedStartTime={setSelectedStartTime}
+            selectedEndTime={selectedEndTime}
+            setSelectedEndTime={setSelectedEndTime}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            handleLoader={handleLoader}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            setIsDateRangeDoneClicked={setIsDateRangeDoneClicked}
+            handleDoneForCustom={handleDoneForCustom}
+            handleCancelForCustom={handleCancelForCustom}
+            prevSelectedValue={prevSelectedValue}
+            setPrevSelectedValue={setPrevSelectedValue}
+            toggleSidebar={toggleSidebar}
+            toggleNotificationClick={toggleNotificationClick}
+            viewOptions={viewOptions}
+            setViewOption={setViewOption}
+            setSelectedView={setSelectedView}
+            chatClickHandler={chatClickHandler}
+          />
+          <ThirdHeader
+            addRemoveModalDisplay={addRemoveModalDisplay}
+            data={gridData}
+            setAddRemoveModalDisplay={setAddRemoveModalDisplay}
+            quickMenuModalDisplay={quickMenuModalDisplay}
+            setQuickMenuModalDisplay={setQuickMenuModalDisplay}
+            isSidebarVisible={focusClick}
+            userPreference={userPreference}
+            setUserPreference={setUserPreference}
+            gridSelected={gridSelected}
+            setGridSelected={setGridSelected}
+            isButtonDisable={isButtonDisable}
+            selectedCount={selectedCount}
+            noOfRowsSelected={noOfRowsSelected}
+            handleCancel={handleCancel}
+            handleMarkCritical={handleMarkCritical}
+            handleRemoveCritical={handleRemoveCritical}
+            handleDownload={handleDownload}
+            selectedColumnsArray={selectedColumnsArray}
+            setSelectedColumnsArray={setSelectedColumnsArray}
+            selectedColumnsGroupArray={selectedColumnsGroupArray}
+            setSelectedColumnsGroupArray={setSelectedColumnsGroupArray}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            colSearchText={colSearchText}
+            setColSearchText={setColSearchText}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            selectedView={selectedView}
+            _stationTerminalZone={_stationTerminalZone} 
+            selectedTerminal={ selectedTerminal}
+            setSelectedTerminal={setSelectedTerminal}
+            selectedMapView={selectedMapView}
+            setSelectedMapView={setSelectedMapView}
+            selectedGanttView={selectedGanttView}
+            setSelectedGantView={setSelectedGanttView}
+            ganttViewOptions={ganttViewOptions}
+            mapViewOptions={mapViewOptions}
+            handleGanttViewChange={handleGanttViewChange}
+            handleMapViewChange={handleMapViewChange}
+            selectedDepartureStation={selectedDepartureStation}
+            setScrollToObject={setScrollToObject}
+          />
+          {selectedView == "Grid View" && 
+          <InfiniteScrollGrid
+            data={gridData}
+            userPreference={userPreference}
+            noOfRowsSelected={noOfRowsSelected}
+            setNoOfRowsSelected={setNoOfRowsSelected}
+            isUTCToggled={isUTCToggled}
+            setIsUTCToggled={setIsUTCToggled}
+            showLoader={showLoader}
+            handleLoader={handleLoader}
+            handleNotesClick={handleNotesClick}
+            setCriticalPopupVisible={setCriticalPopupVisible}
+            flightNoValue={flightNoValue}
+            setFlightFeedClick={setFlightFeedClick}
+            setFlightNoValue={setFlightNoValue}
+            runwayModal={runwayModal}
+            setRunwayModal={setRunwayModal}
+            createAlertClicked={createAlertClicked}
+            setCreateAlertClicked={setCreateAlertClicked}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            carrierCodeValue={carrierCodeValue}
+            setCarrierCodeValue={setCarrierCodeValue}
+            gridDataIdValue={gridDataIdValue}
+            setGridDataIdValue={setGridDataIdValue}
+            userConfirmAlert={userConfirmAlert}
+            setUserConfirmAlert={setUserConfirmAlert}
+            crewPopup={crewPopup}
+            setCrewPopup={setCrewPopup}
+            connectionsPopup={connectionsPopup}
+            setConnectionsPopup={setConnectionsPopup}
+            setFocusClick={setFocusClick}
+            weatherHoverModal={weatherHoverModal}
+            setWeatherHoverModal={setWeatherHoverModal}
+            pilotCrewConxModal={pilotCrewConxModal} 
+            setPilotCrewConxModal={setPilotCrewConxModal}
+            paxConxIbModal={paxConxIbModal}
+            setPaxConxIbModal={setPaxConxIbModal}
+            paxConxObModal={paxConxObModal}
+            setPaxConxObModal={setPaxConxObModal}
+            toolTipHoverModal={toolTipHoverModal}
+            setToolTipHoverModal={setToolTipHoverModal}
+            petdModal={petdModal} 
+            petaModal={petaModal} 
+            setPetdModal={setPetdModal}
+            setPetaModal={setPetaModal}
+            runWayClickModal={runWayClickModal}
+            setRunwayClickModal={setRunwayClickModal}
+            scrollToObject={scrollToObject}
+            setScrollToObject={setScrollToObject}
+            downloadExcelClicked={downloadExcelClicked}
+            setDownloadExcelClicked={setDownloadExcelClicked}
+            chatClickHandler={chatClickHandler}
+          />}
+          {selectedView == "Map View" && ((mapviewData?.length && selectedDepartureStation!=="ALL")? <div style={{ display: "flex", flexDirection: "column" }}>
+           
+            <Map gridData={gridData} 
+            mapData={mapviewData} 
+            flightClicked={flightClicked} 
+            setFlightClicked={setFlightClicked} 
+            onClickFlight={onClickFlight}  
+            dropDownIndex={dropDownIndex} 
+            handleDropDownIndex={handleDropDownIndex} 
+            selectedDepartureStation={selectedDepartureStation}
+            _stationTerminalZone={_stationTerminalZone} 
+            setstationTerminalZone={setstationTerminalZone}
+            selectedTerminal={ selectedTerminal}
+            setMapviewData={setMapviewData}
+            selectedMapView={selectedMapView}
+            />
+            {flightClicked &&
+              <div style={{position:'absolute',left:0,bottom:0,height: "97px", width:"100%"}}>
+                <InfiniteScrollGrid
+                  data={[flightClickedData]}
+                  userPreference={userPreference}
+                  noOfRowsSelected={noOfRowsSelected}
+                  setNoOfRowsSelected={setNoOfRowsSelected}
+                  isUTCToggled={isUTCToggled}
+                  setIsUTCToggled={setIsUTCToggled}
+                  showLoader={showLoader}
+                  handleLoader={handleLoader}
+                  handleNotesClick={handleNotesClick}
+                  setCriticalPopupVisible={setCriticalPopupVisible}
+                  flightNoValue={flightNoValue}
+                  setFlightFeedClick={setFlightFeedClick}
+                  setFlightNoValue={setFlightNoValue}
+                  createAlertClicked={createAlertClicked}
+                  setCreateAlertClicked={setCreateAlertClicked}
+                  dropDownIndex={dropDownIndex}
+                  handleDropDownIndex={handleDropDownIndex}
+                  carrierCodeValue={carrierCodeValue}
+                  setCarrierCodeValue={setCarrierCodeValue}
+                  gridDataIdValue={gridDataIdValue}
+                  setGridDataIdValue={setGridDataIdValue}
+                  userConfirmAlert={userConfirmAlert}
+                  setUserConfirmAlert={setUserConfirmAlert}
+                  fromscreen={"map"}
+                  crewPopup={crewPopup}
+                  setCrewPopup={setCrewPopup}
+                  connectionsPopup={connectionsPopup}
+                  setConnectionsPopup={setConnectionsPopup}
+                  setFocusClick={setFocusClick}
+                />
+              </div>
+            }
+          </div>
+            : <div className="noMapDisplay" style={{borderTopColor:Color.common}}>Map is not available!</div>)}
+          {selectedView == "Gantt View" && <div>
+         
+            <div style={{ height: '100%', width: focusClick ?'calc(100% + (540px * var(--zoom)))':"100%", zoom: 'var(--zoomPercentage)' }} onClick={()=> dropDownIndex !== -1 && handleDropDownIndex(-1)}>
+              <GanttView 
+              gridData={gridData} 
+              onGantCardClickHandle={onGantCardClickHandle} 
+              gantCardClicked={gantCardClicked} 
+              selectedDepartureStation={selectedDepartureStation} 
+              selectedGanttView={selectedGanttView}
+              selectedIndex={selectedIndex}
+              setSelectedIndex={setSelectedIndex}
+              gantclickflightNum={gantclickflightNum}
+              />
+            </div>
+            {gantCardClicked &&
+              <div style={{position:'absolute',left:0,bottom:0,height: "97px", width:"100%"}}>
+              <InfiniteScrollGrid
+                data={[gantCardClickedData]}
+                userPreference={userPreference}
+                noOfRowsSelected={noOfRowsSelected}
+                setNoOfRowsSelected={setNoOfRowsSelected}
+                isUTCToggled={isUTCToggled}
+                setIsUTCToggled={setIsUTCToggled}
+                showLoader={showLoader}
+                handleLoader={handleLoader}
+                handleNotesClick={handleNotesClick}
+                setCriticalPopupVisible={setCriticalPopupVisible}
+                flightNoValue={flightNoValue}
+                setFlightFeedClick={setFlightFeedClick}
+                setFlightNoValue={setFlightNoValue}
+                createAlertClicked={createAlertClicked}
+                setCreateAlertClicked={setCreateAlertClicked}
+                dropDownIndex={dropDownIndex}
+                handleDropDownIndex={handleDropDownIndex}
+                carrierCodeValue={carrierCodeValue}
+                setCarrierCodeValue={setCarrierCodeValue}
+                gridDataIdValue={gridDataIdValue}
+                setGridDataIdValue={setGridDataIdValue}
+                userConfirmAlert={userConfirmAlert}
+                setUserConfirmAlert={setUserConfirmAlert}
+                fromscreen={"map"}
+                crewPopup={crewPopup}
+                setCrewPopup={setCrewPopup}
+                connectionsPopup={connectionsPopup}
+                setConnectionsPopup={setConnectionsPopup}
+                setFocusClick={setFocusClick}
+                weatherHoverModal={weatherHoverModal}
+                setWeatherHoverModal={setWeatherHoverModal}
+                weatherModal={weatherModal}
+                setWeatherModal={setWeatherModal}
+              />
+              </div>
+            }
+            </div>}
+        </>
+      )
+    } else if (selectedTab === 1) {
+      return (
+        <ReferenceData
+        fileUploadVisible={fileUploadVisible}
+        setFileUploadVisible={setFileUploadVisible}
+        refMenuData={refMenuData}
+        setRefMenuData={setRefMenuData}
+        selectedItem={selectedItem}
+        setSelectedItem={setSelectedItem} />
+      )
+    } else if (selectedTab === 2) {
+      return (
+        <Chrono/>
+      )
+    } else if (selectedTab == 3) {
+      return (
+        <ProcessControl/>
+      )
+    } else if (selectedTab == 4) {
+      return (
+        <div>Settings</div>
+      )
+    }else return (<div>logout</div>)
+  }
+  
+  return (
+    <>
+      <PreventSwipeBack />
+      <div ref={gridContainerRef} style={{ width: focusClick ? `calc(100% - (410px * var(--zoom)))` : "100%" , transition: 'width 0.5s',userSelect:"none"}}>
+        <div>
+          <FirstHeader
+            isSidebarVisible={focusClick}
+            referenceData={userPreference}
+            selectedTab={selectedTab}
+            setSidebarVisible={setFocusClick}
+            setSelectedTab={setSelectedTab}
+            displayTime={displayTime}
+            menuModalDisplay={menuModalDisplay}
+            setMenuModalDisplay={setMenuModalDisplay}
+            menuArray={menuArray}
+            modalDisplay={modalDisplay}
+            setModalDisplay={setModalDisplay}
+            dropDownIndex={dropDownIndex}
+            handleDropDownIndex={handleDropDownIndex}
+            changeLanguage={changeLanguage}
+            langArray={langArray}
+            langSelected={langSelected}
+            toggleHover={toggleHover}
+            menuHoverIndex={menuHoverIndex}
+          />
+          {getTabScreenOnSelect()}
+        </div>
+      </div>
+      {/* <div ref={focusFlightRef} style={{ width: focusClick ? `calc(360px * var(--zoom))` : "0" , transition: 'width 0.5s'}}> */}
+      {focusClick && (
+        <FocusFlight
+          setFocusClick={setFocusClick}
+          focusClick={focusClick}
+          setFlightFeedClick={setFlightFeedClick}
+          langSelected={langSelected}
+        />
+      )}
+      {/* </div> */}
+      {
+        flightFeedClick && (
+          <FlightFeed setFlightFeedClick={setFlightFeedClick} />
+        )}
+        {
+          crewPopup&&(
+            <CrewPopUp setCrewPopup={setCrewPopup}/>
+          )}
+          {
+            connectionsPopup &&(
+              <Connections setConnectionsPopup={setConnectionsPopup}/>
+            )
+          }
+      {criticalPopupVisible && <CriticalPopup setCriticalPopupVisible={setCriticalPopupVisible} flightNoValue={flightNoValue} gridDataIdValue={gridDataIdValue} carrierCodeValue={carrierCodeValue} />}
+      {
+        createAlertClicked && (
+          <CreateAlert setCreateAlertClicked={setCreateAlertClicked} />
+        )}
+      {
+        addNotesClicked && (
+          <AddNotes handleNotesClose={handleNotesClose} gridDataIdValue={gridDataIdValue} carrierCodeValue={carrierCodeValue} flightNoValue={flightNoValue} />
+        )}
+      {
+        notificationClick && (
+          <Notification setNotificationClick={setNotificationClick} />
+        )}
+      {userConfirmAlert &&
+        <div style={{ zoom: 'var(--zoomPercentage)' }}>
+          <AlertComponent
+            alertText={t("removeCriticalTitle")}
+            handleCancelText={t("no")}
+            handleDoneText={t("yes")}
+            handleCancel={handleCancelMethod}
+            handleDone={handleDone} />
+        </div>}
+      {
+        fileUploadVisible &&
+        <div style={{ zoom: 'var(--zoomPercentage)' }}>
+          <FileUpload
+            setFileUploadVisible={setFileUploadVisible}
+            refMenuData={refMenuData}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem} />
+        </div>
+      }
+    </>
+  );
+};
+
+export default Home
+export const handleUtcToggleForwidget = () =>{
+  return utcToggle
+}
