@@ -1,329 +1,723 @@
-import React, { useEffect, useState } from "react";
-import {
-  ComposedChart,
-  XAxis,
-  YAxis,
-  Tooltip,
-  Legend,
-  CartesianGrid,
-  Bar,
-  Line,
-  Scatter,
-  ReferenceLine,
-  Area,
-  ResponsiveContainer,
-  AreaChart,
-} from "recharts";
-import "./Graph.css";
+import React, { useState } from "react";
+import SelectLabels from "../changeComponent/Dropdown1";
+import Graph from "./Graph";
+import { useNavigate } from "react-router-dom";
+// import { TailSpin } from "react-loader-spinner";
 import moment from "moment";
-// import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import MyLineChart from "./Graph";
+import TwinText from "../../../atoms/twinText";
+import Example from "../../../atoms/dateRangePicker";
+import Colors from '../../../global/Color';
 
-const data = [
-  {
-    date: "2023-07-27 22:30:33",
-    targetDep: "40",
-    actDep: "42",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-28 18:30:33",
-    targetDep: "41",
-    actDep: "43",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-29 12:30:33",
-    targetDep: "43",
-    actDep: "44",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-30 20:30:33",
-    targetDep: "45",
-    actDep: "47",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-01 22:10:33",
-    targetDep: "44",
-    actDep: "41",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-02 14:30:33",
-    targetDep: "40",
-    actDep: "42",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-03 23:30:33",
-    targetDep: "44",
-    actDep: "43",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-04 02:30:33",
-    targetDep: "43",
-    actDep: "44",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-05 07:30:33",
-    targetDep: "45",
-    actDep: "47",
-    noOfDep: 123,
-  },
-  {
-    date: "2023-07-06 09:30:33",
-    targetDep: "44",
-    actDep: "41",
-    noOfDep: 123,
-  },
-];
 
-const Graph = (props: any) => {
-  const { processData } = props;
-  const [graphData, setgraphData] = useState([]);
-  const [isSingleMonth, setisSingleMonth] = useState(false)
+const ProcessDetails = (props: any) => {
+  const { processData, changeHandler, userOptions, isLoading } = props;
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    let temp: any = [];
-    processData?.graphdate?.forEach((item: any, index: number) =>
-      item?.processData?.forEach((pData: any) => {
-        // console.log(graphData,'i am here or not for check only ====>')
-        // if(Math.round(pData.processDuration)<400){
-        temp.push({
-          // date: moment(pData.flighttime, "YYYY-MM-DDTHH:mm:SSZ")?.format(
-          //   "YYYY-MM-DD HH:mm:ss"
-          date: moment(pData.flighttime, "YYYY-MM-DDTHH:mm:SS")?.format(
-            "YYYY-MM-DD HH:mm:SS" 
-          ),
-          targetDep: Math.round(pData.processDuration),
-          actDep: Math.round(pData.processDuration),
-          noOfDep: item.noOfDepartures,
-        });
-        // }
-      })
-    );
-    setgraphData(temp);
-    setisSingleMonth(isSingleMonthFun(temp))
-    // console.log("graphData", temp);
-  }, [processData]);
-
-  const CustomLegent = ({ payload }: any) => {
-    return (
-      <ul>
-        {payload.map((entry: any, index: number) => {
-          // console.log("CustomLegent", entry);
-          return (
-            <li>
-              <span>{entry.value}</span>
-            </li>
-          );
-        })}
-      </ul>
-    );
-  };
-
-  const GetRefLine = (color: any, isDashed: any, value: any = 0) => {
-    // console.log(" color, isDashed ", color, isDashed, value);
-
-    return (
-      <ReferenceLine
-        y={value}
-        stroke={color}
-        strokeDasharray={isDashed ? "8 8" : "0 0"}
-      />
-    );
-  };
-
-  const getColor = (name: any) => {
-    switch (name.toLowerCase()) {
-      case "min":
-        return "#2AB1F7";
-      case "max":
-        return "#FA0319";
+  const getCurrentQuarter = () => {
+    let periodValue = "";
+    switch (moment().quarter() + "") {
+      case "1":
+        periodValue = `JAN `;
+        break;
+      case "3":
+        periodValue = `JUL `;
+        break;
+      case "4":
+        periodValue = `OCT `;
+        break;
       default:
-        return "#17C43D";
+        periodValue = `APR `;
+        break;
     }
+    return periodValue + moment()?.format("YYYY");
   };
-
-  const GetReferenceLine = () => {
-    // console.log("isDashed", Object.keys(processData.target));
-    return (
-      <>
-        {Object.keys(processData.target).map((keyName, index) =>
-          GetRefLine(
-            getColor(keyName),
-            true,
-            Number.isInteger(processData.target[keyName])
-              ? processData.target[keyName]
-              : 0
-          )
-        )}
-        {Object.keys(processData.actual).map((keyName, index) =>
-          GetRefLine(
-            getColor(keyName),
-            false,
-            Number.isInteger(processData.actual[keyName])
-              ? processData.actual[keyName]
-              : 0
-          )
-        )}
-      </>
-    );
-  };
-  let uniqueDates:any = [];
-  const isSingleMonthFun = (data:any) => {
-    let temp:any = []
-    data.forEach((element:any) => {
-      // let monthYear = moment(element.date,'YYYY-MM-DD HH:mm:ss')?.format('MMM YY')
-      let monthYear = moment(element.date,'YYYY-MM-DD HH:mm:SS')?.format('MMM YY')
-      // console.log("isSingleMonthFun",temp,monthYear);
-      if(!temp.includes(monthYear)){
-        temp.push(monthYear)
-      }
-    });
-    
-    if(temp.length <= 1){
-      return true
-    }
-    return false
-  }
-  const CustomXAxisTick = ({ x, y, payload, index, ticks }: any) => {
-    // console.log("CustomXAxisTick",uniqueDates,x, y, payload, index, ticks);
-    console.log(payload,'i am here or not for check only ====>')
-    
-    // const formattedDate = moment(payload.value)?.format("MMM-yyyy");
-    const formattedDate = moment(payload.value,'YYYY-MM-DD HH:mm:SS')?.format("MMM-yyyy");
-    // console.log("CustomXAxisTick",x, y, payload, index, ticks);
-    if(isSingleMonth){
-      if(graphData.length/2 == index){
-        return (
-          <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={16} textAnchor="middle" //fill="#666"
-            >
-              {formattedDate}
-            </text>
-          </g>
-        );
-      }
-      return null;
-    }else if (!uniqueDates.includes(formattedDate)) {
-      // console.log(graphData,formattedDate,'i am here or not for check only ====>',x,y)
-      // console.log(formattedDate,'i am here or not for check only ====>',x,y)
-      uniqueDates.push(formattedDate)
-      console.log("CustomXAxisTick",uniqueDates,formattedDate);
-      return (
-        <g transform={`translate(${x},${y})`}>
-          <text x={0} y={0} dy={16} textAnchor="middle" //fill="#666"
-          >
-            {formattedDate}
-          </text>
-        </g>
-      );
-    }
-    return null;
-  };
-
-  const labelFormatter = (date: any) =>
-    // moment(date, "YYYY-MM-DD HH:mm:ss")?.format("MMM YY");
-  moment(date, "YYYY-MM-DD HH:mm:SS")?.format("MMM YY");
 
   return (
-    // <TransformWrapper>
-    //   <TransformComponent>
-        <div style={{ height: "450px", width: "100%" }}>
-          {graphData ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart
-                width={1300}
-                height={438}
-                data={graphData}
-                // data={data}
-                margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+    <div style={{ width: "75%" }}>
+      <div
+        style={{
+          display: "flex",
+          background: Colors.common, 
+          color: Colors.black,
+          height: "64px",
+          alignItems: "center",
+          padding: "0px 37px",
+          justifyContent: "space-between",
+        }}
+      >
+         <div
+          style={{
+            display: "flex",
+             padding: "0px 10px 0px 0px",
+            width: "100%",
+            // flexWrap: "wrap",
+            gap: "15px",
+          }}
+        >
+        <SelectLabels
+          labelStyle={{
+            color:Colors.headerLabelColor,
+            fontSize: "16px",
+            paddingLeft: "6px",
+          }}
+          selectboxStyles={{
+            minWidth: 120,borderRadius:"5px",height: "36px" 
+          }}
+          title={"Station"}
+          // changeHandler={(val: any) => changeHandler(val, "acType")}
+          name="Station"
+          value={userOptions.Station}
+          // placeholder="Select AC Type"
+          list={["LHR"]}
+        />
+          <SelectLabels
+            labelStyle={{
+              color: "#999999",
+              fontSize: "16px",
+              paddingLeft: "6px",
+            }}
+            title={"Aircraft Type"}
+            selectboxStyles={{
+              minWidth: 120,borderRadius:"5px",height: "36px" 
+            }}
+            changeHandler={(val: any) => changeHandler(val, "acType")}
+            name="acType"
+            value={userOptions.acType}
+            // placeholder="Select AC Type"
+            list={["75T", "73W", "73W", "A320", "321", "764"]}
+          />
+          <SelectLabels
+            labelStyle={{
+              color: "#999999",
+              fontSize: "16px",
+              paddingLeft: "6px",
+            }}
+            title={"PTS Type"}
+            selectboxStyles={{
+              minWidth: 120,borderRadius:"5px",height: "36px" 
+            }}
+            changeHandler={(val: any) => changeHandler(val, "pts")}
+            name="pts"
+            // placeholder="Select PTS"
+            value={userOptions.pts}
+            list={["Boarding", "Turnaround", "Dispatch"]}
+          />
+          <SelectLabels
+            labelStyle={{
+              color: "#999999",
+              fontSize: "16px",
+              paddingLeft: "6px",
+            }}
+            title={"Period"}
+            selectboxStyles={{
+              minWidth: 120,borderRadius:"5px",height: "36px" 
+            }}
+            changeHandler={(val: any) => changeHandler(val, "period")}
+            name="period"
+            // placeholder="Select Period"
+            value={userOptions.period}
+            list={[
+              "MTD",
+              "YTD",
+              "QTD",
+              "Monthly",
+              "Quarterly",
+              "Yearly",
+              "Custom",
+            ]}
+          />
+          {userOptions.period.toLowerCase() == "custom" ? (
+            <Example
+              value={userOptions.customDate}
+              title={"Date Range"}
+              name="customDate"
+              changeHandler={(val: any) => changeHandler(val, "customDate")}
+            />
+          ) : ["mtd", "qtd", "ytd"].includes(
+              userOptions.period.toLowerCase()
+            ) ? (
+            <div style={{marginTop:-7}}>
+              <label style={{color:Colors.headerLabelColor, fontSize: "15px" }}>
+                Date Range
+              </label>
+              <div
+                style={{
+                  width: "315px",
+                  height: "30px",
+                  border: "1px solid #DBDBDB",
+                  borderRadius: "20px",
+                  backgroundColor: "#F0F0F0",
+                  // marginTop: "3.5px",
+                  display: "flex",
+                  alignItems: "center",
+                  paddingLeft: "15px",
+                  color:"#999999",
+                  
+                }}
               >
-                <>{console.log('check the graph data ====> ',graphData)}</>
-                <defs>
-                  <linearGradient id="colorTarget" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0062FF" stopOpacity={0.6} />
-                    <stop offset="95%" stopColor="#0062FF" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorActual" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0062FF" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#0062FF" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis
-                  dataKey="date"
-                  // tickLine={false}
-                  axisLine={true}
-                  // tickFormatter={labelFormatter}
-                  tick={<CustomXAxisTick />}
-                  interval={0}
-                />
-                <YAxis
-                  label={{
-                    value: "MINUTES",
-                    angle: -90,
-                    position: "outsideLeft",
-                    fill: "#2680EB",
-                  }}
-                  tick={{ fill: "#2680EB" }}
-                  // dx={2}
-                  tickSize={10}
-                  domain={[0, 100]}
-                  width={80}
-                  // interval={0}
-                />
-                <YAxis
-                  label={{
-                    value: "DEPARTURE",
-                    angle: -90,
-                    position: "outsideRight",
-                    fill: "#999999",
-                  }}
-                  tickSize={0}
-                  dx={5}
-                  yAxisId="right"
-                  orientation="right"
-                  dataKey="noOfDep"
-                  ticks={[100, 200, 300, 400, 500]}
-                  tick={{ fill: "#999999" }}
-                  // axisLine={false}
-                  width={90}
-                />
-                {/* <Bar
-              dataKey="noOfDep"
-              yAxisId="right"
-              barSize={1.8}
-              fill="#8884d8"
+                {`01 ${
+                  userOptions.period.toLowerCase() === "mtd"
+                    ? moment()?.format("MMM YYYY")
+                    : userOptions.period.toLowerCase() === "qtd"
+                    ? getCurrentQuarter()
+                    : `JAN ${moment()?.format("YYYY")}`
+                } - ${moment()?.format("DD MMM YYYY")}`}
+              </div>
+            </div>
+          ) : userOptions.period.toLowerCase() === "monthly" ? (
+            <>
+              <SelectLabels
+                dualDropDownLeft={true}
+                labelStyle={{
+                  color:Colors.headerLabelColor,
+                  fontSize: "15px",
+                  paddingLeft: "6px",
+                }}
+                title={"Year"}
+                selectboxStyles={{
+                  minWidth: 120,borderRadius:"5px",height: "36px" 
+                }}
+                changeHandler={(val: any) => changeHandler(val, "year")}
+                name="year"
+                placeholder="Year"
+                value={userOptions.year}
+                list={[
+                  "2024",
+                  "2023",
+                  "2022",
+                  "2021",
+                  "2020",
+                  "2019",
+                  "2018",
+                  "2017",
+                  "2016",
+                  "2015",
+                ]}
+              />
+              <SelectLabels
+                dualDropDownRight={true}
+                labelStyle={{
+                  color: "#999999",
+                  fontSize: "16px",
+                  paddingLeft: "6px",
+                }}
+                title={"Month"}
+                selectboxStyles={{
+                  minWidth: 120,borderRadius:"5px",height: "36px" 
+                }}
+                changeHandler={(val: any) => changeHandler(val, "month")}
+                name="month"
+                placeholder="Month"
+                value={userOptions.month}
+                list={[
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ]}
+              />
+            </>
+          ) : userOptions.period.toLowerCase() === "quarterly" ? (
+            <>
+              <SelectLabels
+                dualDropDownLeft={true}
+                labelStyle={{
+                  color: "#999999",
+                  fontSize: "16px",
+                  paddingLeft: "6px",
+                }}
+                title={"Year"}
+                selectboxStyles={{
+                  minWidth: 120,borderRadius:"5px",height: "36px" 
+                }}
+                changeHandler={(val: any) => changeHandler(val, "year")}
+                name="year"
+                placeholder="Year"
+                value={userOptions.year}
+                list={[
+                  "2025",
+                  "2024",
+                  "2023",
+                  "2022",
+                  "2021",
+                  "2020",
+                  "2019",
+                  "2018",
+                  "2017",
+                  "2016",
+                  "2015",
+                ]}
+              />
+              {/* <div
+              style={{
+                border: "0.5px solid #DBDBDB",
+                height: "23px",
+                marginTop: "29px",
+              }}
             /> */}
-                {GetReferenceLine()}
-                <Tooltip />
-                {/* <Legend /> */}
-                <Area
-                  strokeDasharray="8 8"
-                  type="monotone"
-                  dataKey="targetDep"
-                  stroke="#0062FF"
-                  fillOpacity={1}
-                  fill="url(#colorTarget)"
-                />
-                <Area
-                  type="monotone"
-                  dataKey="actDep"
-                  stroke="#0062FF"
-                  fillOpacity={1}
-                  fill="url(#colorActual)"
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+              <SelectLabels
+                dualDropDownRight={true}
+                labelStyle={{
+                  color: "#999999",
+                  fontSize: "16px",
+                  paddingLeft: "6px",
+                }}
+                title={"Quarter"}
+                selectboxStyles={{
+                  minWidth: 120,borderRadius:"5px",height: "36px" 
+                }}
+                changeHandler={(val: any) => changeHandler(val, "quarter")}
+                name="quarter"
+                placeholder="Quarter"
+                value={userOptions.quarter}
+                list={["Q1", "Q2", "Q3", "Q4"]}
+              />
+            </>
+          ) : userOptions.period.toLowerCase() === "yearly" ? (
+            <>
+              <SelectLabels
+                labelStyle={{
+                  color: "#999999",
+                  fontSize: "16px",
+                  paddingLeft: "6px",
+                }}
+                title={"Year"}
+                selectboxStyles={{
+                  minWidth: 120,borderRadius:"5px",height: "36px" 
+                }}
+                changeHandler={(val: any) => changeHandler(val, "year")}
+                name="year"
+                placeholder="Year"
+                value={userOptions.year}
+                list={[
+                  "2024",
+                  "2023",
+                  "2022",
+                  "2021",
+                  "2020",
+                  "2019",
+                  "2018",
+                  "2017",
+                  "2016",
+                  "2015",
+                ]}
+              />
+            </>
           ) : null}
         </div>
-    //   </TransformComponent>
-    // </TransformWrapper>
+        {/* <TwinText
+          styles={{ color: "#202124", fontSize: "16px", fontWeight: "600" }}
+          text="Process Control"
+        /> */}
+        {/* <TwinText
+          styles={{ color: "#077DF4", fontSize: "15px", cursor: "pointer" }}
+          // onClick={() => navigate("/process/config")}
+          text="Configuration"
+        /> */}
+      </div>
+      <div style={{height: "100%", overflow:"scroll"}}>
+       
+        <div
+          style={{
+            borderBottom: "1px solid #DCDCDC",
+            display: "flex",
+            margin: "0px 37px",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              paddingTop: "7px",
+              marginRight: "10px",
+            }}
+          >
+            <div
+              style={{
+                paddingBottom: "14px",
+                fontSize: "20px",
+                fontWeight: "600",
+              }}
+            >
+              {`Process Performance : ${processData?.startDate} - ${processData?.endDate}`}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "38px",
+                paddingBottom: "7px",
+              }}
+            >
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="PROCESS"
+                />
+                <TwinText
+                  styles={{ fontSize: "15px", fontWeight: "500" }}
+                  // text="A320 Regular Turn"
+                  text={processData?.aircraftType&&processData?.Turn?`${processData?.aircraftType} ${processData?.Turn} Turn`:''}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="AC-TYPE"
+                />
+                <TwinText
+                  styles={{ fontSize: "15px", fontWeight: "500" }}
+                  text={processData?.aircraftType}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MARKET"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  // text="Domestic"
+                  text={processData?.Market}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="HAUL"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  // text="Long Haul"
+                  text={processData?.Haul}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="TURN"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  // text="Regular"
+                  text={processData?.Turn}
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              color: "#999999",
+              padding: "0px 16px",
+              backgroundColor: "#F7F7F7",
+              marginRight: "2px",
+              paddingTop: "7px",
+              borderBottom: "2px solid #999999",
+            }}
+          >
+            <div
+              style={{
+                paddingBottom: "14px",
+                fontSize: "20px",
+                fontWeight: "600",
+              }}
+            >
+              Actual
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "22px",
+                paddingBottom: "7px",
+              }}
+            >
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MAX"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.actual?.max}
+                  // text={processData?.actual?.avg}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="AVG"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.actual?.avg}
+                  // text={processData?.actual?.max}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MIN"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.actual?.min}
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              padding: "0px 16px",
+              backgroundColor: "#F7F7F7",
+              marginRight: "2px",
+              paddingTop: "7px",
+              borderBottom: "2px solid #D71921",
+              borderBottomStyle: "dashed",
+            }}
+          >
+            <div
+              style={{
+                paddingBottom: "14px",
+                fontSize: "20px",
+                fontWeight: "600",
+                color: "#D71921",
+              }}
+            >
+              Target
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "22px",
+                paddingBottom: "7px",
+              }}
+            >
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MAX"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.target?.max}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="AVG"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.target?.avg}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MIN"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.target?.min}
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              padding: "0px 16px",
+              // backgroundColor: "#F7F7F7",
+              marginRight: "2px",
+              paddingTop: "7px",
+            }}
+          >
+            <div
+              style={{
+                paddingBottom: "14px",
+                fontSize: "20px",
+                fontWeight: "600",
+                color: "#000000",
+              }}
+            >
+              Recommended
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "22px",
+                paddingBottom: "7px",
+              }}
+            >
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MAX"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={"-"}
+                  // text={processData?.recommended?.max}
+                  // text={processData?.recommended?.avg}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="AVG"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={processData?.recommended?.avg}
+                  // text={processData?.recommended?.max}
+                />
+              </div>
+              <div>
+                <TwinText
+                  styles={{
+                    paddingBottom: "4px",
+                    fontSize: "13px",
+                    color: "#999999",
+                  }}
+                  text="MIN"
+                />
+                <TwinText
+                  styles={{ fontSize: "16px", fontWeight: "500" }}
+                  text={"-"}
+                  // text={processData?.recommended?.min}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style={{ paddingLeft: "37px", paddingTop: "15px" }}>
+          {/* <SelectLabels
+          title={""}
+          changeHandler={() => {}}
+          value={"Delay Trends"}
+          list={[]}
+        /> */}
+        </div>
+        {isLoading ? (
+          <></>
+        ) : // <TailSpin
+        //   height="80"
+        //   width="80"
+        //   color="#4fa94d"
+        //   ariaLabel="tail-spin-loading"
+        //   radius="1"
+        //   wrapperStyle={{
+        //     height: "450px",
+        //     display: "flex",
+        //     justifyContent: "center",
+        //     alignItems: "center",
+        //   }}
+        //   wrapperClass=""
+        //   visible={true}
+        // />
+        processData?.graphdate ? (
+          Object.keys(processData?.graphdate).length ? (
+            <Graph {...props} />
+          ) : (
+            // <MyLineChart />
+            <div
+              style={{
+                height: "250px",
+                display: "flex",
+                justifyContent: "space-around",
+                alignItems: "center",
+                fontSize:"17px"
+              }}
+            >
+              Data is not sufficient to plot the graph
+            </div>
+          )
+        ) : (
+          <div
+            style={{
+              height: "250px",
+              display: "flex",
+              justifyContent: "space-around",
+              alignItems: "center",
+              fontSize:"17px"
+            }}
+          >
+            Select the configurations to view the graph
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
-export default Graph;
+export default ProcessDetails;
