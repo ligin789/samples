@@ -1,25 +1,59 @@
-Test suite failed to run
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { refArrayOfDates } from './GetFormatData';
+import moment from 'moment';
 
-    Cannot find module 'moment-range' from 'node_modules/react-daterange-picker/dist/moment-range.js'
+export const ExportGridToExcel = async (rowData, colDefs) => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('IOCC Dashboard');
 
-    Require stack:
-      node_modules/react-daterange-picker/dist/moment-range.js
-      node_modules/react-daterange-picker/dist/DateRangePicker.js
-      src/atoms/dateRangePicker/index.js
-      src/components/processControl/processAnalyticsDetails/index.tsx
-      test/components/processControl/index.test.tsx
+  const headers = colDefs.map((col:any) => (col.headerName));
+  worksheet.addRow(headers);
 
+  rowData.forEach((dataRow:any) => {
+    const rowValues = colDefs.map((col:any) => {
+      const cellObj = getNestedObject(dataRow, col.field);
+      if(refArrayOfDates.includes(col.headerName) && typeof cellObj !== 'object'&& cellObj !== '—' && cellObj!==''){
+        return moment(cellObj).format('HH:mm')
+      }
+      return typeof cellObj === 'object' ? cellObj.value : cellObj;
+    });
 
-    However, Jest was able to find:
-        './moment-range.js'
+    const excelRow = worksheet.addRow(rowValues);
 
-    You might want to include a file extension in your import, or update your 'moduleFileExtensions', which is currently ['js', 'mjs', 'cjs', 'jsx', 'ts', 'tsx', 'json', 'node'].
+    colDefs.forEach((col:any, colIndex:any) => {
+      const cellObj = getNestedObject(dataRow, col.key);
+      const cellColor = typeof cellObj === 'object' ? cellObj.color : null;
+      const cell = excelRow.getCell(colIndex + 1)
+      cell.alignment = {vertical:'middle', horizontal:'center'}
+      if (cellColor) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: cellColor.replace('#', '') }
+        };
+      }
+    });
+  });
 
-    See https://jestjs.io/docs/configuration#modulefileextensions-arraystring
+  const headerRow = worksheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '015B25' }
+    };
+    cell.font = { bold: true, color:{argb:'FFFFFF'} };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+  headerRow.height = 20;
+  worksheet.columns.forEach(col => col.width = 15);
 
-      1 | import React from "react";
-    > 2 | import DateRangePicker from "react-daterange-picker";
-        | ^
-      3 | import "react-daterange-picker/dist/css/react-calendar.css";
-      4 | import originalMoment from "moment";
-      5 | import { extendMoment } from "moment-range";
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), 'IOCC Dashboard.xlsx');
+};
+
+// Helper: safely get nested value (e.g., "AIRCRAFT.value")
+const getNestedObject = (obj:any, path:any) => {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj);
+};
