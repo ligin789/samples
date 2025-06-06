@@ -1,59 +1,35 @@
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
-import { refArrayOfDates } from './GetFormatData';
-import moment from 'moment';
+ Test suite failed to run
 
-export const ExportGridToExcel = async (rowData, colDefs) => {
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('IOCC Dashboard');
+    Jest encountered an unexpected token
 
-  const headers = colDefs.map((col:any) => (col.headerName));
-  worksheet.addRow(headers);
+    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
 
-  rowData.forEach((dataRow:any) => {
-    const rowValues = colDefs.map((col:any) => {
-      const cellObj = getNestedObject(dataRow, col.field);
-      if(refArrayOfDates.includes(col.headerName) && typeof cellObj !== 'object'&& cellObj !== '—' && cellObj!==''){
-        return moment(cellObj).format('HH:mm')
-      }
-      return typeof cellObj === 'object' ? cellObj.value : cellObj;
-    });
+    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
 
-    const excelRow = worksheet.addRow(rowValues);
+    By default "node_modules" folder is ignored by transformers.
 
-    colDefs.forEach((col:any, colIndex:any) => {
-      const cellObj = getNestedObject(dataRow, col.key);
-      const cellColor = typeof cellObj === 'object' ? cellObj.color : null;
-      const cell = excelRow.getCell(colIndex + 1)
-      cell.alignment = {vertical:'middle', horizontal:'center'}
-      if (cellColor) {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: cellColor.replace('#', '') }
-        };
-      }
-    });
-  });
+    Here's what you can do:
+     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
+     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
+     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
+     • If you need a custom transformation specify a "transform" option in your config.
+     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
 
-  const headerRow = worksheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: '015B25' }
-    };
-    cell.font = { bold: true, color:{argb:'FFFFFF'} };
-    cell.alignment = { vertical: 'middle', horizontal: 'center' };
-  });
-  headerRow.height = 20;
-  worksheet.columns.forEach(col => col.width = 15);
+    You'll find more details and examples of these config options in the docs:
+    https://jestjs.io/docs/configuration
+    For information about custom transformations, see:
+    https://jestjs.io/docs/code-transformation
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), 'IOCC Dashboard.xlsx');
-};
+    Details:
 
-// Helper: safely get nested value (e.g., "AIRCRAFT.value")
-const getNestedObject = (obj:any, path:any) => {
-  return path.split('.').reduce((acc, key) => acc?.[key], obj);
-};
+    /Users/u2155446/Documents/iocc_dashboard/node_modules/uuid/dist/esm-browser/index.js:1
+    ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){export { default as v1 } from './v1.js';
+                                                                                      ^^^^^^
+
+    SyntaxError: Unexpected token 'export'
+
+    > 1 | import ExcelJS from 'exceljs';
+        | ^
+      2 | import { saveAs } from 'file-saver';
+      3 | import { refArrayOfDates } from './GetFormatData';
+      4 | import moment from 'moment';
