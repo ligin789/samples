@@ -1,35 +1,23 @@
- Test suite failed to run
+● Test suite failed to run
 
-    Jest encountered an unexpected token
+    Cannot find module 'moment-range' from 'node_modules/react-daterange-picker/dist/moment-range.js'
 
-    Jest failed to parse a file. This happens e.g. when your code or its dependencies use non-standard JavaScript syntax, or when Jest is not configured to support such syntax.
+    Require stack:
+      node_modules/react-daterange-picker/dist/moment-range.js
+      node_modules/react-daterange-picker/dist/DateRangePicker.js
+      src/atoms/dateRangePicker/index.js
+      src/components/processControl/processAnalyticsDetails/index.tsx
+      src/components/processControl/index.tsx
+      src/screens/home/index.tsx
+      test/screens/home/Home.test.tsx
 
-    Out of the box Jest supports Babel, which will be used to transform your files into valid JS based on your Babel configuration.
 
-    By default "node_modules" folder is ignored by transformers.
+    However, Jest was able to find:
+        './moment-range.js'
 
-    Here's what you can do:
-     • If you are trying to use ECMAScript Modules, see https://jestjs.io/docs/ecmascript-modules for how to enable it.
-     • If you are trying to use TypeScript, see https://jestjs.io/docs/getting-started#using-typescript
-     • To have some of your "node_modules" files transformed, you can specify a custom "transformIgnorePatterns" in your config.
-     • If you need a custom transformation specify a "transform" option in your config.
-     • If you simply want to mock your non-JS modules (e.g. binary assets) you can stub them out with the "moduleNameMapper" config option.
+    You might want to include a file extension in your import, or update your 'moduleFileExtensions', which is currently ['js', 'mjs', 'cjs', 'jsx', 'ts', 'tsx', 'json', 'node'].
 
-    You'll find more details and examples of these config options in the docs:
-    https://jestjs.io/docs/configuration
-    For information about custom transformations, see:
-    https://jestjs.io/docs/code-transformation
+    See https://jestjs.io/docs/configuration#modulefileextensions-arraystring
 
-    Details:
-
-    /Users/u2155446/Documents/iocc_dashboard/node_modules/uuid/dist/esm-browser/index.js:1
-    ({"Object.<anonymous>":function(module,exports,require,__dirname,__filename,jest){export { default as v1 } from './v1.js';
-                                                                                      ^^^^^^
-
-    SyntaxError: Unexpected token 'export'
-
-    > 1 | import ExcelJS from 'exceljs';
-        | ^
-      2 | import { saveAs } from 'file-saver';
-      3 | import { refArrayOfDates } from './GetFormatData';
-      4 | import moment from 'moment';
+      1 | import React from "react";
+    > 2 | import DateRangePicker from "react-daterange-picker";
