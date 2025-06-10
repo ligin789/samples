@@ -1,42 +1,69 @@
-import { useState } from "react";
-import PilotCrewConxModal from "../../pilotcrewconx";
 import Tippy from "@tippyjs/react";
+import RunwayHoverPopup from "../../runwayHoverPopup";
+import { useState } from "react";
 
-const RenderPilotCrewConnection = (props: any) => {
-    const [visible, setVisible] = useState(false);
-    
+const RenderRunwayCell = (props: any) => {
+    const [visible, setVisible] = useState(false)
     if (props.value === "—" || !props.value) {
         return <span>{"—"}</span>;
     }
-    if (props.data["flightob"].value.startsWith('1907') || props.data["flightob"].value.startsWith('223')) {
+    if (props.data['arrrwy'].color) {
+        return (
+            <Tippy
+                content={(<RunwayHoverPopup />)}
+                visible={visible}
+                allowHTML={true}
+                arrow={false}
+                appendTo={document.body}
+                interactive={true}
+                placement='bottom'
+            >
+                <div style={{ cursor: 'pointer' }} onClick={props.handleRunwayClick} onMouseEnter={(e: any) => setVisible(true)} onMouseLeave={() => setVisible(false)}>
+                    <span>{props?.value}</span>
+                </div>
+            </Tippy>
+        )
+    }
+    return (
+        <span>{props?.value}</span>
+    )
+}
+
+export default RenderRunwayCell
+
+
+import Tippy from "@tippyjs/react";
+import PetdHoverPopup from "../../petdHoverPopup";
+import { useState } from "react";
+import moment from "moment";
+import PetaHoverPopup from "../../petaHoverPopup";
+
+const RenderPeta = (props: any) => {
+    const { isUTCToggled } = props
+    const [visible, setVisible] = useState(false)
+    if (props.value === "—" || !props.value) {
+        return <span>{"—"}</span>;
+    }
+    if (props.data["flightob"].value.startsWith('223')) {
         return (
             <Tippy
                 content={(
-                    <PilotCrewConxModal flightOb={props.data["flightob"].value} col={props?.colDef?.key}/>
+                    <PetaHoverPopup />
                 )}
                 visible={visible}
                 allowHTML={true}
                 arrow={false}
                 appendTo={document.body}
                 interactive={true}
-                placement="bottom"
+                placement='bottom'
             >
-                <div style={{ cursor: 'pointer' }} onMouseEnter={(e: any) => {setVisible(true)}} onMouseLeave={()=>setVisible(false)} onClick={()=>props?.setCrewPopup(true)}>
-                {
-                    props?.colDef?.key === 'pilotconxib' || props?.colDef?.key === 'ccconxib' ?
-                        <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value} </a>
-                        :<span>{props?.value}</span>
-                }
+                <div style={{ cursor: 'pointer' }} onMouseEnter={(e: any) => {setVisible(true)}} onMouseLeave={(e: any) => {setVisible(false)}}>
+                    <span>{moment.utc(props.value).format('HH:mm')}</span>
                 </div>
             </Tippy>
         )
     }
-    return (
-        props?.colDef?.key === 'pilotconxib' || props?.colDef?.key === 'ccconxib' ?
-            <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value} </a>
-            :<span>{props?.value}</span>
-    )
-    
+    return <span>{moment.utc(props.value).format('HH:mm')}</span>
 }
 
-export default RenderPilotCrewConnection
+export default RenderPeta
