@@ -1,257 +1,61 @@
-import React, { useEffect, useState } from "react";
-import DynamicRender from "../dynamicrenderer";
-import { useDispatch, useSelector } from "react-redux";
-import { referenceViewAction } from "../../redux/referenceData/action";
-// import notesAddJson from "../../assets/jsons/addNotes.json"
-const AddNotes = (props: any) => {
+AddNotes Component
+    ✕ renders AddNotes component correctly (2 ms)
+    ✕ dispatches store actions correctly (mock test)
+    ✕ calls handleNotesClose on close (via props) (1 ms)
 
-  const { gridDataIdValue,carrierCodeValue,flightNoValue} = props
-  const [addNotescategeorySelected, setAddNotesCategorySelected] = useState("")
-  const [CustomCategory, setCustomCategory] = useState("")
-  const [notes, setNotes] = useState("")
-  const dispatch = useDispatch()
-  const notesWidget = useSelector((state: any) => state?.HomeScreenReducer?.notesWidget)
-  const notesUpdated=useSelector((state:any)=>state?.HomeScreenReducer?.notesUpdated)
-  const [addNotesJson, setAddNotesJson]:any= useState([])
+  ● AddNotes Component › renders AddNotes component correctly
 
-  const showLoader = useSelector((state: any) => state?.HomeScreenReducer?.showGridDataLoader)
+    TypeError: middleware is not a function
 
-  useEffect(() => {
-    //to be commented
-    // if(flightNoValue!=="306/08"){
-    if(notesWidget!==null){
-    dispatch(referenceViewAction.getNotesWidget(gridDataIdValue))
-    setAddNotesJson(notesWidget)
-    }
-  // }else{
-  //   setAddNotesJson(notesAddJson)
-  // }
-  }, [notesUpdated,JSON.stringify(notesWidget)])
+      25 |       }
+      26 |     };
+    > 27 |     const store = mockStore(initialState);
+         |                   ^
+      28 |     const utils = render(
+      29 |       <Provider store={store}>
+      30 |         <AddNotes
 
-  // useEffect(()=>{
-  // if(notesWidget.length===0){
-  //   dispatch(referenceViewAction.updateLoaderStatus(true))
-  // }else{
-  //   dispatch(referenceViewAction.updateLoaderStatus(false))
-  // }
-  // },[JSON.stringify(addNotesJson)])
+      at node_modules/redux/src/applyMiddleware.ts:54:49
+          at Array.map (<anonymous>)
+      at node_modules/redux/src/applyMiddleware.ts:54:31
+      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
+      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
+      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:43:27)
 
+  ● AddNotes Component › dispatches store actions correctly (mock test)
 
-  const mapFunctions = {
-    addNotesCloseButtonClick: () => {
-      props.handleNotesClose(
-        {
-          category: addNotescategeorySelected || "",
-          customCategoryValue: CustomCategory || "",
-          notes: notes || ""
-        })
-    },
-    addNotesCategorySelected: (data: any) => {
-      setAddNotesCategorySelected(data)
-      if (data.toLowerCase() === "others") {
-        let existJson = JSON.parse(JSON.stringify(addNotesJson))
-        existJson[0].widgetAttributes.categoryOthersSelected = true
-        setAddNotesJson(existJson)
-      } else {
-        let existJson = JSON.parse(JSON.stringify(addNotesJson))
-        existJson[0].widgetAttributes.categoryOthersSelected = false
-        setAddNotesJson(existJson)
-      }
+    TypeError: middleware is not a function
 
-    },
-    addNotesCustomCategory: (data: any) => {
-      setCustomCategory(data)
-    },
-    notesTyped: (data: any) => {
-      setNotes(data)
-    },
-    addNoteDoneClicked: (data: any) => {
-      dispatch(referenceViewAction.updateLoaderStatus(true))
-      dispatch(referenceViewAction.addFlightNotes({flightLegId:gridDataIdValue,categoryName:addNotescategeorySelected,notes:notes,carrierCodeValue:carrierCodeValue}))
+      25 |       }
+      26 |     };
+    > 27 |     const store = mockStore(initialState);
+         |                   ^
+      28 |     const utils = render(
+      29 |       <Provider store={store}>
+      30 |         <AddNotes
 
-    },
-    addNoteCancelClicked: (data: any) => {
-      let existJson = JSON.parse(JSON.stringify(addNotesJson))
-      existJson[0].widgetAttributes.addNotesClicked = !existJson[0].widgetAttributes.addNotesClicked
-      setAddNotesJson(existJson)
-    },
-    addNoteButtonClicked: (data: any) => {
-      let existJson = JSON.parse(JSON.stringify(addNotesJson))
-      existJson[0].widgetAttributes.addNotesClicked = !existJson[0]?.widgetAttributes?.addNotesClicked
-      setAddNotesJson(existJson)
-    }
-  }
-  return (
-    <div style={{ position: "absolute", zIndex: 10, left: "30%", top: "10%", zoom: "var(--zoomPercentage)" }} >
-      <DynamicRender data={addNotesJson[0]}
-        mappedFunctions={mapFunctions} />
-    </div>
-  );
-};
+      at node_modules/redux/src/applyMiddleware.ts:54:49
+          at Array.map (<anonymous>)
+      at node_modules/redux/src/applyMiddleware.ts:54:31
+      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
+      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
+      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:48:23)
 
-export default AddNotes;
+  ● AddNotes Component › calls handleNotesClose on close (via props)
 
+    TypeError: middleware is not a function
 
-import React, { useEffect, useState } from "react";
+      25 |       }
+      26 |     };
+    > 27 |     const store = mockStore(initialState);
+         |                   ^
+      28 |     const utils = render(
+      29 |       <Provider store={store}>
+      30 |         <AddNotes
 
-import moment from "moment";
-import PieChartComp from "../../atoms/Piechart/PieChart";
-
-export const HoverPopup = (props: any) => {
-  const { hoverData , screen } = props
-  const [data,setData] = useState<any>(null)
-    let taskData = [
-        {
-            "taskDesc": "TURNAROUND",
-            "percentage": 71
-        },
-        {
-            "taskDesc": "BOARDING",
-            "percentage": 69
-        },
-        {
-            "taskDesc": "BAGGAGE",
-            "percentage": 80
-        },
-        {
-            "taskDesc": "DISPATCH",
-            "percentage": 53
-        }
-    ]
-
-    useEffect(() => {
-        let data: any = {}
-        if (screen === "gantt") {
-            data = {
-                "estArrTime": hoverData?.estArrTime,
-                "schArrTime": hoverData?.schArrTime,
-                "estDepTime": hoverData?.estDepTime,
-                "schDepTime": hoverData?.schDepTime,
-                "inFlightNo": hoverData?.inFlightNo,
-                "outFlightNo": hoverData?.outFlightNo,
-                "inBoundStn": hoverData?.inBoundStn,
-                "outBoundStn": hoverData?.outBoundStn,
-                "baseStn": hoverData?.baseStn,
-                "arrFlightStatus": hoverData?.arrFlightStatus,
-                "depFlightStatus": hoverData?.depFlightStatus,
-                "mgt":hoverData?.mgt,
-                "agt":hoverData?.agt,
-                "taskData":hoverData?.taskData,
-                "anomalyData":{
-                    "titile": "Pax Misconnection",
-                    "value": "5 Business class passengers are misconnecting. Optimum Hold time of a flight 00:10."
-                }
-
-            }
-        } else {
-            data = {
-                "estArrTime": hoverData?.iaoLclEstArrDtTmOB,
-                "schArrTime": hoverData?.scheduledArrivallocal,
-                "estDepTime": hoverData?.iaoLclEstDepDtTmOB,
-                "schDepTime": hoverData?.scheduledDeparturelocal,
-               "inFlightNo": hoverData?.flightIB,
-                "outFlightNo": hoverData?.flightOB,
-                "inBoundStn": hoverData?.arrival,
-                "outBoundStn":hoverData?.departure,
-                "baseStn": hoverData?.baseStn,
-                "arrFlightStatus": hoverData?.flightStatusIB,
-                "depFlightStatus": hoverData?.flightStatusOB,
-                "mgt":hoverData?.mgt,
-                "agt":hoverData?.agt,
-                "taskData":hoverData?.taskData,
-                "anomalyData":{
-                    "titile": "Weather",
-                    "value": "Toronto Pearson Airport fall below CAT 1 minima. RVR - 0.25sm (402 m) | DH - 1400 ft."
-                }
-
-            }
-        }
-        setData(data)
-    }, [hoverData])
-
-
-  return (
-    <div style={{position:'relative',width:`480px`,display:'flex',justifyContent:'center',boxShadow: "0px 0px 20px #000000",zIndex:7,backgroundColor:"#FFFFFF",flexDirection:'column',padding:10,border: "1px solid #00000072",borderRadius:10,zoom: screen === "map"?'var(--zoomPercentage)':'',}}>
-        <div style={{padding:"5px 5px",borderBottom: "1px solid #BDBDBD"}}>
-         <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"60%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold'}}>Inbound Flight</div>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"40%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold'}}>Outbound Flight</div>
-            </div>
-            
-        </div> 
-          <div style={{ display: "flex", flexDirection: 'row', alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ display: "flex", alignItems: "flex-start",width:"60%" }}>
-                  <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "16px", fontWeight: 'normal', }}>
-                      {data?.inFlightNo ? `TP ${data?.inFlightNo} ${data?.inBoundStn ? `${data?.inBoundStn} - ${data?.baseStn}` : "--"}` : ''}
-                  </div>
-                  {/* <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "14px", fontWeight: '400' }}>{data?.inBoundStn ? `${data?.inBoundStn} - ${data?.baseStn}` : "--"}</div> */}
-              </div>
-              <div style={{ display: "flex", alignItems: "flex-start",width:"40%" }}>
-                  <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "16px", fontWeight: 'normal', }}>
-                      {data?.outFlightNo ? `TP ${data?.outFlightNo} ${data?.outBoundStn ? `${data?.baseStn} - ${data?.outBoundStn}` : "--"}` : ''}
-                  </div>
-                  {/* <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "14px", fontWeight: '400' }}>{data?.outBoundStn ? `${data?.baseStn} - ${data?.outBoundStn}` : "--"}</div> */}
-              </div>
-
-          </div>
-        <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between",}}>
-        <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"60%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>STA <div style={{fontWeight:'400'}}>{data?.schArrTime?`: ${moment(data?.schArrTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>ETA  <div style={{fontWeight:'400'}}>{data?.estArrTime?`: ${moment(data?.estArrTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>Status  <div style={{fontWeight:'400',color:data?.arrFlightStatus=="DYLD"?"#C60000":""}}>{`: ${data?.arrFlightStatus}`}</div></div>
-            </div>
-            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"40%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>STD<div style={{fontWeight:'400'}}>{data?.schDepTime?`: ${moment(data?.schDepTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>ETD<div style={{fontWeight:'400'}}>{data?.estDepTime?`: ${moment(data?.estDepTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>Status<div style={{fontWeight:'400'}}>{`: ${data?.depFlightStatus}`}</div></div>
-            </div>
-        </div>
-        <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"flex-start",width:"60%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500'}}>{"MGT"}</div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',display:"flex",flexDirection:'row'}}>{`: ${data?.mgt? moment(data?.mgt,'YYYY-MM-DDTHH:mmSS').format("HH:mm"):" --:--"}`}</div>
-            </div>
-            <div style={{display:"flex",alignItems:"flex-start",width:"40%"}}>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500'}}>{"AGT"}</div>
-                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',display:"flex"}}>{`: ${data?.agt? moment(data?.agt,'YYYY-MM-DDTHH:mmSS').format("HH:mm"):" --:--"}`}</div>
-            </div>
-            
-        </div>
-        </div>
-        <div style={{padding:"15px 5px",display:"flex",justifyContent:'space-between',alignItems:'center',borderBottom: "1px solid #BDBDBD"}}>
-            {taskData&&taskData.map((item, index) => {
-                return (
-                    <div style={{justifyContent:'space-between',display:'flex',flexDirection:'column'}}>
-                        <div style={{display:'flex',border:"none"}}>
-                            <PieChartComp
-                                value={item.percentage}
-                                pieSize={30}
-                            />
-                            <div style={{alignItems:'center',justifyContent:'center',display:'flex',font: "normal normal normal 15px/18px Roboto",paddingLeft:5}}>{`${item.percentage}%`}</div>
-                        
-                        </div>
-                        <div> {item.taskDesc}</div>
-                    </div>
-                )
-            })
-            }
-        </div>
-        <div style={{padding:"15px 0px 5px 0px",display:"flex",flexDirection:'column'}}>
-            <div style={{fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold',textAlign:"left"}}>Anomaly</div>
-            <div style={{display:"flex",paddingTop:3}}>
-                <div style={{fontFamily:"Roboto",fontSize:"15px",fontWeight:'bold',textAlign:"left", width:screen === "gantt"?'230px':'100px'}}>{`${data?.anomalyData?.titile} : `} </div>
-                <div style={{fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',paddingLeft:3,textAlign:"left",whiteSpace:'wrap'}}>{`${data?.anomalyData?.value}`} </div>
-            </div>
-            {/* <div style={{display:"flex",paddingTop:3}}>
-                <div style={{fontFamily:"Roboto",fontSize:"15px",fontWeight:'bold',textAlign:"left"}}>Weather: </div>
-                <div style={{fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',paddingLeft:3,textAlign:"left"}}> San Franscio airport falls under CAT1 minima. The RVR - 0.25sm (402 m) | DH - 1400 ft.</div>
-            </div> */}
-        </div>
-    </div>
-  )
-}
-
-
+      at node_modules/redux/src/applyMiddleware.ts:54:49
+          at Array.map (<anonymous>)
+      at node_modules/redux/src/applyMiddleware.ts:54:31
+      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
+      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
+      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:55:26)
