@@ -1,163 +1,39 @@
+import React, { useState } from "react";
+import DynamicRender from "../dynamicrenderer";
+import { getJsonData } from "../../global/tenantConfig";
 
- FAIL  test/utils/ExportAsExcel.test.ts
-  Additional Tests for Full Coverage
-    ✕ should handle empty rowData array (2 ms)
-    ✕ should handle empty colDefs array (1 ms)
-    ✕ should handle invalid date values in date columns (1 ms)
-    ✕ should handle non-date fields that look like dates (1 ms)
-    ✕ should verify complete header formatting (2 ms)
-    ✕ should handle malformed field paths gracefully (1 ms)
-    ✕ should verify all cell alignment properties (1 ms)
-    ✕ should handle color values with and without hash (1 ms)
+export const PilotCrewConxModal = (props: any) => {
+    const {flightOb, col} = props;
 
-  ● Additional Tests for Full Coverage › should handle empty rowData array
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      14 | describe('Additional Tests for Full Coverage', () => {
-      15 |   it('should handle empty rowData array', async () => {
-    > 16 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-         |                                             ^
-      17 |     await ExportGridToExcel([], mockColDefs);
-      18 |     
-      19 |     // Should only add header row
-
-      at test/utils/ExportAsExcel.test.ts:16:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:15:43)
-
-  ● Additional Tests for Full Coverage › should handle empty colDefs array
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      25 |  
-      26 |   it('should handle empty colDefs array', async () => {
-    > 27 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-         |                                             ^
-      28 |     await ExportGridToExcel(mockRowData, []);
-      29 |     
-      30 |     // Should create worksheet but add no rows
-
-      at test/utils/ExportAsExcel.test.ts:27:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:26:43)
-
-  ● Additional Tests for Full Coverage › should handle invalid date values in date columns
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      33 |  
-      34 |   it('should handle invalid date values in date columns', async () => {
-    > 35 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-         |                                             ^
-      36 |     mockWorksheet.addRow.mockImplementation((values) => ({
-      37 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
-      38 |     }));
-
-      at test/utils/ExportAsExcel.test.ts:35:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:34:59)
-
-  ● Additional Tests for Full Coverage › should handle non-date fields that look like dates
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      55 |  
-      56 |   it('should handle non-date fields that look like dates', async () => {
-    > 57 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-         |                                             ^
-      58 |     mockWorksheet.addRow.mockImplementation((values) => ({
-      59 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
-      60 |     }));
-
-      at test/utils/ExportAsExcel.test.ts:57:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:56:60)
-
-  ● Additional Tests for Full Coverage › should verify complete header formatting
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      84 |  
-      85 |   it('should verify complete header formatting', async () => {
-    > 86 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-         |                                             ^
-      87 |     const mockHeaderCell = {
-      88 |       fill: {},
-      89 |       font: {},
-
-      at test/utils/ExportAsExcel.test.ts:86:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:85:50)
-
-  ● Additional Tests for Full Coverage › should handle malformed field paths gracefully
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      118 |  
-      119 |   it('should handle malformed field paths gracefully', async () => {
-    > 120 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-          |                                             ^
-      121 |     mockWorksheet.addRow.mockImplementation((values) => ({
-      122 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
-      123 |     }));
-
-      at test/utils/ExportAsExcel.test.ts:120:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:119:56)
-
-  ● Additional Tests for Full Coverage › should verify all cell alignment properties
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      134 |  
-      135 |   it('should verify all cell alignment properties', async () => {
-    > 136 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-          |                                             ^
-      137 |     const mockCell = {
-      138 |       alignment: {}
-      139 |     };
-
-      at test/utils/ExportAsExcel.test.ts:136:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:135:53)
-
-  ● Additional Tests for Full Coverage › should handle color values with and without hash
-
-    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
-
-      153 |  
-      154 |   it('should handle color values with and without hash', async () => {
-    > 155 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-          |                                             ^
-      156 |     const mockCell = {
-      157 |       fill: {},
-      158 |       alignment: {}
-
-      at test/utils/ExportAsExcel.test.ts:155:45
-      at step (test/utils/ExportAsExcel.test.ts:44:23)
-      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
-      at test/utils/ExportAsExcel.test.ts:19:71
-      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
-      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:154:58)
+    const getJsonForPilotCrewConx = (flightNo, column) => {
+        if(flightNo.startsWith('1907')){
+            return getJsonData("piloncrewconxJson")
+        }
+        if(flightNo.startsWith('223') && column === 'pilotconxob'){
+            return getJsonData('piloncrewconxJson_223_pc_ob')
+        }
+        if(flightNo.startsWith('223') && column === 'pilotconxib'){
+            return getJsonData('piloncrewconxJson_223_pc_ib')
+        }
+        if(flightNo.startsWith('223') && column === 'ccconxob'){
+            return getJsonData('piloncrewconxJson_223_ccw_ob')
+        }
+        if(flightNo.startsWith('223') && column === 'ccconxib'){
+            return getJsonData('piloncrewconxJson_223_ccw_ib')
+        }   
+    }
+    const mapFunctions = {
+        closeButtonClick: () => {
+            
+        },
+    }
+    return (
+        <div style={{ position:'absolute' , zIndex: 1000, zoom: "var(--zoomPercentage)", right:0}}>
+        <DynamicRender
+            data={getJsonForPilotCrewConx(flightOb,col)}
+            mappedFunctions={mapFunctions}
+        />
+    </div>
+    )
+}
+export default PilotCrewConxModal
