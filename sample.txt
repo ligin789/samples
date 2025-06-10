@@ -1,199 +1,163 @@
-import { ExportGridToExcel } from '../../src/utils/ExportAsExcel';
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
-import moment from 'moment';
- 
-// Mock external dependencies
-jest.mock('exceljs');
-jest.mock('file-saver');
-jest.mock('moment');
-jest.mock('../../src/utils/GetFormatData', () => ({
-  refArrayOfDates: ['Departure Time', 'Arrival Time']
-}));
- 
-describe('ExportGridToExcel', () => {
-  const mockRowData = [
-    {
-      AIRCRAFT: { value: 'Boeing 737', color: '#FF0000' },
-      'Departure Time': '2023-01-01T10:30:00Z',
-      'Arrival Time': '2023-01-01T15:45:00Z',
-      STATUS: 'On Time',
-      nested: { field: { value: 'Nested Value' } }
-    },
-    {
-      AIRCRAFT: { value: 'Airbus A320', color: '#00FF00' },
-      'Departure Time': '—',
-      'Arrival Time': '',
-      STATUS: 'Delayed',
-      nested: { field: { value: 'Another Value' } }
-    }
-  ];
- 
-  const mockColDefs = [
-    { headerName: 'Aircraft', field: 'AIRCRAFT.value', key: 'AIRCRAFT' },
-    { headerName: 'Departure Time', field: 'Departure Time', key: 'Departure Time' },
-    { headerName: 'Arrival Time', field: 'Arrival Time', key: 'Arrival Time' },
-    { headerName: 'Status', field: 'STATUS', key: 'STATUS' },
-    { headerName: 'Nested Field', field: 'nested.field.value', key: 'nested.field.value' }
-  ];
- 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    
-    // Mock ExcelJS implementation
-    const mockWorksheet = {
-      addRow: jest.fn().mockReturnThis(),
-      getRow: jest.fn().mockReturnThis(),
-      columns: [],
-      eachCell: jest.fn(),
-      alignment: {}
-    };
-    
-    const mockWorkbook = {
-      addWorksheet: jest.fn().mockReturnValue(mockWorksheet),
-      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(10)) }
-    };
-    
-    ExcelJS.Workbook.mockImplementation(() => mockWorkbook);
-  });
- 
-  it('should create a workbook with correct worksheet name', async () => {
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    expect(ExcelJS.Workbook).toHaveBeenCalled();
-    expect(ExcelJS.Workbook().addWorksheet).toHaveBeenCalledWith('IOCC Dashboard');
-  });
- 
-  it('should add headers with correct formatting', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify headers were added
-    expect(mockWorksheet.addRow).toHaveBeenCalledWith([
-      'Aircraft', 'Departure Time', 'Arrival Time', 'Status', 'Nested Field'
-    ]);
-    
-    // Verify header formatting
-    expect(mockWorksheet.getRow).toHaveBeenCalledWith(1);
-    const headerRow = mockWorksheet.getRow();
-    expect(headerRow.eachCell).toHaveBeenCalled();
-    expect(headerRow.height).toBe(20);
-  });
- 
-  it('should format date columns correctly', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue({ alignment: {} })
-    }));
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify date formatting
-    expect(moment).toHaveBeenCalledWith('2023-01-01T10:30:00Z');
-    expect(moment().format).toHaveBeenCalledWith('HH:mm');
-  });
- 
-  it('should handle non-date values correctly', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue({ alignment: {} })
-    }));
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify non-date values are passed through
-    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
-      expect.arrayContaining(['Boeing 737', expect.anything(), expect.anything(), 'On Time', 'Nested Value'])
-    );
-  });
- 
-  it('should apply cell coloring from object values', async () => {
-    const mockCell = { fill: {}, alignment: {} };
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue(mockCell)
-    }));
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify cell coloring
-    expect(mockCell.fill).toEqual({
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FF0000' } // # removed from hex color
-    });
-  });
- 
-  it('should handle nested object values', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue({ alignment: {} })
-    }));
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify nested field access
-    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
-      expect.arrayContaining(['Nested Value'])
-    );
-    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
-      expect.arrayContaining(['Another Value'])
-    );
-  });
- 
-  it('should set column widths and alignment', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.columns = [{}, {}, {}, {}, {}]; // 5 columns
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue({ alignment: {} })
-    }));
-    
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    // Verify column widths
-    mockWorksheet.columns.forEach(col => {
-      expect(col.width).toBe(15);
-    });
-    
-    // Verify cell alignment
-    const mockRow = mockWorksheet.addRow();
-    const mockCell = mockRow.getCell();
-    expect(mockCell.alignment).toEqual({
-      vertical: 'middle',
-      horizontal: 'center'
-    });
-  });
- 
-  it('should save the file with correct name', async () => {
-    await ExportGridToExcel(mockRowData, mockColDefs);
-    
-    expect(saveAs).toHaveBeenCalledWith(
-      expect.any(Blob),
-      'IOCC Dashboard.xlsx'
-    );
-  });
- 
-  it('should handle empty or undefined values gracefully', async () => {
-    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
-    mockWorksheet.addRow.mockImplementation((values) => ({
-      getCell: jest.fn().mockReturnValue({ alignment: {} })
-    }));
-    
-    const emptyRowData = [
-      {
-        AIRCRAFT: { value: undefined, color: undefined },
-        'Departure Time': undefined,
-        'Arrival Time': null,
-        STATUS: '',
-        nested: { field: { value: null } }
-      }
-    ];
-    
-    await ExportGridToExcel(emptyRowData, mockColDefs);
-    
-    // Verify empty values are handled
-    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
-      expect.arrayContaining([undefined, undefined, undefined, '', null])
-    );
-  });
-});
+
+ FAIL  test/utils/ExportAsExcel.test.ts
+  Additional Tests for Full Coverage
+    ✕ should handle empty rowData array (2 ms)
+    ✕ should handle empty colDefs array (1 ms)
+    ✕ should handle invalid date values in date columns (1 ms)
+    ✕ should handle non-date fields that look like dates (1 ms)
+    ✕ should verify complete header formatting (2 ms)
+    ✕ should handle malformed field paths gracefully (1 ms)
+    ✕ should verify all cell alignment properties (1 ms)
+    ✕ should handle color values with and without hash (1 ms)
+
+  ● Additional Tests for Full Coverage › should handle empty rowData array
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      14 | describe('Additional Tests for Full Coverage', () => {
+      15 |   it('should handle empty rowData array', async () => {
+    > 16 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+         |                                             ^
+      17 |     await ExportGridToExcel([], mockColDefs);
+      18 |     
+      19 |     // Should only add header row
+
+      at test/utils/ExportAsExcel.test.ts:16:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:15:43)
+
+  ● Additional Tests for Full Coverage › should handle empty colDefs array
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      25 |  
+      26 |   it('should handle empty colDefs array', async () => {
+    > 27 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+         |                                             ^
+      28 |     await ExportGridToExcel(mockRowData, []);
+      29 |     
+      30 |     // Should create worksheet but add no rows
+
+      at test/utils/ExportAsExcel.test.ts:27:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:26:43)
+
+  ● Additional Tests for Full Coverage › should handle invalid date values in date columns
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      33 |  
+      34 |   it('should handle invalid date values in date columns', async () => {
+    > 35 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+         |                                             ^
+      36 |     mockWorksheet.addRow.mockImplementation((values) => ({
+      37 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
+      38 |     }));
+
+      at test/utils/ExportAsExcel.test.ts:35:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:34:59)
+
+  ● Additional Tests for Full Coverage › should handle non-date fields that look like dates
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      55 |  
+      56 |   it('should handle non-date fields that look like dates', async () => {
+    > 57 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+         |                                             ^
+      58 |     mockWorksheet.addRow.mockImplementation((values) => ({
+      59 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
+      60 |     }));
+
+      at test/utils/ExportAsExcel.test.ts:57:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:56:60)
+
+  ● Additional Tests for Full Coverage › should verify complete header formatting
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      84 |  
+      85 |   it('should verify complete header formatting', async () => {
+    > 86 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+         |                                             ^
+      87 |     const mockHeaderCell = {
+      88 |       fill: {},
+      89 |       font: {},
+
+      at test/utils/ExportAsExcel.test.ts:86:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:85:50)
+
+  ● Additional Tests for Full Coverage › should handle malformed field paths gracefully
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      118 |  
+      119 |   it('should handle malformed field paths gracefully', async () => {
+    > 120 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+          |                                             ^
+      121 |     mockWorksheet.addRow.mockImplementation((values) => ({
+      122 |       getCell: jest.fn().mockReturnValue({ alignment: {} })
+      123 |     }));
+
+      at test/utils/ExportAsExcel.test.ts:120:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:119:56)
+
+  ● Additional Tests for Full Coverage › should verify all cell alignment properties
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      134 |  
+      135 |   it('should verify all cell alignment properties', async () => {
+    > 136 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+          |                                             ^
+      137 |     const mockCell = {
+      138 |       alignment: {}
+      139 |     };
+
+      at test/utils/ExportAsExcel.test.ts:136:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:135:53)
+
+  ● Additional Tests for Full Coverage › should handle color values with and without hash
+
+    TypeError: Cannot read properties of undefined (reading 'addWorksheet')
+
+      153 |  
+      154 |   it('should handle color values with and without hash', async () => {
+    > 155 |     const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+          |                                             ^
+      156 |     const mockCell = {
+      157 |       fill: {},
+      158 |       alignment: {}
+
+      at test/utils/ExportAsExcel.test.ts:155:45
+      at step (test/utils/ExportAsExcel.test.ts:44:23)
+      at Object.next (test/utils/ExportAsExcel.test.ts:25:53)
+      at test/utils/ExportAsExcel.test.ts:19:71
+      at Object.<anonymous>.__awaiter (test/utils/ExportAsExcel.test.ts:15:12)
+      at Object.<anonymous> (test/utils/ExportAsExcel.test.ts:154:58)
