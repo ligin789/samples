@@ -1,39 +1,125 @@
-import React, { useState } from "react";
-import DynamicRender from "../dynamicrenderer";
-import { getJsonData } from "../../global/tenantConfig";
+import React, { useEffect, useRef } from 'react';
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import "./Dropdown1.css";
+import { makeStyles } from '@mui/styles'
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import Colors from '../../../global/Color';
 
-export const PilotCrewConxModal = (props: any) => {
-    const {flightOb, col} = props;
 
-    const getJsonForPilotCrewConx = (flightNo, column) => {
-        if(flightNo.startsWith('1907')){
-            return getJsonData("piloncrewconxJson")
-        }
-        if(flightNo.startsWith('223') && column === 'pilotconxob'){
-            return getJsonData('piloncrewconxJson_223_pc_ob')
-        }
-        if(flightNo.startsWith('223') && column === 'pilotconxib'){
-            return getJsonData('piloncrewconxJson_223_pc_ib')
-        }
-        if(flightNo.startsWith('223') && column === 'ccconxob'){
-            return getJsonData('piloncrewconxJson_223_ccw_ob')
-        }
-        if(flightNo.startsWith('223') && column === 'ccconxib'){
-            return getJsonData('piloncrewconxJson_223_ccw_ib')
-        }   
+
+const useStyles = makeStyles({
+  menuList: {
+    paddingBottom: '0 !important',
+    maxHeight: '156px !important',
+    border: 'none'
+  }
+}, { index: 1 })
+
+export default function SelectLabels(props: any) {
+  const [checkVal, setCheckVal] = React.useState<string[]>([]);
+  const [searchText, setSearchText] = React.useState<string>('');
+  const val = useRef<HTMLInputElement>(null)
+
+  const handleChange = (event: any) => {
+    if(!(event?.target?.value?.length === 1 && event?.target?.value?.[0] === undefined)){
+      props.changeHandler(event.target.value)
+  
+      setCheckVal(
+        // On autofill we get a stringified value.
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value,
+      );
     }
-    const mapFunctions = {
-        closeButtonClick: () => {
-            
-        },
+  };
+
+  useEffect(() => {
+    if (props.value && props.value.length) {
+      setCheckVal(props.value)
     }
-    return (
-        <div style={{ position:'absolute' , zIndex: 1000, zoom: "var(--zoomPercentage)", right:0}}>
-        <DynamicRender
-            data={getJsonForPilotCrewConx(flightOb,col)}
-            mappedFunctions={mapFunctions}
-        />
+  }, [props.value])
+
+  const searchHandler = (e: any) => {
+    // console.log(e.target.value, 'searchText');
+
+    setSearchText(e.target.value)
+  }
+  // console.log(searchText, 'searchText');
+
+  const filterSearch = (searchValue: any) => {
+    if (searchValue?.toLowerCase().includes(searchText?.toLowerCase())) {
+      return searchValue;
+    }
+  }
+
+  return (
+    <div
+    //  className='Select-List'
+    style={{marginTop:"-7px"}}
+    >
+      <label className="station" style={{color:Colors.headerLabelColor}}>{props.title}</label>
+      <br />
+      <FormControl sx={props.selectboxStyles} >
+        <Select
+          multiple={props.multiSelect === 1 ? true : false}
+          value={props.value}
+          onChange={handleChange}
+          // className='Select-List'
+          displayEmpty={true}
+          inputProps={{ "aria-label": "without label" }}
+          renderValue={() => typeof props.value === 'string' ? props.value.split(',') : (props.value)?.join(', ')}
+          sx={{  height: "36px", ml: "-5%",fontSize:16,textAlign:'left' }} // Width and height of dropdown box
+          onAnimationEnd={() => val?.current?.focus()}
+          style={{borderColor: Colors.searchDropdownBorderColor,backgroundColor:'#FFFFFF'}}
+        >
+          {/* {
+            props.flag &&
+            // <MenuItem style={{pointerEvents:'none'}} onKeyDown={(e) => e.stopPropagation()} disableTouchRipple={true}>
+              <div onKeyDown={(e) => e.stopPropagation()} style={{position:'fixed',zIndex:'1'}} className="search-box">
+                  <input
+                    // className="input-field"
+                    className='input-search'
+                    type='text'
+                    placeholder='Search'
+                    onChange={searchHandler}
+                    value={searchText}
+                  />
+                <div style={{paddingRight:searchText.trim() === "" ?"36px":'23px'}} className="search_icon">
+                  {searchText.trim() === "" ? (<FontAwesomeIcon icon={faSearch} className="search-icon" />) : <span className="clearText" onClick={() => setSearchText("")}>Clear</span>}
+                </div>
+              </div>
+            // </MenuItem>
+          } */}
+          {/* <div style={{marginTop:'40px'}}> */}
+          {props.list && props.list.filter((val: any) => filterSearch(val)).map((option: any, index:number) => (
+            <MenuItem value={option} style={{marginTop:index === 0 && props.flag ? '40px' : '0px'}} className="menu-list" >
+              <div style={{ width: "100%", display: "flex", justifyContent: "space-between",}}>
+                {option}
+                <input type='checkbox' className='select-check' checked={checkVal.indexOf(option) > -1} />
+              </div>
+            </MenuItem>
+          ))}
+          {/* </div> */}
+        </Select>
+      </FormControl>
     </div>
-    )
+  );
 }
-export default PilotCrewConxModal
+
+
+
+
+import React from "react";
+import "./ResetDoneButton.css";
+
+function ResetDoneButton(props: any) {
+  return (
+    <div className="resetDoneBtn-Container">
+      <button onClick={() => props.resetHandler(true)} className="reset-button">Reset</button>
+      <button onClick={() => props.saveHandler(true)} className="done-button">Done</button>
+    </div>
+  );
+}
+
+export default ResetDoneButton;
