@@ -1,59 +1,172 @@
-import {  put, takeLatest } from "redux-saga/effects"
-import  { APIcall } from "../../environments/Service"
-import { processMapper } from "./helper";
-
-
-function* getProcessAnalyticsData({ payload }: any) {
-  yield put({ type: "UPDATE_LOADING", payload: true })
-  let response = yield APIcall(
-    'POST',  
-    'https://iwmazucwf6.execute-api.ap-south-1.amazonaws.com/demo/fetch',
-    payload
-  )
+import { ColorVarible } from "./tenantConfig";
+let
+  headerColorTheme="",
+  headerLabelColor="",
+  searchDropdownBorderColor="",
+  tableHeaderTextColor="",
+  popupBgColor="",
+  notificationPeriodSelectBgColor="",
+  notificationPeriodCountColor="",
+  commonColorTheme = "",
+  tableHeaderBgColor="",
+  languageOptionBg = "",
+  menuItemHover = "",
+  tableCheckboxUncheckedBorderColor = "",
+  columnsSelected = "",
+  menuUnSelctedViewOptionBg = "",
+  orHeaderBg = "",
+  filtersBg = "",
+  filterBorder = "",
+  unSelectedQuick = "",
+  customButtonContainer = "",
+  loginButtonBg = "",
+  notificationTabHeaderColor = "",
+  notificationSeperator = "",
+  notificationSearchBox = "",
+  lineColor = "",
+  searchIconBorder = "",
+  pinIconColor = "",
+  mapBorderColor = "",
+  loginAvianaColor = ""
  
-  if (response.status == 200 || response.status == 304) {
-    if (response?.data?.hasOwnProperty('status') && response.data.status != 200) {
-      if (response.data.status === 401 || response.data.status === 403) {
-        // alert('Session/Token expired. Redirecting to login Screen..')
-        yield put({
-          type: 'UPDATE_ALERT', payload: {
-            title: 'Session Timeout',
-            content: 'Login to start a new session'
-          }
-        })
-        
-      }
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Alert',
-          content: 'Oops, something went wrong. Please try again later.'
-        }
-      })
-      yield put({ type: "UPDATE_LOADING", payload: false })
-    } else {
-      yield put({ type: "UPDATE_LOADING", payload: false })
-      yield put({ type: "SAVE_PROCESS_ANALYTICS_DATA", payload: processMapper(response.data) })
-      // yield put({ type: "SAVE_PROCESS_ANALYTICS_DATA", payload: response.data })
-    }
-
-  } else if (response?.response?.status === 401 || response?.response?.status === 403) {
-    yield put({
-      type: 'UPDATE_ALERT', payload: {
-        title: 'Session Timeout',
-        content: 'Login to start a new session'
-      }
-    })
-    
-  } else {
-    yield put({
-      type: 'UPDATE_ALERT', payload: {
-        title: 'Alert',
-        content: 'Oops, something went wrong. Please try again later.'
-      }
-    })
-  }
+switch (ColorVarible) {
+  case "tapAir":
+    headerColorTheme="#00185F";
+    headerLabelColor="#FFFFFF";
+    searchDropdownBorderColor="";
+    tableHeaderBgColor="#00185F";
+    tableHeaderTextColor="#FFFFFF";
+    popupBgColor="#00185F";
+    notificationPeriodSelectBgColor="#203679";
+    notificationPeriodCountColor="#00165A";
+    notificationPeriodCountColor="#00165A";
+    commonColorTheme = "#00185F";
+    languageOptionBg = "#DBE1F4";
+    menuItemHover = "#E4EBFF";
+    tableCheckboxUncheckedBorderColor = "#9AA7CE";
+    (columnsSelected = "#E4EBFF");
+    (menuUnSelctedViewOptionBg = "#33467f");
+    (orHeaderBg = "#3F5498");
+    (filtersBg = "#dbe4ff");
+    (filterBorder = "#DBE4FE");
+    (unSelectedQuick = "#DBE4FF");
+    (customButtonContainer = "#F0F0F0");
+    (loginButtonBg = "#2E5C99");
+    (notificationTabHeaderColor = "#000E36");
+    (notificationSeperator = "#405287");
+    (notificationSearchBox = "#36487C");
+    (lineColor = "#3F5498");
+    (searchIconBorder = "#8e94a6");
+    (pinIconColor = "#8e94a6");
+    (mapBorderColor = "#203679")
+    loginAvianaColor = ""
+ 
+    break;
+  case "airIndia":
+    headerColorTheme ="transparent linear-gradient(270deg, #F4EBCE 0%, #DBCAB2 100%) 0% 0% no-repeat padding-box";
+    headerLabelColor = "#1B1213";
+    searchDropdownBorderColor="#BFBFBF";
+    tableHeaderBgColor="#F6EDDA";
+    tableHeaderTextColor="#1B1213";
+    popupBgColor="transparent linear-gradient(180deg, #B32A37 0%, #6F1F46 100%) 0% 0% no-repeat padding-box";
+    notificationPeriodSelectBgColor="#B32A37";
+    notificationPeriodCountColor="#DA1128";
+    (commonColorTheme = "#DA1128");
+    (languageOptionBg = "#FFEFF2");
+    (menuItemHover = "#FFF0F2");
+    (tableCheckboxUncheckedBorderColor = "#DA1128");
+    (columnsSelected = "#FFEFF2");
+    (menuUnSelctedViewOptionBg = "#DA1028");
+    (orHeaderBg = "#999999");
+    (filtersBg = "#FFEFF2");
+    (filterBorder = "#FFEFF2");
+    (unSelectedQuick = "#FFEFF2");
+    (customButtonContainer = "#F6EDDA");
+    (loginButtonBg = "#DA1128");
+    (notificationTabHeaderColor = "transparent linear-gradient(180deg, #B32A37 0%, #6F1F46 100%) 0% 0% no-repeat padding-box");
+    (notificationSeperator = " rgb(255, 255, 255)");
+    (notificationSearchBox = "#ffffff");
+    (lineColor = "#BFBFBF");
+    (searchIconBorder = "#8e94a6");
+    (pinIconColor = "#8e94a6");
+    (mapBorderColor = "#DA1128");
+    loginAvianaColor = "#DA1128"
+    break;
+  case "assets_Tap":
+    headerColorTheme="#015B25";
+    headerLabelColor="#FFFFFF";
+    searchDropdownBorderColor="#015B25";
+    tableHeaderBgColor="#015B25";
+    tableHeaderTextColor="#FFFFFF";
+    popupBgColor="#015B25";
+    notificationPeriodSelectBgColor="#3E8518";
+    notificationPeriodCountColor="#015B25";
+    (commonColorTheme = "#015B25");
+    (languageOptionBg = "#abfecc");
+    (menuItemHover = "#e6fff0");
+    (tableCheckboxUncheckedBorderColor = "#9AA7CE");
+    (columnsSelected = "#E4EBFF");
+    (menuUnSelctedViewOptionBg = "#3E8518");
+    (orHeaderBg = "#3E8518");
+    (filtersBg = "#dbe4ff");
+    (filterBorder = "#DBE4FE");
+    (unSelectedQuick = "#DBE4FF");
+    (customButtonContainer = "#F0F0F0");
+    (loginButtonBg = "#027430");
+    (notificationTabHeaderColor = "#015B25");
+    (notificationSeperator = "#BDBDBD");
+    (notificationSearchBox = "rgb(17, 105, 71)");
+    (lineColor = "#3E8518");
+    (searchIconBorder = "#8e94a6");
+    (pinIconColor = "#8e94a6");
+    (mapBorderColor = "#3E8518");
+    loginAvianaColor = "#015B25"
+    break;
+  default:
+    break;
 }
-
-export function* processAnalyticsListener() {
-  yield takeLatest('GET_PROCESS_ANALYTICS_DATA', getProcessAnalyticsData)
-}
+ 
+const tap = {
+  headerColorTheme:`${headerColorTheme}`,
+  headerLabelColor,
+  searchDropdownBorderColor,
+  tableHeaderBgColor,
+  popupBgColor,
+  notificationPeriodSelectBgColor,
+  notificationPeriodCountColor,
+  theme: `${commonColorTheme} 0% 0% no-repeat padding-box`,
+  tableHeaderTextColor,
+  common: commonColorTheme,
+  white: "#FFFFFF",
+  selectedMenu: "#3b3b3b",
+  headerTimeBg: "#e4e4e4",
+  black: "#000000",
+  languageOptionBg: languageOptionBg,
+  langDropDownContainerShadow: "#00000077",
+  menuItemsBg: "#f9f9f9",
+  menuItemHover: menuItemHover,
+  wrongTextPatternBg: "#FFF2F2",
+  wrongTextPatternBorder: "#FF0000",
+  tableCheckboxUncheckedBorderColor: tableCheckboxUncheckedBorderColor,
+  cellTextColor: "#434343",
+  columnsSelected: columnsSelected,
+  columnsSelectedNotClickable: "#0000001F",
+  menuUnSelctedViewOptionBg: menuUnSelctedViewOptionBg,
+  orHeaderBg: orHeaderBg,
+  filtersBg: filtersBg,
+  filterBorder: "#DBE4FE",
+  unSelectedQuick: unSelectedQuick,
+  customButtonContainer: customButtonContainer,
+  loginButtonBg: loginButtonBg,
+  notificationTabHeaderColor: `${notificationTabHeaderColor} 0% 0% no-repeat padding-box`,
+  notificationTabCounterColor: `${commonColorTheme}5 0% 0% no-repeat padding-box`,
+  notificationSeperator: `1px solid ${notificationSeperator}`,
+  notificationSearchBox: `${notificationSearchBox} 0% 0% no-repeat padding-box`,
+  lineColor,
+  searchIconBorder,
+  pinIconColor,
+  mapBorderColor,
+  loginAvianaColor
+};
+ 
+export default tap;
