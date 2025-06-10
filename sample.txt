@@ -1,59 +1,199 @@
+import { ExportGridToExcel } from '../../src/utils/ExportAsExcel';
 import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
-import { refArrayOfDates } from './GetFormatData';
 import moment from 'moment';
-
-export const ExportGridToExcel = async (rowData, colDefs) => {
-  const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet('IOCC Dashboard');
-
-  const headers = colDefs.map((col:any) => (col.headerName));
-  worksheet.addRow(headers);
-
-  rowData.forEach((dataRow:any) => {
-    const rowValues = colDefs.map((col:any) => {
-      const cellObj = getNestedObject(dataRow, col.field);
-      if(refArrayOfDates.includes(col.headerName) && typeof cellObj !== 'object'&& cellObj !== '—' && cellObj!==''){
-        return moment(cellObj).format('HH:mm')
-      }
-      return typeof cellObj === 'object' ? cellObj.value : cellObj;
-    });
-
-    const excelRow = worksheet.addRow(rowValues);
-
-    colDefs.forEach((col:any, colIndex:any) => {
-      const cellObj = getNestedObject(dataRow, col.key);
-      const cellColor = typeof cellObj === 'object' ? cellObj.color : null;
-      const cell = excelRow.getCell(colIndex + 1)
-      cell.alignment = {vertical:'middle', horizontal:'center'}
-      if (cellColor) {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: cellColor.replace('#', '') }
-        };
-      }
-    });
+ 
+// Mock external dependencies
+jest.mock('exceljs');
+jest.mock('file-saver');
+jest.mock('moment');
+jest.mock('../../src/utils/GetFormatData', () => ({
+  refArrayOfDates: ['Departure Time', 'Arrival Time']
+}));
+ 
+describe('ExportGridToExcel', () => {
+  const mockRowData = [
+    {
+      AIRCRAFT: { value: 'Boeing 737', color: '#FF0000' },
+      'Departure Time': '2023-01-01T10:30:00Z',
+      'Arrival Time': '2023-01-01T15:45:00Z',
+      STATUS: 'On Time',
+      nested: { field: { value: 'Nested Value' } }
+    },
+    {
+      AIRCRAFT: { value: 'Airbus A320', color: '#00FF00' },
+      'Departure Time': '—',
+      'Arrival Time': '',
+      STATUS: 'Delayed',
+      nested: { field: { value: 'Another Value' } }
+    }
+  ];
+ 
+  const mockColDefs = [
+    { headerName: 'Aircraft', field: 'AIRCRAFT.value', key: 'AIRCRAFT' },
+    { headerName: 'Departure Time', field: 'Departure Time', key: 'Departure Time' },
+    { headerName: 'Arrival Time', field: 'Arrival Time', key: 'Arrival Time' },
+    { headerName: 'Status', field: 'STATUS', key: 'STATUS' },
+    { headerName: 'Nested Field', field: 'nested.field.value', key: 'nested.field.value' }
+  ];
+ 
+  beforeEach(() => {
+    jest.clearAllMocks();
+    
+    // Mock ExcelJS implementation
+    const mockWorksheet = {
+      addRow: jest.fn().mockReturnThis(),
+      getRow: jest.fn().mockReturnThis(),
+      columns: [],
+      eachCell: jest.fn(),
+      alignment: {}
+    };
+    
+    const mockWorkbook = {
+      addWorksheet: jest.fn().mockReturnValue(mockWorksheet),
+      xlsx: { writeBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(10)) }
+    };
+    
+    ExcelJS.Workbook.mockImplementation(() => mockWorkbook);
   });
-
-  const headerRow = worksheet.getRow(1);
-  headerRow.eachCell((cell) => {
-    cell.fill = {
+ 
+  it('should create a workbook with correct worksheet name', async () => {
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    expect(ExcelJS.Workbook).toHaveBeenCalled();
+    expect(ExcelJS.Workbook().addWorksheet).toHaveBeenCalledWith('IOCC Dashboard');
+  });
+ 
+  it('should add headers with correct formatting', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify headers were added
+    expect(mockWorksheet.addRow).toHaveBeenCalledWith([
+      'Aircraft', 'Departure Time', 'Arrival Time', 'Status', 'Nested Field'
+    ]);
+    
+    // Verify header formatting
+    expect(mockWorksheet.getRow).toHaveBeenCalledWith(1);
+    const headerRow = mockWorksheet.getRow();
+    expect(headerRow.eachCell).toHaveBeenCalled();
+    expect(headerRow.height).toBe(20);
+  });
+ 
+  it('should format date columns correctly', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue({ alignment: {} })
+    }));
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify date formatting
+    expect(moment).toHaveBeenCalledWith('2023-01-01T10:30:00Z');
+    expect(moment().format).toHaveBeenCalledWith('HH:mm');
+  });
+ 
+  it('should handle non-date values correctly', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue({ alignment: {} })
+    }));
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify non-date values are passed through
+    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
+      expect.arrayContaining(['Boeing 737', expect.anything(), expect.anything(), 'On Time', 'Nested Value'])
+    );
+  });
+ 
+  it('should apply cell coloring from object values', async () => {
+    const mockCell = { fill: {}, alignment: {} };
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue(mockCell)
+    }));
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify cell coloring
+    expect(mockCell.fill).toEqual({
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: '015B25' }
-    };
-    cell.font = { bold: true, color:{argb:'FFFFFF'} };
-    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      fgColor: { argb: 'FF0000' } // # removed from hex color
+    });
   });
-  headerRow.height = 20;
-  worksheet.columns.forEach(col => col.width = 15);
-
-  const buffer = await workbook.xlsx.writeBuffer();
-  saveAs(new Blob([buffer]), 'IOCC Dashboard.xlsx');
-};
-
-// Helper: safely get nested value (e.g., "AIRCRAFT.value")
-const getNestedObject = (obj:any, path:any) => {
-  return path.split('.').reduce((acc, key) => acc?.[key], obj);
-};
+ 
+  it('should handle nested object values', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue({ alignment: {} })
+    }));
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify nested field access
+    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
+      expect.arrayContaining(['Nested Value'])
+    );
+    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
+      expect.arrayContaining(['Another Value'])
+    );
+  });
+ 
+  it('should set column widths and alignment', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.columns = [{}, {}, {}, {}, {}]; // 5 columns
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue({ alignment: {} })
+    }));
+    
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    // Verify column widths
+    mockWorksheet.columns.forEach(col => {
+      expect(col.width).toBe(15);
+    });
+    
+    // Verify cell alignment
+    const mockRow = mockWorksheet.addRow();
+    const mockCell = mockRow.getCell();
+    expect(mockCell.alignment).toEqual({
+      vertical: 'middle',
+      horizontal: 'center'
+    });
+  });
+ 
+  it('should save the file with correct name', async () => {
+    await ExportGridToExcel(mockRowData, mockColDefs);
+    
+    expect(saveAs).toHaveBeenCalledWith(
+      expect.any(Blob),
+      'IOCC Dashboard.xlsx'
+    );
+  });
+ 
+  it('should handle empty or undefined values gracefully', async () => {
+    const mockWorksheet = ExcelJS.Workbook().addWorksheet();
+    mockWorksheet.addRow.mockImplementation((values) => ({
+      getCell: jest.fn().mockReturnValue({ alignment: {} })
+    }));
+    
+    const emptyRowData = [
+      {
+        AIRCRAFT: { value: undefined, color: undefined },
+        'Departure Time': undefined,
+        'Arrival Time': null,
+        STATUS: '',
+        nested: { field: { value: null } }
+      }
+    ];
+    
+    await ExportGridToExcel(emptyRowData, mockColDefs);
+    
+    // Verify empty values are handled
+    expect(mockWorksheet.addRow).toHaveBeenCalledWith(
+      expect.arrayContaining([undefined, undefined, undefined, '', null])
+    );
+  });
+});
