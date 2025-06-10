@@ -1,61 +1,85 @@
-AddNotes Component
-    ✕ renders AddNotes component correctly (2 ms)
-    ✕ dispatches store actions correctly (mock test)
-    ✕ calls handleNotesClose on close (via props) (1 ms)
+import Tippy from "@tippyjs/react";
+import moment from "moment";
+import { useState } from "react";
 
-  ● AddNotes Component › renders AddNotes component correctly
+const RenderToolTipModal = (props: any) => {
+    const {isUTCToggled} = props
+    const [visible, setVisible] = useState(false)
+    const [colName, setColName] = useState('')
 
-    TypeError: middleware is not a function
+    if (props.value === "—" || !props.value) {
+        return <span>{"—"}</span>;
+    }
+    if ((props.data['groundtime'].color && props.data["flightob"].value.startsWith('223'))) {
+        return (
+            <Tippy
+                content={(
+                    <div style={{ backgroundColor: '#FFFFFF', height: 40, width: 70, padding: '0px 15px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0px 0px 99px #00000072', marginTop: -15 }}>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "500", fontSize: 14, color: '#000000' }}>MGT</div>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "400", fontSize: 14, color: '#00000081' }}>01:00</div>
+                    </div>
+                )}
+                visible={visible}
+                allowHTML={true}
+                arrow={false}
+                appendTo={document.body}
+                interactive={true}
+                placement='bottom'
+            >
+                <div style={{ cursor: 'pointer' }} onMouseEnter={(e) => { setVisible(true); setColName(props.colDef.key) }} onMouseLeave={() => {setVisible(false); colName.length && setColName('')}}>
+                    <span>{props.value}</span>
+                </div>
+            </Tippy>
+        )
+    }
+    if(props.colDef.key === 'groundtime'){
+        return <span>{props.value}</span>
+    }
+    if((props.data['paxdoorclosed'].color && props.data["flightob"].value.startsWith('313')) || (props.data['cargodoorclosed'].color && props.data["flightob"].value.startsWith('313'))){
+        return (
+            <Tippy
+                content={(
+                    <div style={{ backgroundColor: '#FFFFFF', height: 40, width: 70, padding: '0px 15px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0px 0px 99px #00000072', marginTop: -15 }}>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "500", fontSize: 14, color: '#000000' }}>MGT</div>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "400", fontSize: 14, color: '#00000081' }}>01:00</div>
+                    </div>
+                )}
+                visible={visible}
+                allowHTML={true}
+                arrow={false}
+                appendTo={document.body}
+                interactive={true}
+                placement='bottom'
+            >
+                <div style={{ cursor: 'pointer' }} onMouseEnter={(e) => { setVisible(true); setColName(props.colDef.key) }} onMouseLeave={() => {setVisible(false); colName.length && setColName('')}}>
+                    <span>{moment.utc(props.value).format('HH:mm')}</span>
+                </div>
+            </Tippy>
+        )
+    }
+    if((props.colDef.key === 'paxdoorclosed' || props.colDef.key === 'cargodoorclosed')){
+        return (
+            <Tippy
+                content={(
+                    <div style={{ backgroundColor: '#FFFFFF', height: 40, width: 70, padding: '0px 15px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100, boxShadow: '0px 0px 99px #00000072', marginTop: -15 }}>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "500", fontSize: 14, color: '#000000' }}>MGT</div>
+                        <div style={{ fontFamily: "Roboto", fontWeight: "400", fontSize: 14, color: '#00000081' }}>01:00</div>
+                    </div>
+                )}
+                visible={visible}
+                allowHTML={true}
+                arrow={false}
+                appendTo={document.body}
+                interactive={true}
+                placement='bottom'
+            >
+                <div style={{ cursor: 'pointer' }} onMouseEnter={(e) => { setVisible(true); setColName(props.colDef.key) }} onMouseLeave={() => {setVisible(false); colName.length && setColName('')}}>
+                    <span>{moment.utc(props.value).format('HH:mm')}</span>
+                </div>
+            </Tippy>
+        )
+    }
+    return <span>{props.value}</span>
+}
 
-      25 |       }
-      26 |     };
-    > 27 |     const store = mockStore(initialState);
-         |                   ^
-      28 |     const utils = render(
-      29 |       <Provider store={store}>
-      30 |         <AddNotes
-
-      at node_modules/redux/src/applyMiddleware.ts:54:49
-          at Array.map (<anonymous>)
-      at node_modules/redux/src/applyMiddleware.ts:54:31
-      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
-      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
-      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:43:27)
-
-  ● AddNotes Component › dispatches store actions correctly (mock test)
-
-    TypeError: middleware is not a function
-
-      25 |       }
-      26 |     };
-    > 27 |     const store = mockStore(initialState);
-         |                   ^
-      28 |     const utils = render(
-      29 |       <Provider store={store}>
-      30 |         <AddNotes
-
-      at node_modules/redux/src/applyMiddleware.ts:54:49
-          at Array.map (<anonymous>)
-      at node_modules/redux/src/applyMiddleware.ts:54:31
-      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
-      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
-      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:48:23)
-
-  ● AddNotes Component › calls handleNotesClose on close (via props)
-
-    TypeError: middleware is not a function
-
-      25 |       }
-      26 |     };
-    > 27 |     const store = mockStore(initialState);
-         |                   ^
-      28 |     const utils = render(
-      29 |       <Provider store={store}>
-      30 |         <AddNotes
-
-      at node_modules/redux/src/applyMiddleware.ts:54:49
-          at Array.map (<anonymous>)
-      at node_modules/redux/src/applyMiddleware.ts:54:31
-      at mockStore (node_modules/redux-mock-store/dist/index-cjs.js:110:12)
-      at setup (test/components/addNotes/AddNotes.test.tsx:27:19)
-      at Object.<anonymous> (test/components/addNotes/AddNotes.test.tsx:55:26)
+export default RenderToolTipModal
