@@ -1,49 +1,41 @@
-import moment from "moment"
-
-const RenderDateAndTime = (props: any) => {
-    const {isUTCToggled} = props;
-    if (props.value === '—' || !props.value) {
-      return <span>{'—'}</span>
-    }
-    
-    return <span>{moment.utc(props.value).format('HH:mm')}</span>
-}
-
-export default RenderDateAndTime
-
-import React, { useEffect, useState } from 'react';
-import './terminalSelect.css'; // External CSS file for styles (optional)
-import Colors from '../../global/Color';
-import AvianaDiv from '../microComponents/avianaDiv';
-import AvianaLabel from '../microComponents/avianaLabel';
-import AvianaText from '../microComponents/avianatext';
-import FontSize from '../../global/FontSize';
-import { getImage } from '../../global/tenantConfig';
-import ArrowBackIcon from '../../assets/images/imagesComponents/arrowBackIcon';
+import BlueBackArrowIcon from "../assets/images/imagesComponents/blueBackArrow"
+import CriticalIcon from "../assets/images/imagesComponents/criticalImage"
+import CloseButtonIcon from "../assets/images/imagesComponents/closeButtonIcon"
+import SnoozeUnselected from "../assets/images/imagesComponents/snoozeUnselected"
+import SnoozeSelected from "../assets/images/imagesComponents/snoozeSelected"
+import AddListIcon from "../assets/images/imagesComponents/addListIcon"
+import DropdownIcon from "../assets/images/imagesComponents/dropdownIcon"
+import PinIcon from "../assets/images/imagesComponents/pinIcon"
+import AcknowledgeClickedIcon from "../assets/images/imagesComponents/acknowledgeClickedIcon"
+import AcknowledgeNotClickedIcon from "../assets/images/imagesComponents/acknowledgeNotClickedIcon"
+import AddIcon from "../assets/images/imagesComponents/addImage"
  
-const TerminalSelect = (props:any) => {
-    let terminalArray=props?._stationTerminalZone || {}
- 
-  return (
-    <AvianaDiv style={{}} >
-         <AvianaDiv className="terminal-section" style={{borderColor: Colors.searchDropdownBorderColor }} onClick={ (e)=>{props.handleDropDownIndex(12);e.stopPropagation()} }>
-            <AvianaText className="terminal-label" style={{}} text={props?.selectedTerminal || 'Select'}/>
-            <ArrowBackIcon
-                styles={{paddingRight:10,width:12}}
-              />
-          </AvianaDiv>
-          {props?.dropDownIndex == 12 && 
-          <AvianaDiv className='terminalselect-container' style={{backgroundColor:Colors.white,boxShadow:`0px 0px 60px ${Colors.langDropDownContainerShadow}`}}>
-          {terminalArray?.terminal?.map((option, index) => (
-            <AvianaDiv key={index} className='terminalselectdrop-container' style={{borderBottomColor:Colors.headerTimeBg}} onClick={()=>{props.setSelectedTerminal(option);props.handleDropDownIndex(-1)}}>
-              <AvianaLabel className='terminalselect-name' style={{}} text={option}/>
-            </AvianaDiv>
-          ))}
-        </AvianaDiv>
-        }
-  </AvianaDiv>
-  );
+const GetSvgComponent = (source: string) => {
+  switch (source) {
+    case "backArrow":
+      return <BlueBackArrowIcon/>
+    case "criticalImage":
+      return <CriticalIcon />
+    case "closeButton":
+      return <CloseButtonIcon/>
+    case "snoozeUnselected":
+      return <SnoozeUnselected/>
+    case "snoozeSelected":
+      return <SnoozeSelected/>
+    case 'addListIcon':
+      return <AddListIcon/>
+    case 'chevronArrowIcon':
+      return <DropdownIcon/>
+    case 'pinIcon':
+      return <PinIcon/>
+    case "acknowledgeIconClicked":
+      return <AcknowledgeClickedIcon/>
+    case "acknowledgeIconNotClicked":
+      return <AcknowledgeNotClickedIcon/>
+    case "addImage":
+      return <AddIcon/>
+    default:
+      return null;
+  }
 };
- 
-export default TerminalSelect;
-
+export default GetSvgComponent;
