@@ -1,44 +1,9 @@
 import Tippy from "@tippyjs/react";
-import RunwayHoverPopup from "../../runwayHoverPopup";
-import { useState } from "react";
-
-const RenderRunwayCell = (props: any) => {
-    const [visible, setVisible] = useState(false)
-    if (props.value === "—" || !props.value) {
-        return <span>{"—"}</span>;
-    }
-    if (props.data['arrrwy'].color) {
-        return (
-            <Tippy
-                content={(<RunwayHoverPopup />)}
-                visible={visible}
-                allowHTML={true}
-                arrow={false}
-                appendTo={document.body}
-                interactive={true}
-                placement='bottom'
-            >
-                <div style={{ cursor: 'pointer' }} onClick={props.handleRunwayClick} onMouseEnter={(e: any) => setVisible(true)} onMouseLeave={() => setVisible(false)}>
-                    <span>{props?.value}</span>
-                </div>
-            </Tippy>
-        )
-    }
-    return (
-        <span>{props?.value}</span>
-    )
-}
-
-export default RenderRunwayCell
-
-
-import Tippy from "@tippyjs/react";
 import PetdHoverPopup from "../../petdHoverPopup";
 import { useState } from "react";
 import moment from "moment";
-import PetaHoverPopup from "../../petaHoverPopup";
 
-const RenderPeta = (props: any) => {
+const RenderPetd = (props: any) => {
     const { isUTCToggled } = props
     const [visible, setVisible] = useState(false)
     if (props.value === "—" || !props.value) {
@@ -48,7 +13,7 @@ const RenderPeta = (props: any) => {
         return (
             <Tippy
                 content={(
-                    <PetaHoverPopup />
+                    <PetdHoverPopup />
                 )}
                 visible={visible}
                 allowHTML={true}
@@ -66,4 +31,165 @@ const RenderPeta = (props: any) => {
     return <span>{moment.utc(props.value).format('HH:mm')}</span>
 }
 
-export default RenderPeta
+export default RenderPetd
+
+
+import { useState, useEffect } from "react";
+import { localTimezoneConversion } from "../../global/timeConversion";
+import './style.css'
+import '../TimerSlide/timerSlide.css'
+import { useDispatch, useSelector } from 'react-redux';
+import moment from 'moment';
+import Colors from '../../global/Color';
+import { getImage } from '../../global/tenantConfig';
+
+const SliderWithAnomalies = (props: any) => {
+  const timeFrameData: any = [];
+  const [coloredTiming, setcoloredTiming] = useState<any>();
+  const [disableAutoUpdate, setdisableAutoUpdate] = useState<boolean>(false);
+  const dispatch = useDispatch();
+  // const props.parentDiv = useRef<HTMLDivElement>(null)
+  const syncScroll = () => {
+    const parent = props.parentDiv.current;
+    const children = parent?.getElementsByClassName("outer");
+    props?.onScroll();
+    if (parent && children) {
+      for (let index = 0; index < children.length; index++) {
+        const child = children[index] as HTMLDivElement;
+        child.scrollLeft = parent.scrollLeft;
+      }
+    }
+  };
+  // const clickHandler = (value: any, index: any) => {
+  //   if(value?.hasOwnProperty('timeFrameIndex') && value.timeFrameIndex >= 0){
+  //     dispatch(boardingFlightDataAction.getBoardingCardDataBasedOnAnomalie({
+  //       path: timeFrameData[value.timeFrameIndex].actualTimeStamp+'/'+timeFrameData[value.timeFrameIndex].departureStation
+  //     }))
+  //   }else{
+  //     dispatch({type:'UPDATE_ANOMALIE_PARAMS',payload:{}})
+  //   }
+  //   let temp = [...coloredTiming];
+  //   temp.forEach((item:any) => {
+  //     item.currentTimer = false;
+  //   });
+  //   temp[index].currentTimer = true;
+  //   setcoloredTiming(temp);
+  //   setdisableAutoUpdate(true)
+  //   props.resetCurrTimeClicked(false)
+  //   props.updateCurrDate(temp[index].timerVal)
+  //   // an api call needs to be made
+  // }
+  useEffect(() => {
+    // setTimeout(() => {
+    props.parentDiv.current.scrollLeft = props.initialScroll;
+    props?.onScroll();
+    // console.log("scrollCheck",props.initialScroll);
+
+    // }, 2000);
+  }, [timeFrameData, props.interval, props.initialScroll]);
+  useEffect(() => {
+    if (props.currentTimeClicked) {
+      setdisableAutoUpdate(false);
+      props.parentDiv.current.scrollLeft = props.initialScroll;
+      // console.log("scrollCheck",props.initialScroll);
+    }
+  }, [props.currentTimeClicked]);
+  useEffect(() => {
+    if (props.actualTiming.length && !disableAutoUpdate) {
+      let temp: any = [],
+        timeFrameIndex = 0;
+      for (let index = 0; index < props.actualTiming.length; index++) {
+        let t = { ...props.actualTiming[index] };
+        if (
+          timeFrameIndex < timeFrameData.length &&
+          props.actualTiming[index].timerVal.isSame(
+            localTimezoneConversion(
+              timeFrameData[timeFrameIndex]?.actualTimeStamp
+            )
+          )
+        ) {
+          t.color = timeFrameData[timeFrameIndex].colour;
+          t.timeFrameIndex = timeFrameIndex;
+          timeFrameIndex += 1;
+        }
+        temp.push({ ...t });
+      }
+      setcoloredTiming(temp);
+    }
+  }, [props.actualTiming, timeFrameData, disableAutoUpdate]);
+
+  return (
+    <div       data-testid="slider-container" className={"time-interval-text"} ref={props.parentDiv} onScroll={syncScroll} style={{ overflowX: 'scroll', width: `calc( 100vw - 208px )`, paddingLeft: "17px", height: "31.5px",backgroundColor:'transparent', paddingTop:'8px',}}>
+       <div style={{ paddingTop: '6px' }} className="outer">
+        {props.displayTiming ? props.displayTiming.map((value: any, index:any) => {
+          return (
+            <div style={{ minWidth: `${index==props.displayTiming.length-1 ? 35 : 48.75 + 17}px`, maxWidth: `${index==props.displayTiming.length-1 ? 35 : 48.75 + 17}px`, scrollbarWidth:"none",display: 'flex', marginLeft: '-17px', backgroundColor:Colors.common, paddingTop:'3px', paddingBottom:'4.7px', color:moment(value.timerVal).isAfter(moment().utc()) ? 'grey' : Colors.white }} className="labelText">
+              {localTimezoneConversion(value.timerVal).format("HH:mm")}
+            </div>
+          )
+        }) : null}
+      </div>
+      <div style={{ marginLeft: "-6px" }} className="outer bottom">
+        <div
+          style={{
+            marginLeft: "-17px",
+            paddingLeft: "20px",
+            backgroundColor: "white",
+          }}
+        />
+        {coloredTiming
+          ? coloredTiming.map((value: any, index: number) => {
+              let backgroundColorCode =
+                value?.color?.toLowerCase() == "red" ? "#FF4646" : "white";
+              return (
+                <div
+                  key={index}
+                   data-testid="colored-bar"
+                  style={{
+                    paddingBottom: "8px",
+                    marginTop: "-5px",
+                    backgroundColor:
+                      value?.color?.toLowerCase() == "amber"
+                        ? "#FF7601"
+                        : backgroundColorCode,
+                    minWidth: `${48.75 / props.interval}px`,
+                    maxWidth: `${48.75 / props.interval}px`,
+                  }}
+                  className={`innerdiv`}
+                ></div>
+              );
+            })
+          : null}
+      </div>
+      <div style={{top:'-27px',height:'27px',position:'relative',width:'100%',backgroundColor:'transparent', cursor:'pointer'}} className="outer bottom">
+        <div style={{marginLeft:'-17px',paddingLeft:'17px',borderBottom:'3.2px solid white',paddingTop:'26px'}} />
+        {coloredTiming ? coloredTiming.map((value:any, index:number) => {
+          return (
+            <div
+              // onClick={()=>{
+              //   clickHandler(value,index)
+              // }}
+              className={`innerdiv ${value.currentTimer === true ? "marker-icon" : ""}`}
+              // className={`innerdiv`}
+              style={{
+                height:value.currentTimer === true?'35px':'100%',
+                paddingLeft: value.currentTimer === true ? '9px' : '0px',
+                // height:'23px',
+                // paddingLeft:'0px',
+                backgroundColor:'transparent',
+                minWidth: `${(48.75/props.interval)}px`, 
+                maxWidth: `${48.75/props.interval}px`,
+                cursor: moment(value.timerVal).isAfter(moment().utc()) ? 'not-allowed' : 'pointer',
+                pointerEvents: moment(value.timerVal).isAfter(moment().utc()) ? 'none' : 'all',
+                backgroundImage: "url("+getImage("markerIcon")+")"
+                // borderBottom: value?.color?.toLowerCase() == 'red' ? '3.2px solid #FF4646': value?.color?.toLowerCase() == 'amber' ? '3.2px solid #FF7601' : '3.2px solid white'
+              }}
+            ></div>
+          )
+        }) : null}
+      </div>
+    </div>
+  );
+};
+
+export default SliderWithAnomalies;
