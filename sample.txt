@@ -1,122 +1,59 @@
-import Tippy from "@tippyjs/react";
-import { HyperLinkPopup } from "../../hyperlinkPopUp";
-import WeatherHoverPopup from "../../weatherHoverPopup";
-import { useState } from "react";
-import { getFlightLegId } from "../../../utils/GetFlightLegId";
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { refArrayOfDates } from './GetFormatData';
+import moment from 'moment';
 
-const RenderLink = (props: any) => {
-    const {
-        handleArrClick,
-        flightNoValue,
-        carrierCodeValue,
-        setCriticalPopupVisible,
-        setFlightFeedClick,
-        createAlertClicked,
-        setCreateAlertClicked,
-        gridDataIdValue,
-        overlayPosition,
-        userConfirmAlert,
-        setUserConfirmAlert,
-        crewPopup,
-        setCrewPopup,
-        connectionsPopup,
-        setConnectionsPopup,
-        setFocusClick,
-        setGridDataIdValue,
-        setFlightNoValue,
-        setCarrierCodeValue,
-        handlePaxMisConnectIbClick,
-        handlePaxMisConnectObClick,
-        chatClickHandler
-    } = props;
-    const [weatherHover, setWeatherHover] = useState(false);
-    const [flightInfoClick, setFlightInfoClick] = useState(false);
-    const [criticalObject, setCriticalObject] = useState(null)
+export const ExportGridToExcel = async (rowData, colDefs) => {
+  const workbook = new ExcelJS.Workbook();
+  const worksheet = workbook.addWorksheet('IOCC Dashboard');
 
-    const flightNoOnClickHandler = (p: any) => {
-        setFlightNoValue(p?.value)
-        const flightLegId = getFlightLegId(p.node.rowIndex)
-        setCriticalObject(p?.data["CRITICAL"])
-        setGridDataIdValue(flightLegId)
-        setCarrierCodeValue(p.data["carriata"]?.value)
-        setFlightInfoClick(true)
-    }
+  const headers = colDefs.map((col:any) => (col.headerName));
+  worksheet.addRow(headers);
 
-    if (props?.value === "—" || !props?.value) {
-        return <span>{"—"}</span>;
-    }
-    if (props?.colDef.key == "arrob") {
-        return (
-            <Tippy
-                content={(
-                    <WeatherHoverPopup flightOb={props.data["flightob"].value}/>
-                )}
-                visible={(weatherHover && props.data["flightob"].value.startsWith('1907')) || (weatherHover && props.data["flightob"].value.startsWith('261'))  }
-                allowHTML={true}
-                arrow={false}
-                appendTo={document.body}
-                interactive={true}
-                placement='bottom'
-            >
-                <div onClick={()=>handleArrClick(props)} onMouseEnter={(e: any) => { setWeatherHover(true)}} onMouseLeave={() => {setWeatherHover(false)}} style={{ cursor: 'pointer' }}>
-                    <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value} </a>
-                </div>
-            </Tippy>
-        );
-    }
-    if (props?.colDef.key == "flightib" || props?.colDef.key == "flightob") {
-        return (
-            <Tippy
-                content={(
-                    <HyperLinkPopup
-                        flightNoValue={props?.value}
-                        carrierCodeValue={props.data["carriata"]?.value}
-                        setFlightInfoClick={setFlightInfoClick}
-                        setCriticalPopupVisible={setCriticalPopupVisible}
-                        setFlightFeedClick={setFlightFeedClick}
-                        createAlertClicked={createAlertClicked}
-                        setCreateAlertClicked={setCreateAlertClicked}
-                        gridDataIdValue={gridDataIdValue}
-                        criticalObject={criticalObject}
-                        position={overlayPosition}
-                        userConfirmAlert={userConfirmAlert}
-                        setUserConfirmAlert={setUserConfirmAlert}
-                        crewPopup={crewPopup}
-                        setCrewPopup={setCrewPopup}
-                        connectionsPopup={connectionsPopup}
-                        setConnectionsPopup={setConnectionsPopup}
-                        setFocusClick={setFocusClick}
-                        chatClickHandler={chatClickHandler}
-                    />
-                )
-                }
-                onClickOutside={() => setFlightInfoClick(false)}
-                visible={flightInfoClick}
-                allowHTML={true}
-                arrow={false}
-                appendTo={document.body}
-                interactive={true}
-                placement='bottom'
-            >
-                <div onClick={(e: any) => { flightNoOnClickHandler(props) }} style={{ cursor: 'pointer' }}>
-                    <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value} </a>
-                </div>
-            </Tippy>
-        );
-    }
-    if (props?.colDef.key === 'paxmisconxib') {
-        return <div onClick={handlePaxMisConnectIbClick} style={{ cursor: 'pointer' }}>
-            <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value}</a>
-        </div>
-    }
-    if (props?.colDef.key === 'paxmisconxob') {
-        return <div onClick={handlePaxMisConnectObClick} style={{ cursor: 'pointer' }}>
-            <a href="" style={{ pointerEvents: "none", color: "#0000EE", }}>{props?.value} </a>
-        </div>
-    }
-    return (
-        <a href="" style={{ pointerEvents: "none", color: "#0000EE" }}>{props?.value} </a>
-    );
+  rowData.forEach((dataRow:any) => {
+    const rowValues = colDefs.map((col:any) => {
+      const cellObj = getNestedObject(dataRow, col.field);
+      if(refArrayOfDates.includes(col.headerName) && typeof cellObj !== 'object'&& cellObj !== '—' && cellObj!==''){
+        return moment(cellObj).format('HH:mm')
+      }
+      return typeof cellObj === 'object' ? cellObj.value : cellObj;
+    });
+
+    const excelRow = worksheet.addRow(rowValues);
+
+    colDefs.forEach((col:any, colIndex:any) => {
+      const cellObj = getNestedObject(dataRow, col.key);
+      const cellColor = typeof cellObj === 'object' ? cellObj.color : null;
+      const cell = excelRow.getCell(colIndex + 1)
+      cell.alignment = {vertical:'middle', horizontal:'center'}
+      if (cellColor) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: cellColor.replace('#', '') }
+        };
+      }
+    });
+  });
+
+  const headerRow = worksheet.getRow(1);
+  headerRow.eachCell((cell) => {
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: '015B25' }
+    };
+    cell.font = { bold: true, color:{argb:'FFFFFF'} };
+    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+  });
+  headerRow.height = 20;
+  worksheet.columns.forEach(col => col.width = 15);
+
+  const buffer = await workbook.xlsx.writeBuffer();
+  saveAs(new Blob([buffer]), 'IOCC Dashboard.xlsx');
 };
 
-export default RenderLink
+// Helper: safely get nested value (e.g., "AIRCRAFT.value")
+const getNestedObject = (obj:any, path:any) => {
+  return path.split('.').reduce((acc, key) => acc?.[key], obj);
+};
