@@ -1,125 +1,257 @@
-import React, { useEffect, useRef } from 'react';
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
-import "./Dropdown1.css";
-import { makeStyles } from '@mui/styles'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
-import Colors from '../../../global/Color';
+import React, { useEffect, useState } from "react";
+import DynamicRender from "../dynamicrenderer";
+import { useDispatch, useSelector } from "react-redux";
+import { referenceViewAction } from "../../redux/referenceData/action";
+// import notesAddJson from "../../assets/jsons/addNotes.json"
+const AddNotes = (props: any) => {
 
+  const { gridDataIdValue,carrierCodeValue,flightNoValue} = props
+  const [addNotescategeorySelected, setAddNotesCategorySelected] = useState("")
+  const [CustomCategory, setCustomCategory] = useState("")
+  const [notes, setNotes] = useState("")
+  const dispatch = useDispatch()
+  const notesWidget = useSelector((state: any) => state?.HomeScreenReducer?.notesWidget)
+  const notesUpdated=useSelector((state:any)=>state?.HomeScreenReducer?.notesUpdated)
+  const [addNotesJson, setAddNotesJson]:any= useState([])
 
-
-const useStyles = makeStyles({
-  menuList: {
-    paddingBottom: '0 !important',
-    maxHeight: '156px !important',
-    border: 'none'
-  }
-}, { index: 1 })
-
-export default function SelectLabels(props: any) {
-  const [checkVal, setCheckVal] = React.useState<string[]>([]);
-  const [searchText, setSearchText] = React.useState<string>('');
-  const val = useRef<HTMLInputElement>(null)
-
-  const handleChange = (event: any) => {
-    if(!(event?.target?.value?.length === 1 && event?.target?.value?.[0] === undefined)){
-      props.changeHandler(event.target.value)
-  
-      setCheckVal(
-        // On autofill we get a stringified value.
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value,
-      );
-    }
-  };
+  const showLoader = useSelector((state: any) => state?.HomeScreenReducer?.showGridDataLoader)
 
   useEffect(() => {
-    if (props.value && props.value.length) {
-      setCheckVal(props.value)
+    //to be commented
+    // if(flightNoValue!=="306/08"){
+    if(notesWidget!==null){
+    dispatch(referenceViewAction.getNotesWidget(gridDataIdValue))
+    setAddNotesJson(notesWidget)
     }
-  }, [props.value])
+  // }else{
+  //   setAddNotesJson(notesAddJson)
+  // }
+  }, [notesUpdated,JSON.stringify(notesWidget)])
 
-  const searchHandler = (e: any) => {
-    // console.log(e.target.value, 'searchText');
+  // useEffect(()=>{
+  // if(notesWidget.length===0){
+  //   dispatch(referenceViewAction.updateLoaderStatus(true))
+  // }else{
+  //   dispatch(referenceViewAction.updateLoaderStatus(false))
+  // }
+  // },[JSON.stringify(addNotesJson)])
 
-    setSearchText(e.target.value)
-  }
-  // console.log(searchText, 'searchText');
 
-  const filterSearch = (searchValue: any) => {
-    if (searchValue?.toLowerCase().includes(searchText?.toLowerCase())) {
-      return searchValue;
+  const mapFunctions = {
+    addNotesCloseButtonClick: () => {
+      props.handleNotesClose(
+        {
+          category: addNotescategeorySelected || "",
+          customCategoryValue: CustomCategory || "",
+          notes: notes || ""
+        })
+    },
+    addNotesCategorySelected: (data: any) => {
+      setAddNotesCategorySelected(data)
+      if (data.toLowerCase() === "others") {
+        let existJson = JSON.parse(JSON.stringify(addNotesJson))
+        existJson[0].widgetAttributes.categoryOthersSelected = true
+        setAddNotesJson(existJson)
+      } else {
+        let existJson = JSON.parse(JSON.stringify(addNotesJson))
+        existJson[0].widgetAttributes.categoryOthersSelected = false
+        setAddNotesJson(existJson)
+      }
+
+    },
+    addNotesCustomCategory: (data: any) => {
+      setCustomCategory(data)
+    },
+    notesTyped: (data: any) => {
+      setNotes(data)
+    },
+    addNoteDoneClicked: (data: any) => {
+      dispatch(referenceViewAction.updateLoaderStatus(true))
+      dispatch(referenceViewAction.addFlightNotes({flightLegId:gridDataIdValue,categoryName:addNotescategeorySelected,notes:notes,carrierCodeValue:carrierCodeValue}))
+
+    },
+    addNoteCancelClicked: (data: any) => {
+      let existJson = JSON.parse(JSON.stringify(addNotesJson))
+      existJson[0].widgetAttributes.addNotesClicked = !existJson[0].widgetAttributes.addNotesClicked
+      setAddNotesJson(existJson)
+    },
+    addNoteButtonClicked: (data: any) => {
+      let existJson = JSON.parse(JSON.stringify(addNotesJson))
+      existJson[0].widgetAttributes.addNotesClicked = !existJson[0]?.widgetAttributes?.addNotesClicked
+      setAddNotesJson(existJson)
     }
   }
-
   return (
-    <div
-    //  className='Select-List'
-    style={{marginTop:"-7px"}}
-    >
-      <label className="station" style={{color:Colors.headerLabelColor}}>{props.title}</label>
-      <br />
-      <FormControl sx={props.selectboxStyles} >
-        <Select
-          multiple={props.multiSelect === 1 ? true : false}
-          value={props.value}
-          onChange={handleChange}
-          // className='Select-List'
-          displayEmpty={true}
-          inputProps={{ "aria-label": "without label" }}
-          renderValue={() => typeof props.value === 'string' ? props.value.split(',') : (props.value)?.join(', ')}
-          sx={{  height: "36px", ml: "-5%",fontSize:16,textAlign:'left' }} // Width and height of dropdown box
-          onAnimationEnd={() => val?.current?.focus()}
-          style={{borderColor: Colors.searchDropdownBorderColor,backgroundColor:'#FFFFFF'}}
-        >
-          {/* {
-            props.flag &&
-            // <MenuItem style={{pointerEvents:'none'}} onKeyDown={(e) => e.stopPropagation()} disableTouchRipple={true}>
-              <div onKeyDown={(e) => e.stopPropagation()} style={{position:'fixed',zIndex:'1'}} className="search-box">
-                  <input
-                    // className="input-field"
-                    className='input-search'
-                    type='text'
-                    placeholder='Search'
-                    onChange={searchHandler}
-                    value={searchText}
-                  />
-                <div style={{paddingRight:searchText.trim() === "" ?"36px":'23px'}} className="search_icon">
-                  {searchText.trim() === "" ? (<FontAwesomeIcon icon={faSearch} className="search-icon" />) : <span className="clearText" onClick={() => setSearchText("")}>Clear</span>}
-                </div>
-              </div>
-            // </MenuItem>
-          } */}
-          {/* <div style={{marginTop:'40px'}}> */}
-          {props.list && props.list.filter((val: any) => filterSearch(val)).map((option: any, index:number) => (
-            <MenuItem value={option} style={{marginTop:index === 0 && props.flag ? '40px' : '0px'}} className="menu-list" >
-              <div style={{ width: "100%", display: "flex", justifyContent: "space-between",}}>
-                {option}
-                <input type='checkbox' className='select-check' checked={checkVal.indexOf(option) > -1} />
-              </div>
-            </MenuItem>
-          ))}
-          {/* </div> */}
-        </Select>
-      </FormControl>
+    <div style={{ position: "absolute", zIndex: 10, left: "30%", top: "10%", zoom: "var(--zoomPercentage)" }} >
+      <DynamicRender data={addNotesJson[0]}
+        mappedFunctions={mapFunctions} />
     </div>
   );
+};
+
+export default AddNotes;
+
+
+import React, { useEffect, useState } from "react";
+
+import moment from "moment";
+import PieChartComp from "../../atoms/Piechart/PieChart";
+
+export const HoverPopup = (props: any) => {
+  const { hoverData , screen } = props
+  const [data,setData] = useState<any>(null)
+    let taskData = [
+        {
+            "taskDesc": "TURNAROUND",
+            "percentage": 71
+        },
+        {
+            "taskDesc": "BOARDING",
+            "percentage": 69
+        },
+        {
+            "taskDesc": "BAGGAGE",
+            "percentage": 80
+        },
+        {
+            "taskDesc": "DISPATCH",
+            "percentage": 53
+        }
+    ]
+
+    useEffect(() => {
+        let data: any = {}
+        if (screen === "gantt") {
+            data = {
+                "estArrTime": hoverData?.estArrTime,
+                "schArrTime": hoverData?.schArrTime,
+                "estDepTime": hoverData?.estDepTime,
+                "schDepTime": hoverData?.schDepTime,
+                "inFlightNo": hoverData?.inFlightNo,
+                "outFlightNo": hoverData?.outFlightNo,
+                "inBoundStn": hoverData?.inBoundStn,
+                "outBoundStn": hoverData?.outBoundStn,
+                "baseStn": hoverData?.baseStn,
+                "arrFlightStatus": hoverData?.arrFlightStatus,
+                "depFlightStatus": hoverData?.depFlightStatus,
+                "mgt":hoverData?.mgt,
+                "agt":hoverData?.agt,
+                "taskData":hoverData?.taskData,
+                "anomalyData":{
+                    "titile": "Pax Misconnection",
+                    "value": "5 Business class passengers are misconnecting. Optimum Hold time of a flight 00:10."
+                }
+
+            }
+        } else {
+            data = {
+                "estArrTime": hoverData?.iaoLclEstArrDtTmOB,
+                "schArrTime": hoverData?.scheduledArrivallocal,
+                "estDepTime": hoverData?.iaoLclEstDepDtTmOB,
+                "schDepTime": hoverData?.scheduledDeparturelocal,
+               "inFlightNo": hoverData?.flightIB,
+                "outFlightNo": hoverData?.flightOB,
+                "inBoundStn": hoverData?.arrival,
+                "outBoundStn":hoverData?.departure,
+                "baseStn": hoverData?.baseStn,
+                "arrFlightStatus": hoverData?.flightStatusIB,
+                "depFlightStatus": hoverData?.flightStatusOB,
+                "mgt":hoverData?.mgt,
+                "agt":hoverData?.agt,
+                "taskData":hoverData?.taskData,
+                "anomalyData":{
+                    "titile": "Weather",
+                    "value": "Toronto Pearson Airport fall below CAT 1 minima. RVR - 0.25sm (402 m) | DH - 1400 ft."
+                }
+
+            }
+        }
+        setData(data)
+    }, [hoverData])
+
+
+  return (
+    <div style={{position:'relative',width:`480px`,display:'flex',justifyContent:'center',boxShadow: "0px 0px 20px #000000",zIndex:7,backgroundColor:"#FFFFFF",flexDirection:'column',padding:10,border: "1px solid #00000072",borderRadius:10,zoom: screen === "map"?'var(--zoomPercentage)':'',}}>
+        <div style={{padding:"5px 5px",borderBottom: "1px solid #BDBDBD"}}>
+         <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"60%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold'}}>Inbound Flight</div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"40%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold'}}>Outbound Flight</div>
+            </div>
+            
+        </div> 
+          <div style={{ display: "flex", flexDirection: 'row', alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "flex-start",width:"60%" }}>
+                  <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "16px", fontWeight: 'normal', }}>
+                      {data?.inFlightNo ? `TP ${data?.inFlightNo} ${data?.inBoundStn ? `${data?.inBoundStn} - ${data?.baseStn}` : "--"}` : ''}
+                  </div>
+                  {/* <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "14px", fontWeight: '400' }}>{data?.inBoundStn ? `${data?.inBoundStn} - ${data?.baseStn}` : "--"}</div> */}
+              </div>
+              <div style={{ display: "flex", alignItems: "flex-start",width:"40%" }}>
+                  <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "16px", fontWeight: 'normal', }}>
+                      {data?.outFlightNo ? `TP ${data?.outFlightNo} ${data?.outBoundStn ? `${data?.baseStn} - ${data?.outBoundStn}` : "--"}` : ''}
+                  </div>
+                  {/* <div style={{ textAlign: "center", fontFamily: "Roboto", fontSize: "14px", fontWeight: '400' }}>{data?.outBoundStn ? `${data?.baseStn} - ${data?.outBoundStn}` : "--"}</div> */}
+              </div>
+
+          </div>
+        <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between",}}>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"60%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>STA <div style={{fontWeight:'400'}}>{data?.schArrTime?`: ${moment(data?.schArrTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>ETA  <div style={{fontWeight:'400'}}>{data?.estArrTime?`: ${moment(data?.estArrTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>Status  <div style={{fontWeight:'400',color:data?.arrFlightStatus=="DYLD"?"#C60000":""}}>{`: ${data?.arrFlightStatus}`}</div></div>
+            </div>
+            <div style={{display:"flex",flexDirection:"column",alignItems:"flex-start",width:"40%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>STD<div style={{fontWeight:'400'}}>{data?.schDepTime?`: ${moment(data?.schDepTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>ETD<div style={{fontWeight:'400'}}>{data?.estDepTime?`: ${moment(data?.estDepTime,'YYYY-MM-DDTHH:mmSS').format("HH:mm")}`:": --:--"}</div></div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500',display:"flex",flexDirection:'row'}}>Status<div style={{fontWeight:'400'}}>{`: ${data?.depFlightStatus}`}</div></div>
+            </div>
+        </div>
+        <div style={{display:"flex",flexDirection:'row',alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"flex-start",width:"60%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500'}}>{"MGT"}</div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',display:"flex",flexDirection:'row'}}>{`: ${data?.mgt? moment(data?.mgt,'YYYY-MM-DDTHH:mmSS').format("HH:mm"):" --:--"}`}</div>
+            </div>
+            <div style={{display:"flex",alignItems:"flex-start",width:"40%"}}>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'500'}}>{"AGT"}</div>
+                <div style={{textAlign:"center",fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',display:"flex"}}>{`: ${data?.agt? moment(data?.agt,'YYYY-MM-DDTHH:mmSS').format("HH:mm"):" --:--"}`}</div>
+            </div>
+            
+        </div>
+        </div>
+        <div style={{padding:"15px 5px",display:"flex",justifyContent:'space-between',alignItems:'center',borderBottom: "1px solid #BDBDBD"}}>
+            {taskData&&taskData.map((item, index) => {
+                return (
+                    <div style={{justifyContent:'space-between',display:'flex',flexDirection:'column'}}>
+                        <div style={{display:'flex',border:"none"}}>
+                            <PieChartComp
+                                value={item.percentage}
+                                pieSize={30}
+                            />
+                            <div style={{alignItems:'center',justifyContent:'center',display:'flex',font: "normal normal normal 15px/18px Roboto",paddingLeft:5}}>{`${item.percentage}%`}</div>
+                        
+                        </div>
+                        <div> {item.taskDesc}</div>
+                    </div>
+                )
+            })
+            }
+        </div>
+        <div style={{padding:"15px 0px 5px 0px",display:"flex",flexDirection:'column'}}>
+            <div style={{fontFamily:"Roboto",fontSize:"16px",fontWeight:'bold',textAlign:"left"}}>Anomaly</div>
+            <div style={{display:"flex",paddingTop:3}}>
+                <div style={{fontFamily:"Roboto",fontSize:"15px",fontWeight:'bold',textAlign:"left", width:screen === "gantt"?'230px':'100px'}}>{`${data?.anomalyData?.titile} : `} </div>
+                <div style={{fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',paddingLeft:3,textAlign:"left",whiteSpace:'wrap'}}>{`${data?.anomalyData?.value}`} </div>
+            </div>
+            {/* <div style={{display:"flex",paddingTop:3}}>
+                <div style={{fontFamily:"Roboto",fontSize:"15px",fontWeight:'bold',textAlign:"left"}}>Weather: </div>
+                <div style={{fontFamily:"Roboto",fontSize:"14px",fontWeight:'400',paddingLeft:3,textAlign:"left"}}> San Franscio airport falls under CAT1 minima. The RVR - 0.25sm (402 m) | DH - 1400 ft.</div>
+            </div> */}
+        </div>
+    </div>
+  )
 }
 
 
-
-
-import React from "react";
-import "./ResetDoneButton.css";
-
-function ResetDoneButton(props: any) {
-  return (
-    <div className="resetDoneBtn-Container">
-      <button onClick={() => props.resetHandler(true)} className="reset-button">Reset</button>
-      <button onClick={() => props.saveHandler(true)} className="done-button">Done</button>
-    </div>
-  );
-}
-
-export default ResetDoneButton;
