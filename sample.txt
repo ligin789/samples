@@ -1,41 +1,13 @@
-import BlueBackArrowIcon from "../assets/images/imagesComponents/blueBackArrow"
-import CriticalIcon from "../assets/images/imagesComponents/criticalImage"
-import CloseButtonIcon from "../assets/images/imagesComponents/closeButtonIcon"
-import SnoozeUnselected from "../assets/images/imagesComponents/snoozeUnselected"
-import SnoozeSelected from "../assets/images/imagesComponents/snoozeSelected"
-import AddListIcon from "../assets/images/imagesComponents/addListIcon"
-import DropdownIcon from "../assets/images/imagesComponents/dropdownIcon"
-import PinIcon from "../assets/images/imagesComponents/pinIcon"
-import AcknowledgeClickedIcon from "../assets/images/imagesComponents/acknowledgeClickedIcon"
-import AcknowledgeNotClickedIcon from "../assets/images/imagesComponents/acknowledgeNotClickedIcon"
-import AddIcon from "../assets/images/imagesComponents/addImage"
- 
-const GetSvgComponent = (source: string) => {
-  switch (source) {
-    case "backArrow":
-      return <BlueBackArrowIcon/>
-    case "criticalImage":
-      return <CriticalIcon />
-    case "closeButton":
-      return <CloseButtonIcon/>
-    case "snoozeUnselected":
-      return <SnoozeUnselected/>
-    case "snoozeSelected":
-      return <SnoozeSelected/>
-    case 'addListIcon':
-      return <AddListIcon/>
-    case 'chevronArrowIcon':
-      return <DropdownIcon/>
-    case 'pinIcon':
-      return <PinIcon/>
-    case "acknowledgeIconClicked":
-      return <AcknowledgeClickedIcon/>
-    case "acknowledgeIconNotClicked":
-      return <AcknowledgeNotClickedIcon/>
-    case "addImage":
-      return <AddIcon/>
-    default:
-      return null;
-  }
-};
-export default GetSvgComponent;
+let json=[
+    {id:1,sold:200},
+     {id:2,sold:250},
+     {id:3,sold:900},
+      {id:4,sold:2006},
+    ]
+    
+    
+let sum=json.reduce((acc,current)=>
+{
+    acc+current.sold
+},0)
+console.log(sum)
