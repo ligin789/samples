@@ -1,13 +1,12 @@
-let json=[
-    {id:1,sold:200},
-     {id:2,sold:250},
-     {id:3,sold:900},
-      {id:4,sold:2006},
-    ]
-    
-    
-let sum=json.reduce((acc,current)=>
-{
-    acc+current.sold
-},0)
-console.log(sum)
+const express = require("express");
+const app = express();
+const port = 3000;
+const appRouter = app.router();
+
+appRouter.get("/item", async (req, res) => {
+ 
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
