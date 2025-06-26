@@ -1,7 +1,1 @@
-const getData=async()=>
-  {
-   await axios.get(`http://localhost:3000/item?id=$(id)`).then((res)=>
-    {
-      console.log("data",res.data)
-    })
-  }
+https://rdp-bucket-files.s3.ap-south-1.amazonaws.com/apkshare/app-release%20%286%29.apk?response-content-disposition=inline&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEGYaCmFwLXNvdXRoLTEiRzBFAiEAhwcovInoH8VXtRWYSpHuC9qa5MvtvkctlwZdfZXO9oMCIHSSgXB4TBWRGOcHj0CXvsj2qsRUwLj%2BdrzbwAeC5AOIKtIDCF8QAxoMNTY4MzkyNjM5OTA5IgwmTKpwvZH401FSKrIqrwOXFKqd%2FiyVWxc%2F%2FeSEEZN8J%2F6fwNEYLNhGQtfztCFlSfvL6%2BS5njNZhASS9k0EYAULf1fAt5uLyyD6NJRqhvd1ef5o1QxtbcpdU2G0vQFmHU3j1kxe0L97JPKiMNB9U848Y%2F4dOdSM5lrZtMxRK50Wktlw37JFwamv55eBURSOVr7DQSSYDu8coSQmPtUMVjmKA8%2FRpogVxIG%2BFiXFqikprgd23KFXne5WuoQ60bnMoAeP7Xrkyo2hyw046fzLPMfywK21XhIIQiC4p1yk%2F%2BdNjfP3%2F4tlyLAIOtQcTQKWP5TE%2FqjEN7aqTKCrjkaX6HRKj7h0bETyvIKBOKgrHpGh%2BbCCeZINl%2FQsz9TulSPgLBwFhkmvv41DYO6gOjeMeV59OVJsPca14UB5PToSY5uLYtKpmb9r%2FoPOhHpzCZWfGoswypfsPotOyBAv6lE4Z98i94k%2F5t6axMp5nUhc59qLYuXQwzGMEgNqMBvI7H2x3UCpAL1EiGMhSD9Bq8hqVW5hHy95ahW843rwQwNub19Smyhdel8NU4a3a%2FqGfkc4IIX4IXIK2cWcapHW0ubxtjCFo%2FXCBjreAqQJm9TY5%2F3IsQp%2FShFULBz5EpoVil9HBB6PtK1u8ip7%2F4k6pi6w8kHJU2s8BayhIf16V4FXP6aibAuJ0pHSF7SxZcbWcFTt4Q1p%2Fd6d0pPUaGNU0wHSuNgCDm5jKlqgn2SgTRWfYHsVRw5PGVAp1k7y0boieRobJTVCaWQDRDG00QzP92stfjriR8h6Gvs%2FEZ8P5vpD7%2FvxX3xb1%2BX%2FdzDgSk
