@@ -1,379 +1,211 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import RoleManagementComponent from './RoleManagementComponent';
-import * as constants from "../../constants/constants";
-import { useDispatch, useSelector } from "react-redux";
-import { Radio, Button, Modal, Menu, Input } from "antd";
-import AccessManagementJson from "../../store/UserRoleManagement/data.json";
-import roleObjectData from "../../store/dashboard/roleObject.json";
-import ServiceabilityData from '../../store/dashboard/data.json';
-
-// Mock the Redux hooks
-jest.mock("react-redux", () => ({
-  useDispatch: jest.fn(),
-  useSelector: jest.fn(),
-}));
-
-// Mock the antd components
-jest.mock("antd", () => {
-  const antd = jest.requireActual("antd");
-  return {
-    ...antd,
-    Radio: jest.fn(({ children, ...props }) => (
-      <div {...props}>{children}</div>
-    )),
-    Button: jest.fn(({ children, ...props }) => (
-      <button {...props}>{children}</button>
-    )),
-    Modal: jest.fn(({ children, ...props }) => (
-      <div {...props}>{children}</div>
-    )),
-    Menu: {
-      ...antd.Menu,
-      Item: jest.fn(({ children, ...props }) => (
-        <div {...props}>{children}</div>
-      )),
-      SubMenu: jest.fn(({ children, ...props }) => (
-        <div {...props}>{children}</div>
-      )),
-    },
-    Input: {
-      ...antd.Input,
-      Search: jest.fn(({ children, ...props }) => (
-        <input {...props} type="search" />
-      )),
-    },
-  };
-});
-
-// Mock the ant-design icons
-jest.mock("@ant-design/icons", () => ({
-  SearchOutlined: jest.fn(() => <span>SearchIcon</span>),
-}));
-
-describe('RoleManagementComponent', () => {
-  const mockDispatch = jest.fn();
-  const mockUseSelector = useSelector as jest.Mock;
-  
-  beforeEach(() => {
-    (useDispatch as jest.Mock).mockReturnValue(mockDispatch);
-    
-    mockUseSelector.mockImplementation((selector) => {
-      if (selector === jest.requireActual("react-redux").shallowEqual) {
-        return false;
-      }
-      return {
-        UserRoleSource: {
-          userRoles: null,
-          data: null,
-          error: null,
-        },
-        dashboard: {
-          dashboardData: null,
-          navbarData: null,
-        },
-      };
+import "./style.css";
+import { useRef, useEffect } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import * as turf from "@turf/turf";
+import './mapStyle.css'
+//import flightData from "../../assets/jsons/data.json"; // adjust path if needed
+ 
+mapboxgl.accessToken =
+  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
+ 
+const MapboxMap = (props:any) => {
+  const {flightData, isTwoHeader=false}=props
+  const mapContainer = useRef(null);
+  const map:any = useRef(null);
+  const routesRef = useRef<any[]>([]);
+  const pointsRef = useRef<Record<string, any>>({});
+  useEffect(()=>{
+    map?.current?.api?.resize();
+  },[])
+  useEffect(() => {
+    map.current = null;
+  if (map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [-104.97967799461988,39.73348630179578],
+      zoom: 4,
+      pitch: 0,
+      bearing: 0,
+      antialias: true,
+      projection: "mercator",
     });
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('renders without crashing', () => {
-    render(<RoleManagementComponent />);
-    expect(screen.getByTestId('roleManagementPage')).toBeInTheDocument();
-  });
-
-  it('dispatches actions on mount', () => {
-    render(<RoleManagementComponent />);
-    expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function)); // errorReset
-    expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function)); // requestUserRoles
-  });
-
-  it('renders USER TYPE section with radio buttons', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: null,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: null,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    expect(screen.getByText('USER TYPE')).toBeInTheDocument();
-    ServiceabilityData.role.forEach((role) => {
-      expect(screen.getByText(role)).toBeInTheDocument();
-    });
-  });
-
-  it('handles role change', () => {
-    render(<RoleManagementComponent />);
-    const radioButtons = screen.getAllByTestId(/rolechange_/);
-    fireEvent.click(radioButtons[0]);
-    // Add assertions for role change behavior
-  });
-
-  it('renders SELECT SCREEN section with menu', () => {
-    render(<RoleManagementComponent />);
-    expect(screen.getByText('SELECT SCREEN')).toBeInTheDocument();
-    expect(screen.getByTestId('handleclick')).toBeInTheDocument();
-  });
-
-  it('handles screen selection', () => {
-    render(<RoleManagementComponent />);
-    const menu = screen.getByTestId('handleclick');
-    fireEvent.click(menu);
-    // Add assertions for screen selection behavior
-  });
-
-  it('renders SELECT FUNCTIONALITY section with search', () => {
-    render(<RoleManagementComponent />);
-    expect(screen.getByText('SELECT FUNCTIONALITY')).toBeInTheDocument();
-    expect(screen.getByTestId('search')).toBeInTheDocument();
-  });
-
-  it('handles functionality search', () => {
-    render(<RoleManagementComponent />);
-    const searchInput = screen.getByTestId('search');
-    fireEvent.change(searchInput, { target: { value: 'test' } });
-    // Add assertions for search behavior
-  });
-
-  it('handles functionality click', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: null,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    // Add assertions for functionality click behavior
-  });
-
-  it('renders departments when sidebar is selected', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    const { rerender } = render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    rerender(<RoleManagementComponent />);
-    
-    // Check if departments are rendered
-    AccessManagementJson.role_management[0].functionalities[0].access_management.forEach((dept) => {
-      expect(screen.getByText(dept.department)).toBeInTheDocument();
-    });
-  });
-
-  it('handles access change via radio buttons', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Get the first radio button group
-    const radioGroups = screen.getAllByTestId('onchange');
-    fireEvent.click(radioGroups[0].querySelector('input[value="2"]')!);
-    
-    // Add assertions for access change behavior
-  });
-
-  it('shows save modal when save button is clicked', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Make a change to enable the save button
-    const radioGroups = screen.getAllByTestId('onchange');
-    fireEvent.click(radioGroups[0].querySelector('input[value="2"]')!);
-    
-    // Click the save button
-    const saveButton = screen.getByText('Save');
-    fireEvent.click(saveButton);
-    
-    // Check if modal is shown
-    expect(screen.getByText('Do you want to save the changes?')).toBeInTheDocument();
-  });
-
-  it('handles save confirmation', async () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Make a change to enable the save button
-    const radioGroups = screen.getAllByTestId('onchange');
-    fireEvent.click(radioGroups[0].querySelector('input[value="2"]')!);
-    
-    // Click the save button to show modal
-    const saveButton = screen.getByText('Save');
-    fireEvent.click(saveButton);
-    
-    // Click OK in the modal
-    const okButton = screen.getByText('OK');
-    fireEvent.click(okButton);
-    
-    await waitFor(() => {
-      expect(mockDispatch).toHaveBeenCalledWith(expect.any(Function)); // postUserRoles
-    });
-  });
-
-  it('handles save cancellation', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Make a change to enable the save button
-    const radioGroups = screen.getAllByTestId('onchange');
-    fireEvent.click(radioGroups[0].querySelector('input[value="2"]')!);
-    
-    // Click the save button to show modal
-    const saveButton = screen.getByText('Save');
-    fireEvent.click(saveButton);
-    
-    // Click Cancel in the modal
-    const cancelButton = screen.getByText('Cancel');
-    fireEvent.click(cancelButton);
-    
-    // Modal should be closed
-    expect(screen.queryByText('Do you want to save the changes?')).not.toBeInTheDocument();
-  });
-
-  it('disables save button when no changes are made', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: roleObjectData,
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Save button should be disabled initially
-    const saveButton = screen.getByText('Save');
-    expect(saveButton).toBeDisabled();
-  });
-
-  it('handles write permission correctly', () => {
-    mockUseSelector.mockImplementation((selector) => ({
-      UserRoleSource: {
-        userRoles: AccessManagementJson,
-        data: null,
-        error: null,
-      },
-      dashboard: {
-        dashboardData: ServiceabilityData,
-        navbarData: {
-          ...roleObjectData,
-          role_management: [{
-            screen_mapping_name: "Access_Management",
-            access: {
-              read_write: false
+     const popupContent = `
+      <div style="
+  font-family: sans-serif;
+  font-size: 14px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;           /* Don't wrap! */
+  overflow-x: auto;            /* Allow horizontal scroll if needed */
+  text-align: center;
+  min-width: 700px;            /* Or set a width that fits your content */
+">
+  <div style="font-weight: bold; flex-shrink: 0; text-align: center; font-size: 16px; margin-right: 20px;">DEN</div>
+ 
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">TASK</span><span>02</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">Defect</span><span>01</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">ET</span><span>120m</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">Mhrs</span><span>1:20</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 60px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">Skills</span><span>Avn, M</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">Parts</span><span>02</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">Tools</span><span>-</span>
+  </div>
+  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
+    <span style="font-weight: bold; color: #555;">GSEs</span><span>-</span>
+  </div>
+</div>
+ 
+      `;
+    new mapboxgl.Popup({ closeOnClick: false })
+      .setLngLat([-96, 37.8])
+      .setHTML(popupContent)
+      .addTo(map.current);
+    map.current.on("load", () => {
+      const redDotFeatures: any[] = [];
+      flightData?.forEach(({ flights }:any) => {
+        flights.forEach(({ id, origin, destination, speed }:any) => {
+          const route:any = {
+            id,
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: [origin, destination],
+                },
+              },
+            ],
+          };
+ 
+          const lineDistance = turf.length(route.features[0]);
+          const arc: any[] = [];
+ 
+          for (let i = 0; i < lineDistance; i += lineDistance / speed) {
+            const segment = turf.along(route.features[0], i);
+            arc.push(segment.geometry.coordinates);
+          }
+ 
+          route.features[0].geometry.coordinates = arc;
+          routesRef.current.push(route);
+ 
+          // Add route source + layer
+          map.current!.addSource(id + "-route", {
+            type: "geojson",
+            data: route,
+          });
+ 
+          map.current!.addLayer({
+            id: id + "-route",
+            source: id + "-route",
+            type: "line",
+            paint: {
+              "line-width": 4,
+              "line-color": "#FF1D00",
+              "line-dasharray": [2, 1],
+            },
+          });
+ 
+          // Midpoint plane
+          const midIndex = Math.floor(arc.length / 2);
+          const midPoint = arc[midIndex];
+          const nextPoint = arc[midIndex + 1] || midPoint;
+ 
+          const bearing = turf.bearing(
+            turf.point(midPoint),
+            turf.point(nextPoint)
+          );
+ 
+          const point = {
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                properties: { bearing },
+                geometry: {
+                  type: "Point",
+                  coordinates: midPoint,
+                },
+              },
+            ],
+          };
+ 
+          pointsRef.current[id] = point;
+ 
+          map.current!.addSource(id, { type: "geojson", data: point });
+          map.current!.addLayer({
+            id: id,
+            source: id,
+            type: "symbol",
+            layout: {
+              "icon-image": "airport",
+              "icon-size": 1.5,
+              "icon-rotate": ["get", "bearing"],
+              "icon-rotation-alignment": "map",
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
+            },
+          });
+ 
+          // Red dots
+          redDotFeatures.push(
+            {
+              type: "Feature",
+              geometry: { type: "Point", coordinates: origin },
+              properties: {},
+            },
+            {
+              type: "Feature",
+              geometry: { type: "Point", coordinates: destination },
+              properties: {},
             }
-          }]
+          );
+        });
+      });
+ 
+      map.current!.addSource("red-dots", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: redDotFeatures,
         },
-      },
-    }));
-    
-    render(<RoleManagementComponent />);
-    
-    // Simulate selecting a functionality to set sidebar
-    const functionalityItems = screen.getAllByTestId(/onfunctional_/);
-    fireEvent.click(functionalityItems[0]);
-    
-    // Radio buttons should be disabled when no write permission
-    const radioGroups = screen.getAllByTestId('onchange');
-    expect(radioGroups[0]).toHaveClass('ant-radio-disabled');
-  });
-
-  // Add more test cases for edge cases and error scenarios
-});
+      });
+ 
+      map.current!.addLayer({
+        id: "red-dots-layer",
+        type: "circle",
+        source: "red-dots",
+        paint: {
+          "circle-radius": 5,
+          "circle-color": "#FF1D00",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#fff",
+        },
+      });
+       map.current.on('click', (e:any) => {
+      alert(e.lngLat.lng + "," + e.lngLat.lat)
+    });
+    });
+  }, [flightData]);
+ 
+  return <div ref={mapContainer} className={isTwoHeader ? "map-container" : "map-container1"} />;
+};
+ 
+export default MapboxMap;
