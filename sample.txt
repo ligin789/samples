@@ -1,211 +1,28 @@
-import "./style.css";
-import { useRef, useEffect } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import * as turf from "@turf/turf";
-import './mapStyle.css'
-//import flightData from "../../assets/jsons/data.json"; // adjust path if needed
- 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
- 
-const MapboxMap = (props:any) => {
-  const {flightData, isTwoHeader=false}=props
-  const mapContainer = useRef(null);
-  const map:any = useRef(null);
-  const routesRef = useRef<any[]>([]);
-  const pointsRef = useRef<Record<string, any>>({});
-  useEffect(()=>{
-    map?.current?.api?.resize();
-  },[])
-  useEffect(() => {
-    map.current = null;
-  if (map.current) return;
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [-104.97967799461988,39.73348630179578],
-      zoom: 4,
-      pitch: 0,
-      bearing: 0,
-      antialias: true,
-      projection: "mercator",
-    });
-     const popupContent = `
-      <div style="
-  font-family: sans-serif;
-  font-size: 14px;
-  padding: 8px 12px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  flex-wrap: nowrap;           /* Don't wrap! */
-  overflow-x: auto;            /* Allow horizontal scroll if needed */
-  text-align: center;
-  min-width: 700px;            /* Or set a width that fits your content */
-">
-  <div style="font-weight: bold; flex-shrink: 0; text-align: center; font-size: 16px; margin-right: 20px;">DEN</div>
- 
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">TASK</span><span>02</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">Defect</span><span>01</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">ET</span><span>120m</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">Mhrs</span><span>1:20</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 60px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">Skills</span><span>Avn, M</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">Parts</span><span>02</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">Tools</span><span>-</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px; flex-shrink: 0;">
-    <span style="font-weight: bold; color: #555;">GSEs</span><span>-</span>
-  </div>
-</div>
- 
-      `;
-    new mapboxgl.Popup({ closeOnClick: false })
-      .setLngLat([-96, 37.8])
-      .setHTML(popupContent)
-      .addTo(map.current);
-    map.current.on("load", () => {
-      const redDotFeatures: any[] = [];
-      flightData?.forEach(({ flights }:any) => {
-        flights.forEach(({ id, origin, destination, speed }:any) => {
-          const route:any = {
-            id,
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: [origin, destination],
-                },
-              },
-            ],
-          };
- 
-          const lineDistance = turf.length(route.features[0]);
-          const arc: any[] = [];
- 
-          for (let i = 0; i < lineDistance; i += lineDistance / speed) {
-            const segment = turf.along(route.features[0], i);
-            arc.push(segment.geometry.coordinates);
-          }
- 
-          route.features[0].geometry.coordinates = arc;
-          routesRef.current.push(route);
- 
-          // Add route source + layer
-          map.current!.addSource(id + "-route", {
-            type: "geojson",
-            data: route,
-          });
- 
-          map.current!.addLayer({
-            id: id + "-route",
-            source: id + "-route",
-            type: "line",
-            paint: {
-              "line-width": 4,
-              "line-color": "#FF1D00",
-              "line-dasharray": [2, 1],
-            },
-          });
- 
-          // Midpoint plane
-          const midIndex = Math.floor(arc.length / 2);
-          const midPoint = arc[midIndex];
-          const nextPoint = arc[midIndex + 1] || midPoint;
- 
-          const bearing = turf.bearing(
-            turf.point(midPoint),
-            turf.point(nextPoint)
-          );
- 
-          const point = {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { bearing },
-                geometry: {
-                  type: "Point",
-                  coordinates: midPoint,
-                },
-              },
-            ],
-          };
- 
-          pointsRef.current[id] = point;
- 
-          map.current!.addSource(id, { type: "geojson", data: point });
-          map.current!.addLayer({
-            id: id,
-            source: id,
-            type: "symbol",
-            layout: {
-              "icon-image": "airport",
-              "icon-size": 1.5,
-              "icon-rotate": ["get", "bearing"],
-              "icon-rotation-alignment": "map",
-              "icon-allow-overlap": true,
-              "icon-ignore-placement": true,
-            },
-          });
- 
-          // Red dots
-          redDotFeatures.push(
-            {
-              type: "Feature",
-              geometry: { type: "Point", coordinates: origin },
-              properties: {},
-            },
-            {
-              type: "Feature",
-              geometry: { type: "Point", coordinates: destination },
-              properties: {},
-            }
-          );
-        });
-      });
- 
-      map.current!.addSource("red-dots", {
+ props.AirportData?.map((item:any)=>
+      {
+        map.current.addSource("states-boundary", {
         type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: redDotFeatures,
-        },
+        data: item.options.coordinates,
       });
- 
-      map.current!.addLayer({
-        id: "red-dots-layer",
-        type: "circle",
-        source: "red-dots",
+
+      map.current.addLayer({
+        id: "states-fill",
+        type: "fill",
+        source: "states-boundary",
         paint: {
-          "circle-radius": 5,
-          "circle-color": "#FF1D00",
-          "circle-stroke-width": 1.5,
-          "circle-stroke-color": "#fff",
+          "fill-color": "#e74c3c",
+          "fill-opacity": 0.4,
         },
       });
-       map.current.on('click', (e:any) => {
-      alert(e.lngLat.lng + "," + e.lngLat.lat)
-    });
-    });
-  }, [flightData]);
- 
-  return <div ref={mapContainer} className={isTwoHeader ? "map-container" : "map-container1"} />;
-};
- 
-export default MapboxMap;
+
+      map.current.addLayer({
+        id: "states-outline",
+        type: "line",
+        source: "states-boundary",
+        paint: {
+          "line-color": "#c0392b",
+          "line-width": 2,
+        },
+      });
+      })
+      
