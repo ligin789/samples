@@ -1,279 +1,149 @@
-import { useRef, useEffect } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import * as turf from "@turf/turf";
-import "./mapStyle.css";
-import "./style.css";
-
-//import flightData from "../../assets/jsons/data.json"; // adjust path if needed
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
-
-const popupContent = `<div style="
-  font-family: sans-serif;
-  font-size: 12px;
-  padding: 2px 2px;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Time Timeline Slider</title>
+  <style>
+    body {
+      background-color: #1e1e1e;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      color: white;
+    }
  
-" >
-<div style="text-align:center;font-size:14px!important;font-weight:bold";>Den</div>
-  
- <div style=" display: flex;
-  align-items: center;
-  gap: 1px;
-  text-align: center;">
- <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">TASK</span><span>02</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">Defect</span><span>01</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">ET</span><span>120m</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">Mhrs</span><span>1:20</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 60px;">
-    <span style="font-weight: bold; color: #555;">Skills</span><span>Avn, M</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">Parts</span><span>02</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">Tools</span><span>-</span>
-  </div>
-  <div style="display: flex; flex-direction: column; min-width: 50px;">
-    <span style="font-weight: bold; color: #555;">GSEs</span><span>-</span>
+    .timeline-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 20px;
+      margin: auto;
+      padding:0px 10px;
+      border-radius: 25px;
+      background: transparent linear-gradient(90deg, #FEC569BA 0%, #F67070B3 100%) 0% 0% no-repeat padding-box;
+    }
+ 
+    .time-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      padding-top:2px;
+      font-size: 14px;
+      color: #000;
+    }
+ 
+    .slider {
+      position: absolute;
+      top: -5px;
+      left:20px;
+      width: 5px;
+      height: 30px;
+      background-color: #727272;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: left 0.1s;
+    }
+ 
+    .current-time {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #ffd;
+    }
+  </style>
+</head>
+<body>
+ 
+  <div class="timeline-container" id="timeline">
+    <div class="slider" id="slider"></div>
+    <div class="time-labels">
+      <span>16:00</span>
+      <span>17:00</span>
+      <span>18:00</span>
+      <span>19:00</span>
+      <span>20:00</span>
+      <span>21:00</span>
+      <span>22:00</span>
+      <span>23:00</span>
+      <span>00:00</span>
+    </div>
   </div>
  
- </div>
-  
-</div>`;
-const MapboxMap = (props: any) => {
-  console.log(props.selectedItems);
-  const { flightData, isTwoHeader = false } = props;
-  const mapContainer = useRef(null);
-  const map: any = useRef(null);
-  const routesRef = useRef<any[]>([]);
-  const pointsRef = useRef<Record<string, any>>({});
-  useEffect(() => {
-    map?.current?.api?.resize();
-  }, []);
-  useEffect(() => {
-    map.current = null;
-    if (map.current) return;
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [-104.97967799461988, 39.73348630179578],
-      zoom: 4,
-      pitch: 0,
-      bearing: 0,
-      antialias: true,
-      projection: "mercator",
-    });
-
-    map.current.on("load", () => {
-      const redDotFeatures: any[] = [];
-      flightData?.forEach(({ flights }: any) => {
-        flights.forEach(({ id, origin, destination, speed }: any) => {
-          const route: any = {
-            id,
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: [origin, destination],
-                },
-              },
-            ],
-          };
-
-          const lineDistance = turf.length(route.features[0]);
-          const arc: any[] = [];
-
-          for (let i = 0; i < lineDistance; i += lineDistance / speed) {
-            const segment = turf.along(route.features[0], i);
-            arc.push(segment.geometry.coordinates);
-          }
-
-          route.features[0].geometry.coordinates = arc;
-          routesRef.current.push(route);
-
-          // Add route source + layer
-          map.current!.addSource(id + "-route", {
-            type: "geojson",
-            data: route,
-          });
-
-          map.current!.addLayer({
-            id: id + "-route",
-            source: id + "-route",
-            type: "line",
-            paint: {
-              "line-width": 4,
-              "line-color": "#FF1D00",
-              "line-dasharray": [2, 1],
-            },
-          });
-
-          // Midpoint plane
-          const midIndex = Math.floor(arc.length / 2);
-          const midPoint = arc[midIndex];
-          const nextPoint = arc[midIndex + 1] || midPoint;
-
-          const bearing = turf.bearing(
-            turf.point(midPoint),
-            turf.point(nextPoint)
-          );
-
-          const point = {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                properties: { bearing },
-                geometry: {
-                  type: "Point",
-                  coordinates: midPoint,
-                },
-              },
-            ],
-          };
-
-          pointsRef.current[id] = point;
-
-          map.current!.addSource(id, { type: "geojson", data: point });
-          map.current!.addLayer({
-            id: id,
-            source: id,
-            type: "symbol",
-            layout: {
-              "icon-image": "airport",
-              "icon-size": 1.5,
-              "icon-rotate": ["get", "bearing"],
-              "icon-rotation-alignment": "map",
-              "icon-allow-overlap": true,
-              "icon-ignore-placement": true,
-            },
-          });
-          //pop up layer
-          if (props.SimulateResultAirportDataJson) {
-            props.SimulateResultAirportDataJson?.[0].options.forEach(
-              (item: any, index: number) => {
-                if (
-                  props.selectedItems.reverse().includes(item.id) &&
-                  item?.coordinates
-                ) {
-                  // map.current.flyTo({
-                  //   zoom: 8,
-                  //   speed: 1,
-                  //   curve: 1,
-                  //   center: item.center,
-                  // });
-                  // Avoid re-adding the same source/layer
-                  new mapboxgl.Popup({ closeButton: false })
-                    .setLngLat(item.center)
-                    .setHTML(popupContent)
-                    .addTo(map.current);
-                }
-              }
-            );
-          }
-
-          // Red dots
-          redDotFeatures.push(
-            {
-              type: "Feature",
-              geometry: { type: "Point", coordinates: origin },
-              properties: {},
-            },
-            {
-              type: "Feature",
-              geometry: { type: "Point", coordinates: destination },
-              properties: {},
-            }
-          );
-        });
-      });
-
-      map.current!.addSource("red-dots", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: redDotFeatures,
-        },
-      });
-      //polygon marking
-      props.AirportData?.[0].options.forEach((item: any, index: number) => {
-        const sourceId = `states-boundary-${index}`;
-        const fillLayerId = `states-fill-${index}`;
-        const outlineLayerId = `states-outline-${index}`;
-        if (
-          props.selectedItems.reverse().includes(item.id) &&
-          item?.coordinates
-        ) {
-          map.current.flyTo({
-            zoom: 8,
-            speed: 1,
-            curve: 1,
-            center: item.center,
-          });
-          // Avoid re-adding the same source/layer
-          if (!map.current.getSource(sourceId)) {
-            map.current.addSource(sourceId, {
-              type: "geojson",
-              data: item.coordinates,
-            });
-
-            map.current.addLayer({
-              id: fillLayerId,
-              type: "fill",
-              source: sourceId,
-              paint: {
-                "fill-color": "red",
-                "fill-opacity": 0.4,
-              },
-            });
-
-            map.current.addLayer({
-              id: outlineLayerId,
-              type: "line",
-              source: sourceId,
-              paint: {
-                "line-color": "#c0392b",
-                "line-width": 2,
-              },
-            });
-          }
-        }
-      });
-      map.current!.addLayer({
-        id: "red-dots-layer",
-        type: "circle",
-        source: "red-dots",
-        paint: {
-          "circle-radius": 5,
-          "circle-color": "#FF1D00",
-          "circle-stroke-width": 1.5,
-          "circle-stroke-color": "#fff",
-        },
-      });
-      map.current.on("click", (e: any) => {
-        alert(e.lngLat.lng + "," + e.lngLat.lat);
-      });
-    });
-  }, [flightData, props.selectedItems]);
-
-  return (
-    <div
-      ref={mapContainer}
-      className={isTwoHeader ? "map-container" : "map-container1"}
-    />
-  );
-};
-
-export default MapboxMap;
+  <div class="current-time" id="currentTime">Time: 16:00</div>
+ 
+  <script>
+  const slider = document.getElementById('slider');
+  const timeline = document.getElementById('timeline');
+  const currentTime = document.getElementById('currentTime');
+ 
+  const times = ["16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00"];
+ 
+  let isDragging = false;
+ 
+  timeline.addEventListener('mousedown', startDrag);
+  window.addEventListener('mousemove', onDrag);
+  window.addEventListener('mouseup', endDrag);
+ 
+  function startDrag(e) {
+    isDragging = true;
+    moveSlider(e);
+  }
+ 
+  function onDrag(e) {
+    if (isDragging) moveSlider(e);
+  }
+ 
+  function endDrag(e) {
+    if (!isDragging) return;
+    isDragging = false;
+ 
+    const rect = timeline.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+ 
+    // Clamp and snap to nearest index
+    x = Math.max(0, Math.min(x, rect.width));
+    const percent = x / rect.width;
+    const index = Math.round(percent * (times.length - 1));
+ 
+    const snappedX = (index / (times.length - 1)) * rect.width;
+slider.style.left = `${snappedX - 0}px`;
+ 
+    currentTime.textContent = `Time: ${times[index]}`;
+  }
+ 
+  function moveSlider(e) {
+    const rect = timeline.getBoundingClientRect();
+    let x = e.clientX - rect.left;
+ 
+    x = Math.max(0, Math.min(x, rect.width));
+slider.style.left = `${x - 10}px`;
+ 
+    const percent = x / rect.width;
+    const index = Math.floor(percent * (times.length - 1));
+    const nextIndex = Math.min(index + 1, times.length - 1);
+ 
+    const baseTime = times[index];
+    const nextTime = times[nextIndex];
+ 
+    const baseMinutes = toMinutes(baseTime);
+    const nextMinutes = toMinutes(nextTime);
+    const currentMinutes = baseMinutes + (nextMinutes - baseMinutes) * ((percent * (times.length - 1)) % 1);
+ 
+    currentTime.textContent = "Time: " + fromMinutes(currentMinutes);
+  }
+ 
+  function toMinutes(timeStr) {
+    const [h, m] = timeStr.split(":").map(Number);
+    return h * 60 + m;
+  }
+ 
+  function fromMinutes(mins) {
+    const h = Math.floor(mins / 60) % 24;
+    const m = Math.round(mins % 60);
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  }
+</script>
+ 
+</body>
+</html>
