@@ -1,149 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Time Timeline Slider</title>
-  <style>
-    body {
-      background-color: #1e1e1e;
-      font-family: Arial, sans-serif;
-      padding: 40px;
-      color: white;
-    }
+Tails {'Hour 8': ['N235WN', 'N261WN', 'N406WN', 'N484WN', 'N551WN', 'N770SA', 'N7727A', 'N7736A', 'N7864B'], 'Hour 9': ['N278WN'], 'Hour 6': ['N400WN', 'N469WN'], 'Hour 7': ['N401WN', 'N404WN', 'N428WN', 'N7737E', 'N930WN'], 'Hour 10': ['N935WN']}
+CAN {'Hour 8': 9, 'Hour 9': 1, 'Hour 6': 2, 'Hour 7': 5, 'Hour 10': 1}
+CREW {'Hour 8': 45, 'Hour 9': 5, 'Hour 6': 10, 'Hour 7': 25, 'Hour 10': 5}
+PAX {'Hour 8': 881, 'Hour 9': 95, 'Hour 6': 202, 'Hour 7': 477, 'Hour 10': 99}
+DEL {'Hour 8': 19}
+ARR
+Station DEN
+Tails {'Hour 7': ['N235WN', 'N261WN', 'N401WN', 'N404WN', 'N406WN', 'N490WN', 'N770SA', 'N7727A', 'N7736A', 'N7737E', 'N7842A', 'N7864B', 'N930WN'], 'Hour 10': ['N239WN', 'N249WN', 'N7743B', 'N7752B', 'N7860A', 'N907WN'], 'Hour 9': ['N240WN', 'N278WN', 'N7883A', 'N935WN'], 'Hour 6': ['N428WN'], 'Hour 11': ['N462WN', 'N7724A'], 'Hour 8': ['N484WN', 'N551WN', 'N7861J']}
+CAN {'Hour 7': 13, 'Hour 10': 6, 'Hour 9': 4, 'Hour 6': 1, 'Hour 11': 2, 'Hour 8': 3}
+CREW {'Hour 7': 65, 'Hour 10': 30, 'Hour 9': 20, 'Hour 6': 5, 'Hour 11': 10, 'Hour 8': 15}
+PAX {'Hour 7': 1268, 'Hour 10': 579, 'Hour 9': 367, 'Hour 6': 88, 'Hour 11': 199, 'Hour 8': 277}
+DEL {'Hour 10': 1, 'Hour 9': 18}
  
-    .timeline-container {
-      position: relative;
-      width: 100%;
-      max-width: 900px;
-      height: 20px;
-      margin: auto;
-      padding:0px 10px;
-      border-radius: 25px;
-      background: transparent linear-gradient(90deg, #FEC569BA 0%, #F67070B3 100%) 0% 0% no-repeat padding-box;
-    }
+DAL NUM DEP 23 NUM ARR 36
+DEP
+Station DAL
+Tails {'Hour 8': ['N7743B'], 'Hour 6': ['N7836A'], 'Hour 7': ['N7839A']}
+CAN {'Hour 8': 1, 'Hour 6': 1, 'Hour 7': 1}
+CREW {'Hour 8': 5, 'Hour 6': 5, 'Hour 7': 5}
+PAX {'Hour 8': 89, 'Hour 6': 99, 'Hour 7': 99}
+DEL {'Hour 9': 4, 'Hour 7': 16}
+ARR
+Station DAL
+Tails {'Hour 7': ['N564WN', 'N7742B', 'N7743B', 'N7840A'], 'Hour 8': ['N7726A'], 'Hour 6': ['N7839A']}
+CAN {'Hour 7': 4, 'Hour 8': 1, 'Hour 6': 1}
+CREW {'Hour 7': 20, 'Hour 8': 5, 'Hour 6': 5}
+PAX {'Hour 7': 388, 'Hour 8': 91, 'Hour 6': 93}
+DEL {'Hour 7': 28}
  
-    .time-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 100%;
-      padding-top:2px;
-      font-size: 14px;
-      color: #000;
-    }
+HOU NUM DEP 18 NUM ARR 26
+DEP
+Station HOU
+Tails {'Hour 7': ['N1803U', 'N7725A', 'N7841A', 'N7862A', 'N7863A', 'N8708Q'], 'Hour 6': ['N1807U', 'N7869A'], 'Hour 10': ['N8716B']}
+CAN {'Hour 7': 6, 'Hour 6': 2, 'Hour 10': 1}
+CREW {'Hour 7': 32, 'Hour 6': 11, 'Hour 10': 6}
+PAX {'Hour 7': 679, 'Hour 6': 221, 'Hour 10': 127}
+DEL {'Hour 6': 6, 'Hour 10': 3}
+ARR
+Station HOU
+Tails {'Hour 7': ['N1803U', 'N7827A', 'N7841A', 'N7862A', 'N8713M'], 'Hour 6': ['N7725A', 'N7863A', 'N8708Q'], 'Hour 8': ['N8847Q']}
+CAN {'Hour 7': 5, 'Hour 6': 3, 'Hour 8': 1}
+CREW {'Hour 7': 27, 'Hour 6': 16, 'Hour 8': 6}
+PAX {'Hour 7': 576, 'Hour 6': 328, 'Hour 8': 143}
+DEL {'Hour 7': 2, 'Hour 6': 8, 'Hour 8': 2}
+
+
+#F4C177
  
-    .slider {
-      position: absolute;
-      top: -5px;
-      left:20px;
-      width: 5px;
-      height: 30px;
-      background-color: #727272;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
-      cursor: pointer;
-      transition: left 0.1s;
-    }
+#DE9960
  
-    .current-time {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: #ffd;
-    }
-  </style>
-</head>
-<body>
+#CF8F6A
  
-  <div class="timeline-container" id="timeline">
-    <div class="slider" id="slider"></div>
-    <div class="time-labels">
-      <span>16:00</span>
-      <span>17:00</span>
-      <span>18:00</span>
-      <span>19:00</span>
-      <span>20:00</span>
-      <span>21:00</span>
-      <span>22:00</span>
-      <span>23:00</span>
-      <span>00:00</span>
-    </div>
-  </div>
+#C37A55
  
-  <div class="current-time" id="currentTime">Time: 16:00</div>
+#C2705A
  
-  <script>
-  const slider = document.getElementById('slider');
-  const timeline = document.getElementById('timeline');
-  const currentTime = document.getElementById('currentTime');
+#C1655C
  
-  const times = ["16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00", "00:00"];
- 
-  let isDragging = false;
- 
-  timeline.addEventListener('mousedown', startDrag);
-  window.addEventListener('mousemove', onDrag);
-  window.addEventListener('mouseup', endDrag);
- 
-  function startDrag(e) {
-    isDragging = true;
-    moveSlider(e);
-  }
- 
-  function onDrag(e) {
-    if (isDragging) moveSlider(e);
-  }
- 
-  function endDrag(e) {
-    if (!isDragging) return;
-    isDragging = false;
- 
-    const rect = timeline.getBoundingClientRect();
-    let x = e.clientX - rect.left;
- 
-    // Clamp and snap to nearest index
-    x = Math.max(0, Math.min(x, rect.width));
-    const percent = x / rect.width;
-    const index = Math.round(percent * (times.length - 1));
- 
-    const snappedX = (index / (times.length - 1)) * rect.width;
-slider.style.left = `${snappedX - 0}px`;
- 
-    currentTime.textContent = `Time: ${times[index]}`;
-  }
- 
-  function moveSlider(e) {
-    const rect = timeline.getBoundingClientRect();
-    let x = e.clientX - rect.left;
- 
-    x = Math.max(0, Math.min(x, rect.width));
-slider.style.left = `${x - 10}px`;
- 
-    const percent = x / rect.width;
-    const index = Math.floor(percent * (times.length - 1));
-    const nextIndex = Math.min(index + 1, times.length - 1);
- 
-    const baseTime = times[index];
-    const nextTime = times[nextIndex];
- 
-    const baseMinutes = toMinutes(baseTime);
-    const nextMinutes = toMinutes(nextTime);
-    const currentMinutes = baseMinutes + (nextMinutes - baseMinutes) * ((percent * (times.length - 1)) % 1);
- 
-    currentTime.textContent = "Time: " + fromMinutes(currentMinutes);
-  }
- 
-  function toMinutes(timeStr) {
-    const [h, m] = timeStr.split(":").map(Number);
-    return h * 60 + m;
-  }
- 
-  function fromMinutes(mins) {
-    const h = Math.floor(mins / 60) % 24;
-    const m = Math.round(mins % 60);
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-  }
-</script>
- 
-</body>
-</html>
+
+"16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
