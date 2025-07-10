@@ -1,36 +1,230 @@
-Create a json
-
-with these as key and for each time there shoudl be object
-these is the time 
-
-"16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00",
-    "21:00",
-
-and each time have correspoding color
-
-
-#F4C177
+let json={
+  "response": [
+    {
+      "time": "16:00",
+      "value": {
+        "color": "#F4C177",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 5,
+            "Flights Impacted": 10,
+            "Potentially Delayed": 3,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 150
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 3,
+            "Flights Impacted": 7,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 100
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 4,
+            "Flights Impacted": 8,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 2,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 130
+          }
+        ]
+      }
+    },
+    {
+      "time": "17:00",
+      "value": {
+        "color": "#DE9960",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 6,
+            "Flights Impacted": 12,
+            "Potentially Delayed": 4,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 3,
+            "Passenger Journeys": 160
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 2,
+            "Flights Impacted": 5,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 90
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 5,
+            "Flights Impacted": 9,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 140
+          }
+        ]
+      }
+    },
+    {
+      "time": "18:00",
+      "value": {
+        "color": "#CF8F6A",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 4,
+            "Flights Impacted": 10,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 120
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 3,
+            "Flights Impacted": 6,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 95
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 2,
+            "Flights Impacted": 5,
+            "Potentially Delayed": 0,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 110
+          }
+        ]
+      }
+    },
+    {
+      "time": "19:00",
+      "value": {
+        "color": "#C37A55",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 3,
+            "Flights Impacted": 8,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 100
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 4,
+            "Flights Impacted": 9,
+            "Potentially Delayed": 3,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 130
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 3,
+            "Flights Impacted": 6,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 115
+          }
+        ]
+      }
+    },
+    {
+      "time": "20:00",
+      "value": {
+        "color": "#C2705A",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 2,
+            "Flights Impacted": 7,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 110
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 1,
+            "Flights Impacted": 3,
+            "Potentially Delayed": 0,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 80
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 3,
+            "Flights Impacted": 5,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 90
+          }
+        ]
+      }
+    },
+    {
+      "time": "21:00",
+      "value": {
+        "color": "#C1655C",
+        "data": [
+          {
+            "Station": "ATL",
+            "Tails Impacted": 5,
+            "Flights Impacted": 11,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 2,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 140
+          },
+          {
+            "Station": "DFW",
+            "Tails Impacted": 2,
+            "Flights Impacted": 4,
+            "Potentially Delayed": 1,
+            "Potentially Cancelled": 0,
+            "Pairings / Crew impacted": 1,
+            "Passenger Journeys": 85
+          },
+          {
+            "Station": "LAX",
+            "Tails Impacted": 4,
+            "Flights Impacted": 7,
+            "Potentially Delayed": 2,
+            "Potentially Cancelled": 1,
+            "Pairings / Crew impacted": 2,
+            "Passenger Journeys": 125
+          }
+        ]
+      }
+    }
+  ]
+}
  
-#DE9960
  
-#CF8F6A
  
-#C37A55
+ function getTimeSlotData(fullJson, time) {
+  alert(time)
+  if (!fullJson[time]) {
+    return null; // or throw an error if preferred
+  }
  
-#C2705A
- 
-#C1655C
+  return {
+    time: time,
+    value: fullJson[time]
+  };
+}
 
-each time have array of object which all have these feild 
-
-Station,Tails Impacted,Flights Impacted,Potentially Delayed,Potentially Cancelled,Pairings / Crew impacted,Passenger Journeys
-
-in this feild status is only word rest is integer
-
-each time should have 3 children
-
-
+console.log(getTimeSlotData(json.response,"16:00"))
