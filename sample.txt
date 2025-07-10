@@ -1,47 +1,16 @@
-Tails {'Hour 8': ['N235WN', 'N261WN', 'N406WN', 'N484WN', 'N551WN', 'N770SA', 'N7727A', 'N7736A', 'N7864B'], 'Hour 9': ['N278WN'], 'Hour 6': ['N400WN', 'N469WN'], 'Hour 7': ['N401WN', 'N404WN', 'N428WN', 'N7737E', 'N930WN'], 'Hour 10': ['N935WN']}
-CAN {'Hour 8': 9, 'Hour 9': 1, 'Hour 6': 2, 'Hour 7': 5, 'Hour 10': 1}
-CREW {'Hour 8': 45, 'Hour 9': 5, 'Hour 6': 10, 'Hour 7': 25, 'Hour 10': 5}
-PAX {'Hour 8': 881, 'Hour 9': 95, 'Hour 6': 202, 'Hour 7': 477, 'Hour 10': 99}
-DEL {'Hour 8': 19}
-ARR
-Station DEN
-Tails {'Hour 7': ['N235WN', 'N261WN', 'N401WN', 'N404WN', 'N406WN', 'N490WN', 'N770SA', 'N7727A', 'N7736A', 'N7737E', 'N7842A', 'N7864B', 'N930WN'], 'Hour 10': ['N239WN', 'N249WN', 'N7743B', 'N7752B', 'N7860A', 'N907WN'], 'Hour 9': ['N240WN', 'N278WN', 'N7883A', 'N935WN'], 'Hour 6': ['N428WN'], 'Hour 11': ['N462WN', 'N7724A'], 'Hour 8': ['N484WN', 'N551WN', 'N7861J']}
-CAN {'Hour 7': 13, 'Hour 10': 6, 'Hour 9': 4, 'Hour 6': 1, 'Hour 11': 2, 'Hour 8': 3}
-CREW {'Hour 7': 65, 'Hour 10': 30, 'Hour 9': 20, 'Hour 6': 5, 'Hour 11': 10, 'Hour 8': 15}
-PAX {'Hour 7': 1268, 'Hour 10': 579, 'Hour 9': 367, 'Hour 6': 88, 'Hour 11': 199, 'Hour 8': 277}
-DEL {'Hour 10': 1, 'Hour 9': 18}
- 
-DAL NUM DEP 23 NUM ARR 36
-DEP
-Station DAL
-Tails {'Hour 8': ['N7743B'], 'Hour 6': ['N7836A'], 'Hour 7': ['N7839A']}
-CAN {'Hour 8': 1, 'Hour 6': 1, 'Hour 7': 1}
-CREW {'Hour 8': 5, 'Hour 6': 5, 'Hour 7': 5}
-PAX {'Hour 8': 89, 'Hour 6': 99, 'Hour 7': 99}
-DEL {'Hour 9': 4, 'Hour 7': 16}
-ARR
-Station DAL
-Tails {'Hour 7': ['N564WN', 'N7742B', 'N7743B', 'N7840A'], 'Hour 8': ['N7726A'], 'Hour 6': ['N7839A']}
-CAN {'Hour 7': 4, 'Hour 8': 1, 'Hour 6': 1}
-CREW {'Hour 7': 20, 'Hour 8': 5, 'Hour 6': 5}
-PAX {'Hour 7': 388, 'Hour 8': 91, 'Hour 6': 93}
-DEL {'Hour 7': 28}
- 
-HOU NUM DEP 18 NUM ARR 26
-DEP
-Station HOU
-Tails {'Hour 7': ['N1803U', 'N7725A', 'N7841A', 'N7862A', 'N7863A', 'N8708Q'], 'Hour 6': ['N1807U', 'N7869A'], 'Hour 10': ['N8716B']}
-CAN {'Hour 7': 6, 'Hour 6': 2, 'Hour 10': 1}
-CREW {'Hour 7': 32, 'Hour 6': 11, 'Hour 10': 6}
-PAX {'Hour 7': 679, 'Hour 6': 221, 'Hour 10': 127}
-DEL {'Hour 6': 6, 'Hour 10': 3}
-ARR
-Station HOU
-Tails {'Hour 7': ['N1803U', 'N7827A', 'N7841A', 'N7862A', 'N8713M'], 'Hour 6': ['N7725A', 'N7863A', 'N8708Q'], 'Hour 8': ['N8847Q']}
-CAN {'Hour 7': 5, 'Hour 6': 3, 'Hour 8': 1}
-CREW {'Hour 7': 27, 'Hour 6': 16, 'Hour 8': 6}
-PAX {'Hour 7': 576, 'Hour 6': 328, 'Hour 8': 143}
-DEL {'Hour 7': 2, 'Hour 6': 8, 'Hour 8': 2}
+Create a json
+
+with these as key and for each time there shoudl be object
+these is the time 
+
+"16:00",
+    "17:00",
+    "18:00",
+    "19:00",
+    "20:00",
+    "21:00",
+
+and each time have correspoding color
 
 
 #F4C177
@@ -55,11 +24,13 @@ DEL {'Hour 7': 2, 'Hour 6': 8, 'Hour 8': 2}
 #C2705A
  
 #C1655C
- 
 
-"16:00",
-    "17:00",
-    "18:00",
-    "19:00",
-    "20:00",
-    "21:00",
+each time have array of object which all have these feild 
+
+Station,Tails Impacted,Flights Impacted,Potentially Delayed,Potentially Cancelled,Pairings / Crew impacted,Passenger Journeys
+
+in this feild status is only word rest is integer
+
+each time should have 3 children
+
+
