@@ -1,13 +1,331 @@
-{
-              compareClick
-                ? (setCompareClick(false),setOptimizationMenuAvali(false))
-                : processButton && optimzationAvalilable
-                ? (setOptimizationAvali(false), setOptimizationMenuAvali(false))
-                : processButton && !optimzationAvalilable
-                ? setprocessButton(false)
-                : props.optimizeButton === true
-                ? props.setOptimizeButton(false)
-                : optimzationAvalilable
-                ? setOptimizationAvali(false)
-                : simulationBackClick();
-            }
+import { useRef, useEffect, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import * as turf from "@turf/turf";
+import "./mapStyle.css";
+import "./style.css";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import HoverPopup from "./HoverPopup";
+import TimelineSlider from "./TimelineSlider";
+
+import SimulateResultJson from "../../assets/jsons/simulateResponse.json";
+
+//import flightData from "../../assets/jsons/data.json"; // adjust path if needed
+
+mapboxgl.accessToken =
+  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
+
+const MapboxMap = (props: any) => {
+
+
+  const { flightData, isTwoHeader = false, selectViewClick } = props;
+  const mapContainer = useRef(null);
+  const map: any = useRef(null);
+  const routesRef = useRef<any[]>([]);
+  const pointsRef = useRef<Record<string, any>>({});
+  const [currentTime, setCurrentTime] = useState("6:00");
+  function getTimeSlotData(responseArray: any, time: any) {
+    console.log(responseArray);
+    return responseArray.find((item: any) => item.time === time) || null;
+  }
+  useEffect(() => {
+    map?.current?.api?.resize();
+  }, []);
+  useEffect(() => {
+    map.current = null;
+    if (map.current) return;
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current!,
+      style: "mapbox://styles/mapbox/satellite-streets-v12",
+      center: [-104.97967799461988, 39.73348630179578],
+      zoom: 3,
+      pitch: 0,
+      bearing: 0,
+      antialias: true,
+      projection: "mercator",
+    });
+
+    map.current.on("load", () => {
+      const redDotFeatures: any[] = [];
+      {
+        props.AirportData === undefined &&
+          props.SimulateResultAirportDataJson === undefined &&
+          flightData?.forEach(({ flights }: any) => {
+            flights.forEach(({ id, origin, destination, speed }: any) => {
+              const route: any = {
+                id,
+                type: "FeatureCollection",
+                features: [
+                  {
+                    type: "Feature",
+                    geometry: {
+                      type: "LineString",
+                      coordinates: [origin, destination],
+                    },
+                  },
+                ],
+              };
+
+              const lineDistance = turf.length(route.features[0]);
+              const arc: any[] = [];
+
+              for (let i = 0; i < lineDistance; i += lineDistance / speed) {
+                const segment = turf.along(route.features[0], i);
+                arc.push(segment.geometry.coordinates);
+              }
+
+              route.features[0].geometry.coordinates = arc;
+              routesRef.current.push(route);
+
+              // Add route source + layer
+              map.current!.addSource(id + "-route", {
+                type: "geojson",
+                data: route,
+              });
+
+              map.current!.addLayer({
+                id: id + "-route",
+                source: id + "-route",
+                type: "line",
+                paint: {
+                  "line-width": 4,
+                  "line-color": "#FF1D00",
+                  "line-dasharray": [2, 1],
+                },
+              });
+
+              // Midpoint plane
+              const midIndex = Math.floor(arc.length / 2);
+              const midPoint = arc[midIndex];
+              const nextPoint = arc[midIndex + 1] || midPoint;
+
+              const bearing = turf.bearing(
+                turf.point(midPoint),
+                turf.point(nextPoint)
+              );
+
+              const point = {
+                type: "FeatureCollection",
+                features: [
+                  {
+                    type: "Feature",
+                    properties: { bearing },
+                    geometry: {
+                      type: "Point",
+                      coordinates: midPoint,
+                    },
+                  },
+                ],
+              };
+
+              pointsRef.current[id] = point;
+
+              map.current!.addSource(id, { type: "geojson", data: point });
+              map.current!.addLayer({
+                id: id,
+                source: id,
+                type: "symbol",
+                layout: {
+                  "icon-image": "airport",
+                  "icon-size": 1.5,
+                  "icon-rotate": ["get", "bearing"],
+                  "icon-rotation-alignment": "map",
+                  "icon-allow-overlap": true,
+                  "icon-ignore-placement": true,
+                },
+              });
+
+              // Red dots
+              redDotFeatures.push(
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: origin },
+                  properties: {},
+                },
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: destination },
+                  properties: {},
+                }
+              );
+            });
+          });
+      }
+       const denverCenter = [-104.9903, 39.7392]; // Longitude, Latitude
+// Generate center point
+const center = turf.point(denverCenter);
+ 
+// Create buffers (rings) at increasing distance
+const ring1 = turf.buffer(center, 10, { units: 'kilometers' });
+const ring2 = turf.buffer(center, 20, { units: 'kilometers' });
+const ring3 = turf.buffer(center, 30, { units: 'kilometers' });
+ 
+const gradientPolygons = {
+  type: 'FeatureCollection',
+  features: [
+    { ...ring3, properties: { color: '#004080' } }, // outer - dark blue
+    { ...ring2, properties: { color: '#3399ff' } }, // middle - light blue
+    { ...ring1, properties: { color: '#80d4ff' } }, // inner - very light blue
+  ],
+};
+ map.addSource('weather-gradient', {
+    type: 'geojson',
+    data: gradientPolygons,
+  });
+  map.addLayer({
+    id: 'weather-gradient-layer',
+    type: 'fill',
+    source: 'weather-gradient',
+    paint: {
+      'fill-color': ['get', 'color'],
+      'fill-opacity': 1,
+    },
+  });
+
+      //pop up layer
+      if (props.SimulateResultAirportDataJson) {
+        let selectedResult = getTimeSlotData(
+          SimulateResultJson.response,
+          currentTime
+        );
+        console.log("jhsdflfshj", currentTime);
+
+        selectedResult?.value.data.forEach((item: any, index: number) => {
+          // map.current.flyTo({
+          //   zoom: 8,
+          //   speed: 1,
+          //   curve: 1,
+          //   center: item.center,
+          // });
+          // Avoid re-adding the same source/layer
+          // new mapboxgl.Popup({ closeButton: false })
+          //   .setLngLat(item.center)
+          //   .setHTML(popupContent)
+          //   .addTo(map.current);
+          const popupNode = document.createElement("div");
+
+          const popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false,
+            offset: 10,
+            className: "",
+          }).setDOMContent(popupNode);
+          // const tip=document.querySelector('.mapboxgl-popup-tip');
+          //   console.log(tip,"dsjfhvshfvskfsylfgvsh,jfwuihl")
+          //   if(tip)
+          //   {
+          //     tip.style.borderTopColor="blue";
+          //   }
+           
+          const root = ReactDOM.createRoot(popupNode);
+          root.render(
+            <HoverPopup
+              item={item}
+              selectViewClick={selectViewClick}
+              selectedResult={selectedResult}
+              color={selectedResult.value.color}
+            />
+          );
+
+          popup.setLngLat(item.location).addTo(map.current);
+        });
+      }
+
+      map.current!.addSource("red-dots", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: redDotFeatures,
+        },
+      });
+      //polygon marking
+      props.AirportData?.[0].options.forEach((item: any, index: number) => {
+        const sourceId = `states-boundary-${index}`;
+        const fillLayerId = `states-fill-${index}`;
+        const outlineLayerId = `states-outline-${index}`;
+        if (props.selectedItems.includes(item.id) && item?.coordinates) {
+          console.log(props.selectedItems);
+          map.current.flyTo({
+            zoom: 4,
+            speed: 0.5,
+            curve: 1,
+            center: item.center,
+          });
+          // Avoid re-adding the same source/layer
+          if (!map.current.getSource(sourceId)) {
+            map.current.addSource(sourceId, {
+              type: "geojson",
+              data: item.coordinates,
+            });
+
+            map.current.addLayer({
+              id: fillLayerId,
+              type: "fill",
+              source: sourceId,
+              paint: {
+                "fill-color": "#BF4E47",
+                "fill-opacity": 0.5,
+              },
+            });
+
+            map.current.addLayer({
+              id: outlineLayerId,
+              type: "line",
+              source: sourceId,
+              paint: {
+                "line-color": "#fff",
+                "line-width": 2,
+              },
+            });
+          }
+        }
+      });
+      map.current!.addLayer({
+        id: "red-dots-layer",
+        type: "circle",
+        source: "red-dots",
+        paint: {
+          "circle-radius": 5,
+          "circle-color": "#FF1D00",
+          "circle-stroke-width": 1.5,
+          "circle-stroke-color": "#fff",
+        },
+      });
+      map.current.on("click", (e: any) => {
+        alert(e.lngLat.lng + "," + e.lngLat.lat);
+      });
+    });
+  }, [flightData, props.selectedItems, currentTime]);
+
+  return (
+    <div
+      ref={mapContainer}
+      className={isTwoHeader ? "map-container" : "map-container1"}
+    >
+      {props.SimulateResultAirportDataJson && (
+        <button
+          onClick={() => props.setOptimizeButton(true)}
+          style={{
+            backgroundColor: "#FFFFFF",
+            position: "absolute",
+            zIndex: 100,
+            bottom: 15,
+            right: 15,
+            borderRadius: "20px",
+            color: "#000",
+            width: "275px",
+            height: "33px",
+          }}
+        >
+          Optimise
+        </button>
+      )}
+      {props.SimulateResultAirportDataJson && (
+        <TimelineSlider setCurrentTime={setCurrentTime} />
+      )}
+    </div>
+  );
+};
+
+export default MapboxMap;
