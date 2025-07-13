@@ -17,8 +17,6 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
 
 const MapboxMap = (props: any) => {
-
-
   const { flightData, isTwoHeader = false, selectViewClick } = props;
   const mapContainer = useRef(null);
   const map: any = useRef(null);
@@ -152,36 +150,6 @@ const MapboxMap = (props: any) => {
             });
           });
       }
-       const denverCenter = [-104.9903, 39.7392]; // Longitude, Latitude
-// Generate center point
-const center = turf.point(denverCenter);
- 
-// Create buffers (rings) at increasing distance
-const ring1 = turf.buffer(center, 10, { units: 'kilometers' });
-const ring2 = turf.buffer(center, 20, { units: 'kilometers' });
-const ring3 = turf.buffer(center, 30, { units: 'kilometers' });
- 
-const gradientPolygons = {
-  type: 'FeatureCollection',
-  features: [
-    { ...ring3, properties: { color: '#004080' } }, // outer - dark blue
-    { ...ring2, properties: { color: '#3399ff' } }, // middle - light blue
-    { ...ring1, properties: { color: '#80d4ff' } }, // inner - very light blue
-  ],
-};
- map.addSource('weather-gradient', {
-    type: 'geojson',
-    data: gradientPolygons,
-  });
-  map.addLayer({
-    id: 'weather-gradient-layer',
-    type: 'fill',
-    source: 'weather-gradient',
-    paint: {
-      'fill-color': ['get', 'color'],
-      'fill-opacity': 1,
-    },
-  });
 
       //pop up layer
       if (props.SimulateResultAirportDataJson) {
