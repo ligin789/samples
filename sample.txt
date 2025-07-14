@@ -1,53 +1,128 @@
-   const center = [-104.9903, 39.7392]; // Denver
-      const radius = 300; // kilometers
+import React, { useState } from "react";
+import SliderImg from '../../assets/timeSlider.svg'
 
-      const circle = turf.circle(center, radius, {
-        steps: 64,
-        units: "kilometers",
-      });
+const TimeSlider = () => {
+  const times = ["04:00","05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+  const [sliderValue, setSliderValue] = useState(1);
+  const startTime = 1;
+  const endTime = 6;
 
-      const size = 512;
-      const canvas = document.createElement("canvas");
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext("2d");
+  const handleChange = (e: any) => {
+    setSliderValue(Number(e.target.value));
+  };
 
-      // Create radial gradient from center outward
-      const gradient = ctx.createRadialGradient(
-        size / 2,
-        size / 2,
-        0,
-        size / 2,
-        size / 2,
-        size / 2
-      );
-      gradient.addColorStop(0, "#A72E00"); // center - red
-      gradient.addColorStop(0.7, "rgba(181, 67, 1, 0.29)"); // edge - transparent
-      gradient.addColorStop(1, "rgba(243, 226, 39, 0)"); // edge - transparent
+  return (
+    <div style={{ fontFamily: "Arial", maxWidth: 650, margin: "40px auto",border:"10px soild red"}}>
+      <div style={{ position: "relative", height: "40px" }}>
+        {/* Base white bar */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: 0,
+            right: 0,
+            height: "20px",
+            background: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "10px",
+            margin:"0px -10px",
+            zIndex: 1,
+          }}
+        />
 
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, size, size);
+        {/* Colored range overlay */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            height: "20px",
+            left: `${(startTime / (times.length - 1)) * 100}%`,
+            width: `${((endTime - startTime) / (times.length - 1)) * 100}%`,
+            background: "linear-gradient(to right, #f5cc8c, #f39688)",
+            // borderRadius: "10px",
+            zIndex: 2,
+          }}
+        />
 
-      // Bounding box of the circle
-      const envelope = turf.bbox(circle);
+        {/* Slider black bar */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            height: "20px",
+            width: "6px",
+            backgroundColor: "#007EDE",
+            left: `calc(${(sliderValue / (times.length - 1)) * 100}% - 3px)`, // ← center line            transform: "translateX(-50%)",
+            zIndex: 3,
+          }}
+        />
 
-      // --- Add as raster image layer ---
-      map.current.addSource("radial-gradient", {
-        type: "image",
-        url: canvas.toDataURL(),
-        coordinates: [
-          [envelope[0], envelope[3]], // top-left
-          [envelope[2], envelope[3]], // top-right
-          [envelope[2], envelope[1]], // bottom-right
-          [envelope[0], envelope[1]], // bottom-left
-        ],
-      });
+        {/* Time labels inside bar */}
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0 4px",
+            fontSize: "12px",
+            zIndex: 4,
+            pointerEvents: "none", // <--- allow clicks to pass through
+            color: "#333",
+          }}
+        >
+          {times.map((time, idx) => (
+            <span key={idx}>{time}</span>
+          ))}
+        </div>
 
-      map.current.addLayer({
-        id: "radial-gradient-layer",
-        type: "raster",
-        source: "radial-gradient",
-        paint: {
-          "raster-opacity": 0.8,
-        },
-      });
+        {/* Draggable slider input */}
+        <input
+          type="range"
+          min={0}
+          max={times.length - 1}
+          step={1}
+          value={sliderValue}
+          onChange={handleChange}
+          style={{
+            position: "absolute",
+            top: 10,
+            width: "100%",
+            height: "20px",
+            background: "transparent",
+            zIndex: 10, // always on top
+            appearance: "none",
+            WebkitAppearance: "none",
+            cursor: "pointer",
+          }}
+        />
+
+        {/* Hide thumb but keep draggable */}
+        <style>{`
+          input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            cursor: pointer;
+          }
+          input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: transparent;
+            cursor: pointer;
+          }
+        `}</style>
+      </div>
+
+      <div style={{ textAlign: "center", marginTop: 12, fontWeight: "bold" }}>
+        Selected: {times[sliderValue]}
+      </div>
+    </div>
+  );
+};
+
+export default TimeSlider;
