@@ -1,337 +1,110 @@
-import { useRef, useEffect, useState } from "react";
-import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
-import * as turf from "@turf/turf";
-import "./mapStyle.css";
-import "./style.css";
-import React from "react";
-import ReactDOM from "react-dom/client";
-import HoverPopup from "./HoverPopup";
-import TimelineSlider from "./TimelineSlider";
-
-import SimulateResultJson from "../../assets/jsons/simulateResponse.json";
-
-//import flightData from "../../assets/jsons/data.json"; // adjust path if needed
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoicHJhdmVlbmFtYmFkeSIsImEiOiJjbGkydmlzdTMwOXFzM2VtdnUyMnpyOGQ4In0.bWuINnmssNAZbp1zdLkhhg";
-
-const MapboxMap = (props: any) => {
-  const { flightData, isTwoHeader = false, selectViewClick } = props;
-  const mapContainer = useRef(null);
-  const map: any = useRef(null);
-  const routesRef = useRef<any[]>([]);
-  const pointsRef = useRef<Record<string, any>>({});
-  const [currentTime, setCurrentTime] = useState("6:00");
-  function getTimeSlotData(responseArray: any, time: any) {
-    console.log(responseArray);
-    return responseArray.find((item: any) => item.time === time) || null;
-  }
-  useEffect(() => {
-    map?.current?.api?.resize();
-  }, []);
-  useEffect(() => {
-    map.current = null;
-    if (map.current) return;
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current!,
-      style: "mapbox://styles/mapbox/satellite-streets-v12",
-      center: [-104.97967799461988, 39.73348630179578],
-      zoom: 3,
-      pitch: 0,
-      bearing: 0,
-      antialias: true,
-      projection: "mercator",
-    });
-
-    map.current.on("load", () => {
-      const denverCenter = [-104.9903, 39.7392]; // Denver center
-const gradientFeatures = [];
+import React, { useState } from "react";
  
-const steps = 5;
-for (let i = steps; i > 0; i--) {
-  const radius = i * 60; // in km, outermost first
-  const opacity = 0.15 + (steps - i) * 0.15;
-  const color = `rgba(51, 153, 255, ${opacity.toFixed(2)})`;
+const TimeSlider = () => {
+  const times = ["05:00", "06:00", "07:00", "08:00", "09:00", "10:00", "11:00"];
+  const [sliderValue, setSliderValue] = useState(1); // default: 06:00
  
-  const circle = turf.circle(denverCenter, radius, {
-    steps: 64,
-    units: "kilometers",
-  });
+  const startTime = 1; // 06:00
+  const endTime = 5;   // 10:00
  
-  circle.properties = { color };
-  gradientFeatures.push(circle);
-}
+  const handleChange = (e) => {
+setSliderValue(Number(e.target.value));
+  };
  
-const gradientGeoJSON = {
-  type: "FeatureCollection",
-  features: gradientFeatures,
-};
- 
-map.current.addSource("radar-gradient", {
-  type: "geojson",
-  data: gradientGeoJSON,
-});
- 
-map.current.addLayer({
-  id: "radar-gradient-layer",
-  type: "fill",
-  source: "radar-gradient",
-  paint: {
-    "fill-color": ["get", "color"],
-    "fill-opacity": 1,
-  },
-});
- 
-      const redDotFeatures: any[] = [];
-      {
-        props.AirportData === undefined &&
-          props.SimulateResultAirportDataJson === undefined &&
-          flightData?.forEach(({ flights }: any) => {
-            flights.forEach(({ id, origin, destination, speed }: any) => {
-              const route: any = {
-                id,
-                type: "FeatureCollection",
-                features: [
-                  {
-                    type: "Feature",
-                    geometry: {
-                      type: "LineString",
-                      coordinates: [origin, destination],
-                    },
-                  },
-                ],
-              };
-
-              const lineDistance = turf.length(route.features[0]);
-              const arc: any[] = [];
-
-              for (let i = 0; i < lineDistance; i += lineDistance / speed) {
-                const segment = turf.along(route.features[0], i);
-                arc.push(segment.geometry.coordinates);
-              }
-
-              route.features[0].geometry.coordinates = arc;
-              routesRef.current.push(route);
-
-              // Add route source + layer
-              map.current!.addSource(id + "-route", {
-                type: "geojson",
-                data: route,
-              });
-
-              map.current!.addLayer({
-                id: id + "-route",
-                source: id + "-route",
-                type: "line",
-                paint: {
-                  "line-width": 4,
-                  "line-color": "#FF1D00",
-                  "line-dasharray": [2, 1],
-                },
-              });
-
-              // Midpoint plane
-              const midIndex = Math.floor(arc.length / 2);
-              const midPoint = arc[midIndex];
-              const nextPoint = arc[midIndex + 1] || midPoint;
-
-              const bearing = turf.bearing(
-                turf.point(midPoint),
-                turf.point(nextPoint)
-              );
-
-              const point = {
-                type: "FeatureCollection",
-                features: [
-                  {
-                    type: "Feature",
-                    properties: { bearing },
-                    geometry: {
-                      type: "Point",
-                      coordinates: midPoint,
-                    },
-                  },
-                ],
-              };
-
-              pointsRef.current[id] = point;
-
-              map.current!.addSource(id, { type: "geojson", data: point });
-              map.current!.addLayer({
-                id: id,
-                source: id,
-                type: "symbol",
-                layout: {
-                  "icon-image": "airport",
-                  "icon-size": 1.5,
-                  "icon-rotate": ["get", "bearing"],
-                  "icon-rotation-alignment": "map",
-                  "icon-allow-overlap": true,
-                  "icon-ignore-placement": true,
-                },
-              });
-
-              // Red dots
-              redDotFeatures.push(
-                {
-                  type: "Feature",
-                  geometry: { type: "Point", coordinates: origin },
-                  properties: {},
-                },
-                {
-                  type: "Feature",
-                  geometry: { type: "Point", coordinates: destination },
-                  properties: {},
-                }
-              );
-            });
-          });
-      }
-
-      //pop up layer
-      if (props.SimulateResultAirportDataJson) {
-        let selectedResult = getTimeSlotData(
-          SimulateResultJson.response,
-          currentTime
-        );
-        console.log("jhsdflfshj", currentTime);
-
-        selectedResult?.value.data.forEach((item: any, index: number) => {
-          // map.current.flyTo({
-          //   zoom: 8,
-          //   speed: 1,
-          //   curve: 1,
-          //   center: item.center,
-          // });
-          // Avoid re-adding the same source/layer
-          // new mapboxgl.Popup({ closeButton: false })
-          //   .setLngLat(item.center)
-          //   .setHTML(popupContent)
-          //   .addTo(map.current);
-          const popupNode = document.createElement("div");
-
-          const popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false,
-            offset: 10,
-            className: "",
-          }).setDOMContent(popupNode);
-          // const tip=document.querySelector('.mapboxgl-popup-tip');
-          //   console.log(tip,"dsjfhvshfvskfsylfgvsh,jfwuihl")
-          //   if(tip)
-          //   {
-          //     tip.style.borderTopColor="blue";
-          //   }
-           
-          const root = ReactDOM.createRoot(popupNode);
-          root.render(
-            <HoverPopup
-              item={item}
-              selectViewClick={selectViewClick}
-              selectedResult={selectedResult}
-              color={selectedResult.value.color}
-            />
-          );
-
-          popup.setLngLat(item.location).addTo(map.current);
-        });
-      }
-
-      map.current!.addSource("red-dots", {
-        type: "geojson",
-        data: {
-          type: "FeatureCollection",
-          features: redDotFeatures,
-        },
-      });
-      //polygon marking
-      props.AirportData?.[0].options.forEach((item: any, index: number) => {
-        const sourceId = `states-boundary-${index}`;
-        const fillLayerId = `states-fill-${index}`;
-        const outlineLayerId = `states-outline-${index}`;
-        if (props.selectedItems.includes(item.id) && item?.coordinates) {
-          console.log(props.selectedItems);
-          map.current.flyTo({
-            zoom: 4,
-            speed: 0.5,
-            curve: 1,
-            center: item.center,
-          });
-          // Avoid re-adding the same source/layer
-          if (!map.current.getSource(sourceId)) {
-            map.current.addSource(sourceId, {
-              type: "geojson",
-              data: item.coordinates,
-            });
-
-            map.current.addLayer({
-              id: fillLayerId,
-              type: "fill",
-              source: sourceId,
-              paint: {
-                "fill-color": "#BF4E47",
-                "fill-opacity": 0.5,
-              },
-            });
-
-            map.current.addLayer({
-              id: outlineLayerId,
-              type: "line",
-              source: sourceId,
-              paint: {
-                "line-color": "#fff",
-                "line-width": 2,
-              },
-            });
-          }
-        }
-      });
-      map.current!.addLayer({
-        id: "red-dots-layer",
-        type: "circle",
-        source: "red-dots",
-        paint: {
-          "circle-radius": 5,
-          "circle-color": "#FF1D00",
-          "circle-stroke-width": 1.5,
-          "circle-stroke-color": "#fff",
-        },
-      });
-      map.current.on("click", (e: any) => {
-        alert(e.lngLat.lng + "," + e.lngLat.lat);
-      });
-    });
-  }, [flightData, props.selectedItems, currentTime]);
-
   return (
-    <div
-      ref={mapContainer}
-      className={isTwoHeader ? "map-container" : "map-container1"}
-    >
-      {props.SimulateResultAirportDataJson && (
-        <button
-          onClick={() => props.setOptimizeButton(true)}
+    <div style={{ fontFamily: "Arial", maxWidth: 650, margin: "40px auto" }}>
+      <div style={{ position: "relative", height: "40px" }}>
+        {/* White background bar */}
+        <div
           style={{
-            backgroundColor: "#FFFFFF",
             position: "absolute",
-            zIndex: 100,
-            bottom: 15,
-            right: 15,
-            borderRadius: "20px",
-            color: "#000",
-            width: "275px",
-            height: "33px",
+            top: 10,
+            left: 0,
+            right: 0,
+            height: "20px",
+            background: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "10px",
+            zIndex: 0,
+          }}
+        />
+ 
+        {/* Colored range overlay */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            height: "20px",
+            left: `${(startTime / (times.length - 1)) * 100}%`,
+            width: `${((endTime - startTime) / (times.length - 1)) * 100}%`,
+            background: "linear-gradient(to right, #f5cc8c, #f39688)",
+            zIndex: 2,
+          }}
+        />
+ 
+        {/* Black vertical slider line */}
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            height: "20px",
+            width: "6px",
+            background: "#000",
+            left: `${(sliderValue / (times.length - 1)) * 100}%`,
+            transform: "translateX(-1px)",
+            zIndex: 6,
+            backgroundColor:"blue"
+          }}
+        />
+ 
+        {/* Time labels inside the box */}
+        <div
+          style={{
+            position: "absolute",
+            top: 12,
+            left: 0,
+            right: 0,
+            display: "flex",
+            justifyContent: "space-between",
+            padding: "0 4px",
+            fontSize: "12px",
+            zIndex: 3,
+            pointerEvents: "none",
+            color: "#333",
           }}
         >
-          Optimise
-        </button>
-      )}
-      {props.SimulateResultAirportDataJson && (
-        <TimelineSlider setCurrentTime={setCurrentTime} />
-      )}
+{times.map((time, idx) => (
+            <span key={idx}>{time}</span>
+          ))}
+        </div>
+ 
+        {/* Transparent range input on top */}
+        <input
+          type="range"
+          min={0}
+          max={times.length - 1}
+          step={1}
+          value={sliderValue}
+          onChange={handleChange}
+          style={{
+            position: "absolute",
+            top: 8,
+            width: "100%",
+            height: "20px",
+            background: "#fff",
+            zIndex: 1,
+            appearance: "none",
+            WebkitAppearance: "none",
+            borderRadius:"20px"
+          }}
+        />
+      </div>
+ 
+      <div style={{ textAlign: "center", marginTop: 12, fontWeight: "bold" }}>
+        Selected: {times[sliderValue]}
+      </div>
     </div>
   );
 };
-
-export default MapboxMap;
+ 
+export default TimeSlider;
