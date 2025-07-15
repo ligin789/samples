@@ -23,6 +23,7 @@ const MapboxMap = (props: any) => {
     currentTime,
     setCurrentTime,
     SimulateResultJson,
+    cardClickedStatus,
   } = props;
   const mapContainer = useRef(null);
   const map: any = useRef(null);
@@ -131,7 +132,7 @@ const MapboxMap = (props: any) => {
                 source: id,
                 type: "symbol",
                 layout: {
-                  "icon-image": "airport",
+                  "icon-image": "airport-15",
                   "icon-size": 1.5,
                   "icon-rotate": ["get", "bearing"],
                   "icon-rotation-alignment": "map",
@@ -156,37 +157,37 @@ const MapboxMap = (props: any) => {
             });
           });
       }
-
       //pop up layer
-      if (props.SimulateResultAirportDataJson) {
+      if (props.SimulateResultAirportDataJson && cardClickedStatus) {
         let selectedResult = getTimeSlotData(
           SimulateResultJson.response,
           currentTime
         );
-        console.log("jhsdflfshj", currentTime);
 
-        selectedResult?.value.data.slice(0,1).forEach((item: any, index: number) => {
-          const popupNode = document.createElement("div");
+        selectedResult?.value.data
+          .slice(0, 1)
+          .forEach((item: any, index: number) => {
+            const popupNode = document.createElement("div");
 
-          const popup = new mapboxgl.Popup({
-            closeButton: false,
-            closeOnClick: false,
-            offset: 10,
-            className: "",
-          }).setDOMContent(popupNode);
+            const popup = new mapboxgl.Popup({
+              closeButton: false,
+              closeOnClick: false,
+              offset: 10,
+              className: "",
+            }).setDOMContent(popupNode);
 
-          const root = ReactDOM.createRoot(popupNode);
-          root.render(
-            <HoverPopup
-              item={item}
-              selectViewClick={selectViewClick}
-              selectedResult={selectedResult}
-              color={selectedResult.value.color}
-            />
-          );
+            const root = ReactDOM.createRoot(popupNode);
+            root.render(
+              <HoverPopup
+                item={item}
+                selectViewClick={selectViewClick}
+                selectedResult={selectedResult}
+                color={selectedResult.value.color}
+              />
+            );
 
-          popup.setLngLat(item.location).addTo(map.current);
-        });
+            popup.setLngLat(item.location).addTo(map.current);
+          });
       }
 
       map.current!.addSource("red-dots", {
@@ -196,7 +197,7 @@ const MapboxMap = (props: any) => {
           features: redDotFeatures,
         },
       });
-      if (props.selectedMenu === 1) {
+      if (props.selectedMenu === 1 || props.SimulateResultAirportDataJson) {
         //  heat map start
 
         const center = [-104.9903, 39.7392]; // Denver
@@ -310,6 +311,28 @@ const MapboxMap = (props: any) => {
       //     }
       //   }
       // });
+      map.addSource("dot-point", {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [-104.9903, 39.7392], // 🔁 Replace with your coordinates
+          },
+        },
+      });
+
+      map.addLayer({
+        id: "red-dot-with-border",
+        type: "circle",
+        source: "dot-point",
+        paint: {
+          "circle-radius": 6,
+          "circle-color": "#FF0000", // 🔴 Red dot
+          "circle-stroke-width": 2,
+          "circle-stroke-color": "#FFFFFF", // ⚪ White border
+        },
+      });
       map.current!.addLayer({
         id: "red-dots-layer",
         type: "circle",
@@ -325,8 +348,7 @@ const MapboxMap = (props: any) => {
         alert(e.lngLat.lng + "," + e.lngLat.lat);
       });
     });
-  }, [flightData, props.selectedItems, currentTime]);
-
+  }, [flightData, props.selectedItems, currentTime, cardClickedStatus]);
   return (
     <div
       ref={mapContainer}
@@ -350,7 +372,7 @@ const MapboxMap = (props: any) => {
           Optimise
         </button>
       )}
-      {props.SimulateResultAirportDataJson && (
+      {(props.SimulateResultAirportDataJson || props.selectedMenu === 1) && (
         <>
           <TimelineSlider />
 
