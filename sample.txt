@@ -1,194 +1,33 @@
-V
-
-I'll help you implement drag-and-drop functionality from the sidebar to the canvas while maintaining your existing click-to-add feature. Here's how we can modify your code:
-
-## 1. First, update your `App.tsx` to include the DnD provider:
-
-```tsx
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
-import Sidebar from "./components/Sidebar";
-import Canvas from "./components/Canvas";
-
-export default function App() {
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="flex h-screen">
-        <Sidebar />
-        <Canvas />
-      </div>
-    </DndProvider>
-  );
-}
-```
-
-## 2. Update `Sidebar.tsx` to make items draggable:
-
-```tsx
-import { useFormStore } from "../store/useFormStore";
-import { useDrag } from 'react-dnd';
-import { ItemTypes } from '../types'; // You'll need to create this
-
-const ELEMENTS = ["text", "div", "image", "text_input", "radio", "checkbox", "switch"] as const;
-
-interface DraggableItemProps {
-  type: typeof ELEMENTS[number];
-  selectedId: string | null;
-}
-
-const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
-  const add = useFormStore((s) => s.addElement);
-  
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: ItemTypes.FORM_ELEMENT,
-    item: { type },
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
-
-  const opacity = isDragging ? 0.4 : 1;
-
-  return (
-    <button
-      ref={drag}
-      onClick={() => add(type, selectedId)}
-      style={{ opacity }}
-      className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
-    >
-      Add {type} {selectedId && "(inside selected)"}
-    </button>
-  );
-};
-
-export default function Sidebar() {
-  const sel = useFormStore((s) => s.selectedElement);
-
-  return (
-    <div className="w-1/4 p-4 bg-gray-100">
-      <h2 className="font-bold mb-2">Elements</h2>
-      {ELEMENTS.map((type) => (
-        <DraggableItem key={type} type={type} selectedId={sel} />
-      ))}
-    </div>
-  );
-}
-```
-
-## 3. Update `Canvas.tsx` to handle drops:
-
-```tsx
-// Add these imports at the top
-import { useDrop } from 'react-dnd';
-import { ItemTypes } from '../types';
-
-// Modify the Canvas component
-export default function Canvas() {
-  // ... existing imports and state
-  
-  const addElement = useFormStore((s) => s.addElement);
-  
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: ItemTypes.FORM_ELEMENT,
-    drop: (item: { type: string }) => {
-      addElement(item.type);
-    },
-    collect: (monitor) => ({
-      isOver: !!monitor.isOver(),
-    }),
-  }));
-
-  return (
-    <div 
-      ref={drop}
-      className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50' : ''}`}
-    >
-      {/* Rest of your existing Canvas code */}
-      {preview ? (  
-        <FormPreview elements={elements} />  
-      ) : (  
-        <div className="flex flex-grow">
-          <div className="w-2/3 pr-4">
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>  
-              <SortableContext items={elements.map((e) => e.id)} strategy={verticalListSortingStrategy}>  
-                {elements.map((el) => <SortableElement key={el.id} element={el} />)}  
-              </SortableContext>  
-            </DndContext>  
-          </div>  
-          <div className="w-1/3 pl-4">  
-            <ElementEditor />  
-          </div>  
-        </div>  
-      )}
-    </div>
-  );
-}
-```
-
-## 4. Create a new file `types.ts` (if you don't have one):
-
-```ts
-export const ItemTypes = {
-  FORM_ELEMENT: 'formElement',
-} as const;
-
-export type FormElementType = 
-  | 'text' 
-  | 'div' 
-  | 'image' 
-  | 'text_input' 
-  | 'radio' 
-  | 'checkbox' 
-  | 'switch';
-
-export interface FormElement {
-  id: string;
-  type: FormElementType;
-  props: {
-    style?: React.CSSProperties;
-    content?: string;
-    placeholder?: string;
-    src?: string;
-    label?: string;
-    conditional?: {
-      field: string;
-      value: string;
-    };
-    [key: string]: any;
-  };
-  children?: FormElement[];
-}
-```
-
-## 5. Update your styles (add to your CSS):
-
-```css
-/* Add these to your styles */
-.cursor-move {
-  cursor: move;
-}
-
-.drag-preview {
-  opacity: 0.5;
-  transform: scale(0.9);
-}
-
-.drop-target {
-  background-color: rgba(59, 130, 246, 0.1);
-  transition: background-color 0.2s;
-}
-```
-
-This implementation will:
-1. Allow both clicking and dragging elements from the sidebar
-2. Show visual feedback during drag operations
-3. Highlight the canvas when an element is dragged over it
-4. Maintain all your existing functionality
-5. Work alongside your existing DnD-Kit sorting system
-
-The drag-and-drop will work alongside your existing click-to-add functionality, giving users both options for adding elements to the canvas.
-
-Note: Make sure to install the required dependencies:
-```
-npm install react-dnd react-dnd-html5-backend
-```
+ERROR in src/components/Canvas.tsx:25:18
+TS2345: Argument of type 'string' is not assignable to parameter of type '"text" | "text_input" | "image" | "checkbox" | "radio" | "switch" | "div"'.
+    23 |     accept: ItemTypes.FORM_ELEMENT,
+    24 |     drop: (item: { type: string }) => {
+  > 25 |       addElement(item.type, selectedElement);
+       |                  ^^^^^^^^^
+    26 |     },
+    27 |     collect: (monitor) => ({
+    28 |       isOver: !!monitor.isOver(),
+ERROR in src/components/Canvas.tsx:42:7
+TS2322: Type 'ConnectDropTarget' is not assignable to type 'Ref<HTMLDivElement> | undefined'.
+  Type 'ConnectDropTarget' is not assignable to type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)'.
+    Type 'ReactElement<unknown, string | JSXElementConstructor<any>> | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+      Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+    40 |   return (
+    41 |     <div 
+  > 42 |       ref={drop}
+       |       ^^^
+    43 |       className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50 border-2 border-blue-200' : ''}`}
+    44 |     >
+    45 |       <div className="flex justify-between mb-4">
+ERROR in src/components/Sidebar.tsx:27:7
+TS2322: Type 'ConnectDragSource' is not assignable to type 'Ref<HTMLButtonElement> | undefined'.
+  Type 'ConnectDragSource' is not assignable to type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)'.
+    Type 'ReactElement<unknown, string | JSXElementConstructor<any>> | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+      Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
+    25 |   return (
+    26 |     <button
+  > 27 |       ref={drag}
+       |       ^^^
+    28 |       onClick={() => add(type, selectedId)}
+    29 |       style={{ opacity }}
+    30 |       className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
