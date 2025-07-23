@@ -1,166 +1,440 @@
-{
-  "version": "1",
-  "actions": {
-    "loadData": {
-      "body": "\n    const [searchValue, loadCallback, currentDataLength] = e.args\n\n    fetch ('https://gist.githubusercontent.com/rogargon/5534902/raw/434445021e155240ca78e378f10f70391dd594ea/countries.json')\n        .then (data => data.json())\n        .then (data => {\n            const preparedData = data\n                .filter(value => value.toLowerCase().includes(searchValue.toLowerCase()))\n                .slice(currentDataLength, currentDataLength + 20)\n                .map(value => ({value, label: value}))\n\n            loadCallback(preparedData)        \n        })\n",
-      "params": {}
-    },
-    "showValidationResult": {
-      "body": "    const setVisible = (key, visible) => {\n        const componentStore = e.store.form.componentTree.findByKey(key)?.store\n        if (componentStore) {\n            componentStore.renderWhen = {value: visible}\n        }\n    }\n    const hasErrors = e.store.form.componentTree.hasErrors\n    setVisible('errorMessage', hasErrors)\n    setVisible('successMessage', !hasErrors)",
-      "params": {}
-    }
-  },
-  "tooltipType": "RsTooltip",
-  "errorType": "RsErrorMessage",
-  "form": {
-    "key": "screen 1",
-    "type": "Screen",
-    "props": {
-      "error": {
-        "value": {}
-      }
-    },
-    "children": [
-      {
-        "key": "Main container",
-        "type": "RsContainer",
-        "props": {},
-        "css": {
-          "desktop": {
-            "string": "border: 1px solid lightgray;\nborder-radius: 6px;\npadding: 10px;"
-          }
-        },
-        "children": [
-          {
-            "key": "Name container",
-            "type": "RsContainer",
-            "props": {},
-            "css": {
-              "any": {
-                "object": {
-                  "flexDirection": "row"
-                }
-              }
-            },
-            "children": [
-              {
-                "key": "First name",
-                "type": "RsInput",
-                "props": {
-                  "label": {
-                    "value": "First name"
-                  }
-                },
-                "schema": {
-                  "type": "string",
-                  "validations": [
-                    {
-                      "key": "required"
-                    }
-                  ],
-                  "autoValidate": true
-                }
-              },
-              {
-                "key": "Last name",
-                "type": "RsInput",
-                "props": {
-                  "label": {
-                    "value": "Last name"
-                  }
-                },
-                "schema": {
-                  "type": "string",
-                  "validations": [
-                    {
-                      "key": "required"
-                    }
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "key": "Save button",
-            "type": "RsButton",
-            "props": {
-              "block": {
-                "value": false
-              },
-              "appearance": {
-                "value": "primary"
-              },
-              "children": {
-                "value": "Save"
-              },
-              "size": {
-                "value": "sm"
-              },
-              "loading": {
-                "computeType": "function",
-                "fnSource": "    return form.isValidating"
-              }
-            },
-            "events": {
-              "onClick": [
-                {
-                  "name": "validate",
-                  "type": "common"
-                },
-                {
-                  "name": "showValidationResult",
-                  "type": "code"
-                }
-              ]
-            }
-          },
-          {
-            "key": "errorMessage",
-            "type": "RsStaticContent",
-            "props": {
-              "content": {
-                "value": "Not all fields of the form are filled in correctly. Correct the values of the form fields and try again."
-              }
-            },
-            "css": {
-              "any": {
-                "string": "color: red;"
-              }
-            },
-            "renderWhen": {
-              "value": "false"
-            }
-          },
-          {
-            "key": "successMessage",
-            "type": "RsStaticContent",
-            "props": {
-              "content": {
-                "value": "The form has been sent, thank you!"
-              }
-            },
-            "css": {
-              "any": {
-                "string": "color: green;"
-              }
-            },
-            "renderWhen": {
-              "value": "false"
-            }
-          }
-        ]
-      }
-    ]
-  },
-  "localization": {},
-  "languages": [
-    {
-      "code": "en",
-      "dialect": "US",
-      "name": "English",
-      "description": "American English",
-      "bidi": "ltr"
-    }
-  ],
-  "defaultLanguage": "en-US"
+App.tsx
+
+import Sidebar from "./components/Sidebar";
+import Canvas from "./components/Canvas";
+
+export default function App() {
+  return (
+    <div className="flex h-screen">
+      <Sidebar />
+      <Canvas />
+    </div>
+  );
 }
+
+useFormState.ts
+
+import { create } from "zustand";
+import { v4 } from "uuid";
+import type { FormElement } from "../types";
+
+type Store = {
+  elements: FormElement[];
+  selectedElement: string | null;
+  fieldValues: Record<string, any>;
+
+  addElement: (type: FormElement["type"], parentId?: string | null) => void;
+  updateElement: (id: string, newProps: Partial<FormElement["props"]>) => void;
+  selectElement: (id: string) => void;
+  reorderElements: (newElements: FormElement[]) => void;
+  updateFieldValue: (id: string, val: any) => void;
+};
+
+export const useFormStore = create<Store>((set, get) => ({
+  elements: [],
+  selectedElement: null,
+  fieldValues: {},
+
+  addElement: (type, parentId = null) => {
+    const newEl: any = {
+      id: v4(),
+      type,
+      props: { style: {} },
+    };
+    if (type === "div") newEl.children = [];
+
+    set((state) => {
+      if (!parentId) return { elements: [...state.elements, newEl] };
+
+      const insert = (nodes: FormElement[]): FormElement[] =>
+        nodes.map((el) => {
+          if (el.id === parentId && el.type === "div") {
+            return { ...el, children: [...el.children, newEl] } as FormElement;
+          }
+          if ("children" in el) {
+            return { ...el, children: insert(el.children) } as FormElement;
+          }
+          return el;
+        });
+      return { elements: insert(state.elements) };
+    });
+  },
+
+  updateElement: (id, newProps) =>
+    set((state) => {
+      const update = (nodes: FormElement[]): FormElement[] =>
+        nodes.map((el) => {
+          if (el.id === id) return { ...el, props: { ...el.props, ...newProps } };
+          if ("children" in el) return { ...el, children: update(el.children) };
+          return el;
+        });
+      return { elements: update(state.elements) };
+    }),
+
+  selectElement: (id) => set((prev)=>({ selectedElement: prev.selectedElement !==id ?id :null })),
+
+  reorderElements: (newEls) => set({ elements: newEls }),
+
+  updateFieldValue: (id, val) =>
+    set((state) => ({
+      fieldValues: { ...state.fieldValues, [id]: val },
+    })),
+}));
+
+Canvas.tsx
+
+import { useRef, useState } from "react";
+import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { useFormStore } from "../store/useFormStore";
+import SortableElement from "./SortableElement";
+import ElementEditor from "./ElementEditor";
+import FormPreview from "./FormPreview";
+import { downloadJSON, parseJSONFile } from "../utils/jsonHelpers";
+
+export default function Canvas() {
+  const elements = useFormStore((s) => s.elements);
+  const reorder = useFormStore((s) => s.reorderElements);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState(false);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDragEnd = ({ active, over }: any) => {
+    if (active.id !== over.id) {
+      const oldIdx = elements.findIndex((e) => e.id === active.id);
+      const newIdx = elements.findIndex((e) => e.id === over.id);
+      reorder(arrayMove(elements, oldIdx, newIdx));
+    }
+  };
+
+  return (
+    <div className="flex-grow p-4 flex flex-col">
+      <div className="flex justify-between mb-4">
+        <div>
+          <button onClick={() => downloadJSON({ elements })} className="btn mx-1">Export JSON</button>
+          <button className="btn mx-1" onClick={() => fileRef.current?.click()}>Import JSON</button>
+          <input ref={fileRef} type="file" className="hidden" accept=".json" onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (!f) return;
+            parseJSONFile(f, (json) => json.elements && reorder(json.elements));
+          }} />
+        </div>
+        <button className="w-16 h-8 items-center bg-blue-600 text-white rounded" onClick={() => setPreview((p) => !p)}>
+          {preview ? "Edit" : "Preview"}
+        </button>
+      </div>
+
+      {preview ? (
+        <FormPreview elements={elements} />
+      ) : (
+        <div className="flex flex-grow">
+          <div className="w-2/3 pr-4">
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={elements.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+                {elements.map((el) => <SortableElement key={el.id} element={el} />)}
+              </SortableContext>
+            </DndContext>
+          </div>
+          <div className="w-1/3 pl-4">
+            <ElementEditor />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ElementEditor.tsx
+
+import React from "react";
+import { useFormStore } from "../store/useFormStore";
+import type { FormElement } from "../types";
+
+const ElementEditor: React.FC = () => {
+  const elems = useFormStore((s) => s.elements);
+  const sel = useFormStore((s) => s.selectedElement);
+  const update = useFormStore((s) => s.updateElement);
+
+  const el = React.useMemo((): FormElement | null => {
+    const find = (nodes: FormElement[]): FormElement | null => {
+      for (const n of nodes) {
+        if (n.id === sel) return n;
+        if ("children" in n) {
+          const found = find(n.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    return find(elems);
+  }, [elems, sel]);
+
+  if (!el) return <p>No element selected</p>;
+
+  const onChange = (key: keyof FormElement["props"], value: any) => {
+    update(el.id, { [key]: value });
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="font-bold">{el.type} Settings</h3>
+
+      {el.type === "text" && (
+        <input
+          type="text"
+          value={el.props.content || ""}
+          onChange={(e) => onChange("content", e.target.value)}
+          className="w-full border p-1"
+          placeholder="Content"
+        />
+      )}
+      {/* other prop editors as shown earlier */}
+      {/* conditional */}
+      <div>
+        <p className="font-semibold">Conditional Display</p>
+        <input
+          type="text"
+          placeholder="Field ID"
+          value={el.props.conditional?.field || ""}
+          onChange={(e) => onChange("conditional", { ...el.props.conditional, field: e.target.value })}
+          className="w-full border p-1 mb-1"
+        />
+        <input
+          type="text"
+          placeholder="Value"
+          value={el.props.conditional?.value || ""}
+          onChange={(e) => onChange("conditional", { ...el.props.conditional, value: e.target.value })}
+          className="w-full border p-1"
+        />
+      </div>
+      {/* styling inputs */}
+      <div>
+        <p className="font-semibold">Styling</p>
+        <input
+          type="text"
+          placeholder="Font size e.g. 16px"
+          value={el.props.style.fontSize || ""}
+          onChange={(e) => onChange("style", { ...el.props.style, fontSize: e.target.value })}
+          className="w-full border p-1 mb-1"
+        />
+        <input
+          type="color"
+          value={el.props.style.color || "#000000"}
+          onChange={(e) => onChange("style", { ...el.props.style, color: e.target.value })}
+          className="w-full h-8 mb-1"
+        />
+        <input
+          type="color"
+          value={el.props.style.backgroundColor || "#ffffff"}
+          onChange={(e) => onChange("style", { ...el.props.style, backgroundColor: e.target.value })}
+          className="w-full h-8 mb-1"
+        />
+        <input
+          type="text"
+          placeholder="Padding e.g. 10px"
+          value={el.props.style.padding || ""}
+          onChange={(e) => onChange("style", { ...el.props.style, padding: e.target.value })}
+          className="w-full border p-1"
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ElementEditor;
+
+ElementRenderer.tsx
+
+import React from "react";
+import { useFormStore } from "../store/useFormStore";
+import type { FormElement } from "../types";
+
+interface Props {
+  element: FormElement;
+}
+
+const ElementRenderer: React.FC<Props> = ({ element }) => {
+  const select = useFormStore((s) => s.selectElement);
+  const selected = useFormStore((s) => s.selectedElement);
+  const updateField = useFormStore((s) => s.updateFieldValue);
+  const fields = useFormStore((s) => s.fieldValues);
+
+  const { id, type, props } = element;
+  const children = "children" in element ? element.children : undefined;
+  const isSelected = selected === id;
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    select(id);
+  };
+  const show = !props.conditional?.field
+    || fields[props.conditional.field] === props.conditional.value;
+  if (!show) return null;
+
+  const common = {
+    onDoubleClick: handleClick,
+    style: props.style,
+    className: `${isSelected ? "border-2 border-blue-500 p-1" : "border p-2"} mb-2`
+  };
+
+  switch (type) {
+    case "div":
+      return (
+        <div {...common} >
+          <div className="text-xs italic text-gray-500 mb-1">(Container)</div>
+          {children?.map((c) => (<ElementRenderer key={c.id} element={c} />))}
+        </div>
+      );
+    case "text":
+      return <div {...common}>{props.content || "Text Block"}</div>;
+    case "text_input":
+      return (
+        <input
+          {...common}
+          placeholder={props.placeholder || ""}
+          onChange={(e) => updateField(id, e.target.value)}
+          className="w-full"
+        />
+      );
+    case "image":
+      return <img {...common} src={props.src || ""} alt="" />;
+    case "checkbox":
+    case "radio":
+      return (
+        <label {...common} className="flex items-center">
+          <input type={type} className="mr-2" /> {props.label || type}
+        </label>
+      );
+    case "switch":
+      return (
+        <label {...common} className="flex items-center">
+          <input type="checkbox" className="sr-only peer" />
+          <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 peer"></div>
+        </label>
+      );
+    default:
+      return null;
+  }
+};
+
+export default ElementRenderer;
+
+FormPreview.tsx
+
+import React, { useState } from "react";
+import type { FormElement } from "../types";
+
+interface Props {
+  elements: FormElement[];
+}
+
+const FormPreview: React.FC<Props> = ({ elements }) => {
+  const [data, setData] = useState<Record<string, any>>({});
+  const handleChange = (id: string, val: any) => setData((d) => ({ ...d, [id]: val }));
+
+  const renderEl = (el: FormElement): React.ReactNode => {
+    const style = el.props.style;
+    switch (el.type) {
+      case "text":
+        return <div key={el.id} style={style}>{el.props.content}</div>;
+      case "text_input":
+        return (
+          <input
+            key={el.id}
+            style={style}
+            placeholder={el.props.placeholder}
+            onChange={(e) => handleChange(el.id, e.target.value)}
+          />
+        );
+      case "div":
+        return <div key={el.id} style={style}>{el.children.map(renderEl)}</div>;
+      case "checkbox":
+        return(
+          <label key={el.id} style={style}>
+            <input type={el.type} onChange={(e) => handleChange(el.id, e.target.checked)} />
+            {el.props.label}
+          </label>
+        )
+      case "radio":
+        return (
+          <label key={el.id} style={style}>
+            <input type={el.type} onChange={(e) => handleChange(el.id, e.target.checked)} />
+            {el.props.label}
+          </label>
+        );
+      case "switch":
+        return (
+          <label key={el.id} style={style}>
+            <input type="checkbox" onChange={(e) => handleChange(el.id, e.target.checked)} />
+            Switch
+          </label>
+        );
+      case "image":
+        return <img key={el.id} src={el.props.src} alt="" style={style}/>;
+      default:
+        return null;
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(JSON.stringify(data, null, 2));
+  };
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      {elements.map(renderEl)}
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+    </form>
+  );
+};
+
+export default FormPreview;
+
+Sidebar.tsx
+
+import { useFormStore } from "../store/useFormStore";
+const ELEMENTS = ["text", "div", "image", "text_input", "radio", "checkbox", "switch"] as const;
+
+export default function Sidebar() {
+  const add = useFormStore((s) => s.addElement);
+  const sel = useFormStore((s) => s.selectedElement);
+
+  return (
+    <div className="w-1/4 p-4 bg-gray-100">
+      <h2 className="font-bold mb-2">Elements</h2>
+      {ELEMENTS.map((type) => (
+        <button
+          key={type}
+          onClick={() => add(type, sel)}
+          className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200"
+        >
+          Add {type} {sel && "(inside selected)"}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+SorttableElement.tsx
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import ElementRenderer from "./ElementRenderer";
+import type { FormElement } from "../types";
+
+interface Props {
+  element: FormElement;
+}
+
+const SortableElement: React.FC<Props> = ({ element }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: element.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <ElementRenderer element={element} />
+    </div>
+  );
+};
+
+export default SortableElement;
