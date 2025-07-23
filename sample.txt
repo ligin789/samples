@@ -1,158 +1,194 @@
-You're right — thank you for catching that. Let me give you a clean and corrected version of Canvas.tsx with all JSX tags properly closed and formatted.
+V
 
+I'll help you implement drag-and-drop functionality from the sidebar to the canvas while maintaining your existing click-to-add feature. Here's how we can modify your code:
 
----
+## 1. First, update your `App.tsx` to include the DnD provider:
 
-✅ Final Cleaned Canvas.tsx
+```tsx
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import Sidebar from "./components/Sidebar";
+import Canvas from "./components/Canvas";
 
-import { useRef, useState } from "react";
-import {
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  useDroppable,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-  arrayMove,
-} from "@dnd-kit/sortable";
+export default function App() {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex h-screen">
+        <Sidebar />
+        <Canvas />
+      </div>
+    </DndProvider>
+  );
+}
+```
+
+## 2. Update `Sidebar.tsx` to make items draggable:
+
+```tsx
 import { useFormStore } from "../store/useFormStore";
-import SortableElement from "./SortableElement";
-import ElementEditor from "./ElementEditor";
-import FormPreview from "./FormPreview";
-import { downloadJSON, parseJSONFile } from "../utils/jsonHelpers";
+import { useDrag } from 'react-dnd';
+import { ItemTypes } from '../types'; // You'll need to create this
 
-export default function Canvas() {
-  const elements = useFormStore((s) => s.elements);
-  const reorder = useFormStore((s) => s.reorderElements);
+const ELEMENTS = ["text", "div", "image", "text_input", "radio", "checkbox", "switch"] as const;
+
+interface DraggableItemProps {
+  type: typeof ELEMENTS[number];
+  selectedId: string | null;
+}
+
+const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
   const add = useFormStore((s) => s.addElement);
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState(false);
+  
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.FORM_ELEMENT,
+    item: { type },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
 
-  const sensors = useSensors(useSensor(PointerSensor));
-  const { setNodeRef: setCanvasRef } = useDroppable({ id: "canvas-drop-area" });
-
-  const handleDragEnd = ({ active, over }: any) => {
-    if (!over) return;
-
-    // Handle drag from Sidebar to Canvas
-    if (active.id.startsWith("sidebar-") && over.id === "canvas-drop-area") {
-      const type = active.data.current?.type;
-      if (type) add(type);
-      return;
-    }
-
-    // Handle reorder inside Canvas
-    if (active.id !== over.id) {
-      const oldIdx = elements.findIndex((e) => e.id === active.id);
-      const newIdx = elements.findIndex((e) => e.id === over.id);
-      if (oldIdx !== -1 && newIdx !== -1) {
-        reorder(arrayMove(elements, oldIdx, newIdx));
-      }
-    }
-  };
+  const opacity = isDragging ? 0.4 : 1;
 
   return (
-    <div className="flex-grow p-4 flex flex-col">
-      {/* Header Section */}
-      <div className="flex justify-between mb-4">
-        <div>
-          <button onClick={() => downloadJSON({ elements })} className="btn mx-1">
-            Export JSON
-          </button>
-          <button className="btn mx-1" onClick={() => fileRef.current?.click()}>
-            Import JSON
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            className="hidden"
-            accept=".json"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              parseJSONFile(file, (json) => {
-                if (json.elements) reorder(json.elements);
-              });
-            }}
-          />
-        </div>
-        <button
-          className="w-16 h-8 items-center bg-blue-600 text-white rounded"
-          onClick={() => setPreview((prev) => !prev)}
-        >
-          {preview ? "Edit" : "Preview"}
-        </button>
-      </div>
+    <button
+      ref={drag}
+      onClick={() => add(type, selectedId)}
+      style={{ opacity }}
+      className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
+    >
+      Add {type} {selectedId && "(inside selected)"}
+    </button>
+  );
+};
 
-      {/* Main Content */}
-      {preview ? (
-        <FormPreview elements={elements} />
-      ) : (
+export default function Sidebar() {
+  const sel = useFormStore((s) => s.selectedElement);
+
+  return (
+    <div className="w-1/4 p-4 bg-gray-100">
+      <h2 className="font-bold mb-2">Elements</h2>
+      {ELEMENTS.map((type) => (
+        <DraggableItem key={type} type={type} selectedId={sel} />
+      ))}
+    </div>
+  );
+}
+```
+
+## 3. Update `Canvas.tsx` to handle drops:
+
+```tsx
+// Add these imports at the top
+import { useDrop } from 'react-dnd';
+import { ItemTypes } from '../types';
+
+// Modify the Canvas component
+export default function Canvas() {
+  // ... existing imports and state
+  
+  const addElement = useFormStore((s) => s.addElement);
+  
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: ItemTypes.FORM_ELEMENT,
+    drop: (item: { type: string }) => {
+      addElement(item.type);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  return (
+    <div 
+      ref={drop}
+      className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50' : ''}`}
+    >
+      {/* Rest of your existing Canvas code */}
+      {preview ? (  
+        <FormPreview elements={elements} />  
+      ) : (  
         <div className="flex flex-grow">
-          {/* Left: Canvas */}
           <div className="w-2/3 pr-4">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={elements.map((e) => e.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div
-                  ref={setCanvasRef}
-                  id="canvas-drop-area"
-                  className="min-h-[300px] border-2 border-dashed border-gray-400 p-2"
-                >
-                  {elements.length === 0 ? (
-                    <p className="text-gray-400 text-center">
-                      Drag elements here from the sidebar
-                    </p>
-                  ) : (
-                    elements.map((el) => (
-                      <SortableElement key={el.id} element={el} />
-                    ))
-                  )}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
-
-          {/* Right: Property Editor */}
-          <div className="w-1/3 pl-4">
-            <ElementEditor />
-          </div>
-        </div>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>  
+              <SortableContext items={elements.map((e) => e.id)} strategy={verticalListSortingStrategy}>  
+                {elements.map((el) => <SortableElement key={el.id} element={el} />)}  
+              </SortableContext>  
+            </DndContext>  
+          </div>  
+          <div className="w-1/3 pl-4">  
+            <ElementEditor />  
+          </div>  
+        </div>  
       )}
     </div>
   );
 }
+```
 
+## 4. Create a new file `types.ts` (if you don't have one):
 
----
+```ts
+export const ItemTypes = {
+  FORM_ELEMENT: 'formElement',
+} as const;
 
-✅ Recap of What This Does:
+export type FormElementType = 
+  | 'text' 
+  | 'div' 
+  | 'image' 
+  | 'text_input' 
+  | 'radio' 
+  | 'checkbox' 
+  | 'switch';
 
-Allows dragging components from the Sidebar into the Canvas.
+export interface FormElement {
+  id: string;
+  type: FormElementType;
+  props: {
+    style?: React.CSSProperties;
+    content?: string;
+    placeholder?: string;
+    src?: string;
+    label?: string;
+    conditional?: {
+      field: string;
+      value: string;
+    };
+    [key: string]: any;
+  };
+  children?: FormElement[];
+}
+```
 
-Handles reordering within the Canvas.
+## 5. Update your styles (add to your CSS):
 
-Includes working Export/Import, and Preview/Edit toggles.
+```css
+/* Add these to your styles */
+.cursor-move {
+  cursor: move;
+}
 
+.drag-preview {
+  opacity: 0.5;
+  transform: scale(0.9);
+}
 
-Let me know if you'd like to:
+.drop-target {
+  background-color: rgba(59, 130, 246, 0.1);
+  transition: background-color 0.2s;
+}
+```
 
-Drag into nested divs,
+This implementation will:
+1. Allow both clicking and dragging elements from the sidebar
+2. Show visual feedback during drag operations
+3. Highlight the canvas when an element is dragged over it
+4. Maintain all your existing functionality
+5. Work alongside your existing DnD-Kit sorting system
 
-Add placeholder indicators when dragging,
+The drag-and-drop will work alongside your existing click-to-add functionality, giving users both options for adding elements to the canvas.
 
-Implement deletion on drop to trash.
-
-
-I'm here to help!
-
+Note: Make sure to install the required dependencies:
+```
+npm install react-dnd react-dnd-html5-backend
+```
