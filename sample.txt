@@ -1,33 +1,183 @@
-ERROR in src/components/Canvas.tsx:25:18
-TS2345: Argument of type 'string' is not assignable to parameter of type '"text" | "text_input" | "image" | "checkbox" | "radio" | "switch" | "div"'.
-    23 |     accept: ItemTypes.FORM_ELEMENT,
-    24 |     drop: (item: { type: string }) => {
-  > 25 |       addElement(item.type, selectedElement);
-       |                  ^^^^^^^^^
-    26 |     },
-    27 |     collect: (monitor) => ({
-    28 |       isOver: !!monitor.isOver(),
-ERROR in src/components/Canvas.tsx:42:7
-TS2322: Type 'ConnectDropTarget' is not assignable to type 'Ref<HTMLDivElement> | undefined'.
-  Type 'ConnectDropTarget' is not assignable to type '(instance: HTMLDivElement | null) => void | (() => VoidOrUndefinedOnly)'.
-    Type 'ReactElement<unknown, string | JSXElementConstructor<any>> | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
-      Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
-    40 |   return (
-    41 |     <div 
-  > 42 |       ref={drop}
-       |       ^^^
-    43 |       className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50 border-2 border-blue-200' : ''}`}
-    44 |     >
-    45 |       <div className="flex justify-between mb-4">
-ERROR in src/components/Sidebar.tsx:27:7
-TS2322: Type 'ConnectDragSource' is not assignable to type 'Ref<HTMLButtonElement> | undefined'.
-  Type 'ConnectDragSource' is not assignable to type '(instance: HTMLButtonElement | null) => void | (() => VoidOrUndefinedOnly)'.
-    Type 'ReactElement<unknown, string | JSXElementConstructor<any>> | null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
-      Type 'null' is not assignable to type 'void | (() => VoidOrUndefinedOnly)'.
-    25 |   return (
-    26 |     <button
-  > 27 |       ref={drag}
-       |       ^^^
-    28 |       onClick={() => add(type, selectedId)}
-    29 |       style={{ opacity }}
-    30 |       className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
+RLet me fix these TypeScript errors. Here are the corrected versions:
+
+1. First, update your `types.ts` to properly type the form elements:
+
+```ts
+export const ItemTypes = {
+  FORM_ELEMENT: 'formElement',
+} as const;
+
+export type FormElementType = 
+  | 'text' 
+  | 'div' 
+  | 'image' 
+  | 'text_input' 
+  | 'radio' 
+  | 'checkbox' 
+  | 'switch';
+
+export interface DragItem {
+  type: FormElementType;
+}
+
+// ... rest of your types
+```
+
+2. Update `Canvas.tsx`:
+
+```tsx
+import { useRef, useState, useCallback } from "react";
+import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
+import { useDrop } from "react-dnd";
+import { useFormStore } from "../store/useFormStore";
+import SortableElement from "./SortableElement";
+import ElementEditor from "./ElementEditor";
+import FormPreview from "./FormPreview";
+import { downloadJSON, parseJSONFile } from "../utils/jsonHelpers";
+import { ItemTypes, FormElementType } from "../types";
+
+export default function Canvas() {
+  const elements = useFormStore((s) => s.elements);
+  const selectedElement = useFormStore((s) => s.selectedElement);
+  const reorder = useFormStore((s) => s.reorderElements);
+  const addElement = useFormStore((s) => s.addElement);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [preview, setPreview] = useState(false);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  const handleDrop = useCallback((item: { type: FormElementType }) => {
+    addElement(item.type, selectedElement);
+  }, [addElement, selectedElement]);
+
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: ItemTypes.FORM_ELEMENT,
+    drop: handleDrop,
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver(),
+    }),
+  }));
+
+  const handleDragEnd = ({ active, over }: any) => {
+    if (active.id !== over.id) {
+      const oldIdx = elements.findIndex((e) => e.id === active.id);
+      const newIdx = elements.findIndex((e) => e.id === over.id);
+      reorder(arrayMove(elements, oldIdx, newIdx));
+    }
+  };
+
+  return (
+    <div 
+      ref={(node) => drop(node as HTMLDivElement)}
+      className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50 border-2 border-blue-200' : ''}`}
+    >
+      {/* Rest of your component remains the same */}
+      <div className="flex justify-between mb-4">
+        {/* ... existing code ... */}
+      </div>
+
+      {preview ? (  
+        <FormPreview elements={elements} />  
+      ) : (  
+        <div className="flex flex-grow">
+          <div className="w-2/3 pr-4">
+            <DndContext 
+              sensors={sensors} 
+              collisionDetection={closestCenter} 
+              onDragEnd={handleDragEnd}
+            >  
+              <SortableContext 
+                items={elements.map((e) => e.id)} 
+                strategy={verticalListSortingStrategy}
+              >  
+                {elements.map((el) => (
+                  <SortableElement key={el.id} element={el} />
+                ))}  
+              </SortableContext>  
+            </DndContext>  
+          </div>  
+          <div className="w-1/3 pl-4">  
+            <ElementEditor />  
+          </div>  
+        </div>  
+      )}
+    </div>
+  );
+}
+```
+
+3. Update `Sidebar.tsx`:
+
+```tsx
+import { useFormStore } from "../store/useFormStore";
+import { useDrag } from 'react-dnd';
+import { ItemTypes, FormElementType } from '../types';
+
+const ELEMENTS: FormElementType[] = ["text", "div", "image", "text_input", "radio", "checkbox", "switch"];
+
+interface DraggableItemProps {
+  type: FormElementType;
+  selectedId: string | null;
+}
+
+const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
+  const add = useFormStore((s) => s.addElement);
+  
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: ItemTypes.FORM_ELEMENT,
+    item: { type },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
+
+  const opacity = isDragging ? 0.4 : 1;
+
+  return (
+    <button
+      ref={(node) => drag(node as HTMLButtonElement)}
+      onClick={() => add(type, selectedId)}
+      style={{ opacity }}
+      className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
+    >
+      Add {type} {selectedId && "(inside selected)"}
+    </button>
+  );
+};
+
+export default function Sidebar() {
+  const sel = useFormStore((s) => s.selectedElement);
+
+  return (
+    <div className="w-1/4 p-4 bg-gray-100">
+      <h2 className="font-bold mb-2">Elements</h2>
+      {ELEMENTS.map((type) => (
+        <DraggableItem key={type} type={type} selectedId={sel} />
+      ))}
+    </div>
+  );
+}
+```
+
+Key fixes:
+
+1. **Type Safety**:
+   - Created proper `FormElementType` and `DragItem` types
+   - Typed the ELEMENTS array in Sidebar explicitly
+   - Properly typed the drop handler parameters
+
+2. **Ref Handling**:
+   - Used type assertions with `as HTMLDivElement` and `as HTMLButtonElement`
+   - Wrapped ref assignments in callback functions
+
+3. **Performance**:
+   - Added `useCallback` for the drop handler in Canvas
+   - Maintained proper typing throughout the component tree
+
+4. **Error Resolution**:
+   - Fixed the type mismatch for `addElement` parameter
+   - Resolved the ref type incompatibilities
+   - Ensured proper type flow between components
+
+These changes should resolve all the TypeScript errors while maintaining all the functionality of your form builder.
