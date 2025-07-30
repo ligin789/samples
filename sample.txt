@@ -1,33 +1,128 @@
-RLet me fix these TypeScript errors. Here are the corrected versions:
+This is my formbuilder app when clicking i can make childern inside the div when drag and drop if the item is selected i cant put it inside the container 
+drag and drop should have to work also inside the container like click
+if no item selected then outside drag (as like exisiting)
 
-1. First, update your `types.ts` to properly type the form elements:
+sharing the code down
+App.tsx
 
-```ts
-export const ItemTypes = {
-  FORM_ELEMENT: 'formElement',
-} as const;
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
+import Sidebar from "./components/Sidebar";
+import Canvas from "./components/Canvas";
 
-export type FormElementType = 
-  | 'text' 
-  | 'div' 
-  | 'image' 
-  | 'text_input' 
-  | 'radio' 
-  | 'checkbox' 
-  | 'switch';
-
-export interface DragItem {
-  type: FormElementType;
+export default function App() {
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <div className="flex h-screen">
+        <Sidebar />
+        <Canvas />
+      </div>
+    </DndProvider>
+  );
 }
 
-// ... rest of your types
-```
+useFormStore.tsx
 
-2. Update `Canvas.tsx`:
+import { create } from "zustand";
+import { v4 } from "uuid";
+import type { FormElement } from "../types";
 
-```tsx
-import { useRef, useState, useCallback } from "react";
-import { DndContext, PointerSensor, useSensor, useSensors, closestCenter } from "@dnd-kit/core";
+type State = {
+  elements: FormElement[];
+  selectedElement: string | null;
+  fieldValues: Record<string, any>;
+
+  addElement: (type: FormElement["type"], parentId?: string | null) => void;
+  deleteElement:(id:string)=>void;
+  updateElement: (id: string, newProps: Partial<FormElement["props"]>) => void;
+  selectElement: (id: string) => void;
+  reorderElements: (newEls: FormElement[]) => void;
+  updateFieldValue: (id: string, val: any) => void;
+};
+
+export const useFormStore = create<State>((set) => ({
+  elements: [],
+  selectedElement: null,
+  fieldValues: {},
+
+  deleteElement : (id) => {
+    set((s)=>{
+      const remove = (node: FormElement[]) : FormElement[] =>
+        node.filter((el)=>el.id !== id)
+            .map((el)=>
+              "children" in el ? {...el,children:remove(el.children)} as FormElement : el
+            )
+        return{
+          elements:remove(s.elements),
+          selectedElement:null
+        }
+    })
+  },
+
+  addElement: (type, parentId = null) => {
+    const newEl: any = { id: v4(), type, props: { style: {} } };
+    if (type === "div") {
+      newEl.children = [];
+    }
+    // newEl.props.style.height = '50px'
+    if (type === "text") {
+      newEl.props.content = 'label'
+    }
+    set((s) => {
+      console.log("addElement called", { type, parentId, elements: s.elements });
+      let updatedElements;
+      if (!parentId) {
+        updatedElements = [...s.elements, newEl];
+      } else {
+        const insert = (nodes: FormElement[]): FormElement[] =>
+          nodes.map((el) => {
+            if (el.id === parentId && el.type === "div") {
+              return { ...el, children: [...el.children, newEl] } as FormElement;
+            }
+            if ("children" in el) {
+              return { ...el, children: insert(el.children) } as FormElement;
+            }
+            return el;
+          });
+        updatedElements = insert(s.elements);
+      }
+      return { elements: updatedElements, selectedElement: newEl.id };
+    });
+  },
+
+  updateElement: (id, newProps) =>
+    set((s) => {
+      const recurse = (nodes: FormElement[]): FormElement[] =>
+        nodes.map((el) => {
+          if (el.id === id) return { ...el, props: { ...el.props, ...newProps } };
+          if ("children" in el) return { ...el, children: recurse(el.children) };
+          return el;
+        });
+      return { elements: recurse(s.elements) };
+  }),
+
+  selectElement: (id) => set((prev)=>({ selectedElement: prev.selectedElement !==id ?id :null })),
+
+  reorderElements: (newEls) => set({ elements: newEls }),
+
+  updateFieldValue: (id, val) =>
+    set((s) => ({ fieldValues: { ...s.fieldValues, [id]: val } })),
+}));
+
+
+Canvas.tsx
+
+import React, { useState, useRef,useCallback } from "react";
+import {
+  DndContext,
+  useSensor,
+  useSensors,
+  PointerSensor,
+  DragEndEvent,
+  DragOverEvent,
+  closestCenter,
+  useDroppable,
+} from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useDrop } from "react-dnd";
 import { useFormStore } from "../store/useFormStore";
@@ -35,15 +130,16 @@ import SortableElement from "./SortableElement";
 import ElementEditor from "./ElementEditor";
 import FormPreview from "./FormPreview";
 import { downloadJSON, parseJSONFile } from "../utils/jsonHelpers";
-import { ItemTypes, FormElementType } from "../types";
+import { ItemTypes, FormElementType } from "./Types";
 
-export default function Canvas() {
+const Canvas: React.FC = () => {
   const elements = useFormStore((s) => s.elements);
   const selectedElement = useFormStore((s) => s.selectedElement);
   const reorder = useFormStore((s) => s.reorderElements);
   const addElement = useFormStore((s) => s.addElement);
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState(false);
+      const internalRef = useRef<HTMLDivElement>(null);
 
   const sensors = useSensors(useSensor(PointerSensor));
 
@@ -59,29 +155,108 @@ export default function Canvas() {
     }),
   }));
 
-  const handleDragEnd = ({ active, over }: any) => {
+  const  {setNodeRef} = useDroppable({
+    id:'canvas-drop-area'
+  })
+  
+  const handleDragEnd = (event: DragEndEvent) => {
+    const {active, over}:any = event;
+    if (active?.id?.toString()?.startsWith("sidebar-") && (!over || over.id === 'canvas-drop-area')) {
+      addElement(active.data.current?.type);
+    }
     if (active.id !== over.id) {
       const oldIdx = elements.findIndex((e) => e.id === active.id);
       const newIdx = elements.findIndex((e) => e.id === over.id);
       reorder(arrayMove(elements, oldIdx, newIdx));
     }
+    
+  }
+ 
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (active?.id?.toString()?.startsWith("sidebar-") && (!over || over.id === 'canvas-drop-area')) {
+      addElement(active.data.current?.type);
+    }
+  };
+
+  const onImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    parseJSONFile(f, (json) => json.elements && reorder(json.elements));
   };
 
   return (
+    
     <div 
-      ref={(node) => drop(node as HTMLDivElement)}
-      className={`flex-grow p-4 flex flex-col ${isOver ? 'bg-blue-50 border-2 border-blue-200' : ''}`}
+    style={{ flexGrow: 1, padding: "16px", display: "flex", flexDirection: "column" }}
+      ref={(node) => {
+            internalRef.current = node; // Assign to your internal ref
+            drop(node);              // Connect to react-dnd
+          }}
+      className={`${isOver ? 'bg-blue-50 border-2 border-blue-200' : ''}`}
     >
-      {/* Rest of your component remains the same */}
-      <div className="flex justify-between mb-4">
-        {/* ... existing code ... */}
+      <div className="flex justify-between mb-4" style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px" }}>
+        <div>
+          <button
+            onClick={() => downloadJSON({ elements })}
+            style={{
+              marginRight: "8px",
+              padding: "6px 14px",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+          >
+            Export JSON
+          </button>
+          <button
+            onClick={() => fileRef.current?.click()}
+            style={{
+              marginRight: "8px",
+              padding: "6px 14px",
+              background: "#2563eb",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+          >
+            Import JSON
+          </button>
+          <input ref={fileRef} type="file" style={{ display: "none" }} accept=".json" onChange={onImport} />
+        </div>
+        <button
+          onClick={() => setPreview((p) => !p)}
+          style={{
+            padding: "6px 14px",
+            background: "#10b981",
+            color: "#fff",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer"
+          }}
+        >
+          {preview ? "Edit Mode" : "Preview Mode"}
+        </button>
+
       </div>
 
       {preview ? (  
         <FormPreview elements={elements} />  
       ) : (  
-        <div className="flex flex-grow">
-          <div className="w-2/3 pr-4">
+        <div style={{ display: "flex", flexGrow: 1 }}>
+          <div                
+                id="canvas-drop-area" 
+                style={{
+                width: "66%",
+                minHeight: "400px",
+                border: "2px dashed #d1d5db",
+                display: "flex",
+                flexDirection: "column"
+              }}>
             <DndContext 
               sensors={sensors} 
               collisionDetection={closestCenter} 
@@ -97,7 +272,7 @@ export default function Canvas() {
               </SortableContext>  
             </DndContext>  
           </div>  
-          <div className="w-1/3 pl-4">  
+          <div style={{ width: "34%", paddingLeft: "16px" }}>  
             <ElementEditor />  
           </div>  
         </div>  
@@ -105,25 +280,815 @@ export default function Canvas() {
     </div>
   );
 }
-```
+export default Canvas
 
-3. Update `Sidebar.tsx`:
+ElementEditor.tsx
 
-```tsx
+import React from "react";
+import { useFormStore } from "../store/useFormStore";
+import type { FormElement } from "./Types";
+
+const UNIT_OPTIONS = [
+  { value: "px", label: "px" },
+  { value: "%", label: "%" },
+  { value: "em", label: "em" },
+  { value: "rem", label: "rem" },
+  { value: "vh", label: "vh" },
+  { value: "vw", label: "vw" },
+];
+
+const DISPLAY_OPTIONS = [
+  "block",
+  "flex",
+  "grid",
+  "inline",
+  "inline-block",
+  "none",
+];
+
+const FLEX_DIRECTION_OPTIONS = [
+  "row",
+  "column",
+  "row-reverse",
+  "column-reverse",
+];
+
+const JUSTIFY_CONTENT_OPTIONS = [
+  "flex-start",
+  "flex-end",
+  "center",
+  "space-between",
+  "space-around",
+  "space-evenly",
+];
+
+const ALIGN_ITEMS_OPTIONS = [
+  "flex-start",
+  "flex-end",
+  "center",
+  "baseline",
+  "stretch",
+];
+
+const TEXT_ALIGN_OPTIONS = ["left", "center", "right", "justify"];
+
+const FONT_WEIGHT_OPTIONS = [
+  "normal",
+  "bold",
+  "lighter",
+  "bolder",
+  "100",
+  "200",
+  "300",
+  "400",
+  "500",
+  "600",
+  "700",
+  "800",
+  "900",
+];
+
+const BORDER_STYLE_OPTIONS = [
+  "none",
+  "solid",
+  "dashed",
+  "dotted",
+  "double",
+  "groove",
+  "ridge",
+  "inset",
+  "outset",
+];
+
+const OBJECT_FIT_OPTIONS = ["fill", "contain", "cover", "none", "scale-down"];
+
+const ElementEditor: React.FC = () => {
+  const elems = useFormStore((s) => s.elements);
+  const sel = useFormStore((s) => s.selectedElement);
+  const update = useFormStore((s) => s.updateElement);
+
+  const el = React.useMemo(() => {
+    const find = (nodes: any): any | null => {
+      for (const n of nodes) {
+        if (n.id === sel) return n;
+        if ("children" in n) {
+          const found = find(n.children? n.children : []);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+ 
+    return find(elems);
+  }, [elems, sel]);
+
+  if (!el) return <div className="p-4">No element selected</div>;
+
+  const onChange = (key: keyof FormElement["props"], value: any) => {
+    update(el.id, { [key]: value });
+  };
+
+  const handleStyleChange = (
+    property: string,
+    value: string,
+    unit?: string
+  ) => {
+    const numericValue =
+      value === "" ? undefined : unit ? `${value}${unit}` : value;
+    update(el.id, {
+      style: {
+        ...el.props.style,
+        [property]: numericValue,
+      },
+    });
+  };
+
+  const parseValueAndUnit = (value: any = "") => {
+    if (!value) return { value: "", unit: "px" };
+    const match = value.match(/^(-?\d*\.?\d+)([a-z%]*)$/);
+    return match
+      ? { value: match[1], unit: match[2] || "px" }
+      : { value: "", unit: "px" };
+  };
+
+  const renderDimensionControl = (property: string, label: string) => {
+    const { value, unit } = parseValueAndUnit(el.props.style?.[property] as any);
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">{label}</label>
+        <div className="flex">
+          <input
+            type="text"
+            value={value}
+            onChange={(e) => handleStyleChange(property, e.target.value, unit)}
+            className="flex-1 border rounded-l px-2 py-1"
+            placeholder="Auto"
+          />
+          <select
+            value={unit}
+            onChange={(e) => handleStyleChange(property, value, e.target.value)}
+            className="border-t border-b border-r rounded-r px-2 py-1 bg-gray-50"
+          >
+            {UNIT_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    );
+  };
+
+  const renderSelectControl = (
+    property: string,
+    label: string,
+    options: string[],
+    defaultValue: string
+  ) => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">{label}</label>
+        <select
+          value={el.props.style?.[property] || defaultValue}
+          onChange={(e) => handleStyleChange(property, e.target.value)}
+          className="w-full border rounded px-2 py-1"
+        >
+          {options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  };
+
+  const renderColorControl = (
+    property: string,
+    label: string,
+    defaultValue: string
+  ) => {
+    return (
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1">{label}</label>
+        <div className="flex items-center">
+          <input
+            type="color"
+            value={el.props.style?.[property] || defaultValue}
+            onChange={(e) => handleStyleChange(property, e.target.value)}
+            className="h-8 w-8 mr-2"
+          />
+          <input
+            type="text"
+            value={el.props.style?.[property] || ""}
+            onChange={(e) => handleStyleChange(property, e.target.value)}
+            className="flex-1 border rounded px-2 py-1"
+            placeholder={defaultValue}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  const renderDivControls = () => {
+    if (el.type !== "div") return null;
+
+    return (
+      <div className="space-y-4">
+        <h4 className="font-bold border-b pb-2">Layout Properties</h4>
+
+        {renderDimensionControl("width", "Width")}
+        {renderDimensionControl("height", "Height")}
+        {renderDimensionControl("minWidth", "Min Width")}
+        {renderDimensionControl("maxWidth", "Max Width")}
+        {renderDimensionControl("minHeight", "Min Height")}
+        {renderDimensionControl("maxHeight", "Max Height")}
+
+        {renderSelectControl("display", "Display", DISPLAY_OPTIONS, "block")}
+
+        {el.props.style?.display === "flex" && (
+          <div className="space-y-4 pl-4 border-l-2 border-gray-200">
+            <h5 className="font-semibold">Flex Properties</h5>
+            {renderSelectControl(
+              "flexDirection",
+              "Flex Direction",
+              FLEX_DIRECTION_OPTIONS,
+              "row"
+            )}
+            {renderSelectControl(
+              "justifyContent",
+              "Justify Content",
+              JUSTIFY_CONTENT_OPTIONS,
+              "flex-start"
+            )}
+            {renderSelectControl(
+              "alignItems",
+              "Align Items",
+              ALIGN_ITEMS_OPTIONS,
+              "stretch"
+            )}
+            {renderDimensionControl("gap", "Gap")}
+          </div>
+        )}
+
+        {el.props.style?.display === "grid" && (
+          <div className="space-y-4 pl-4 border-l-2 border-gray-200">
+            <h5 className="font-semibold">Grid Properties</h5>
+            {renderDimensionControl("gridTemplateColumns", "Grid Columns")}
+            {renderDimensionControl("gridTemplateRows", "Grid Rows")}
+            {renderDimensionControl("gridGap", "Gap")}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderTextControls = () => {
+    if (el.type !== "text") return null;
+
+    return (
+      <div className="space-y-4">
+        <h4 className="font-bold border-b pb-2">Text Properties</h4>
+        {renderDimensionControl("width", "Width")}
+        {renderDimensionControl("height", "Height")}
+        {renderDimensionControl("minWidth", "Min Width")}
+        {renderDimensionControl("maxWidth", "Max Width")}
+        {renderDimensionControl("minHeight", "Min Height")}
+        {renderDimensionControl("maxHeight", "Max Height")}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Content</label>
+          <textarea
+            value={el.props.content || ""}
+            onChange={(e) => onChange("content", e.target.value)}
+            className="w-full border rounded px-2 py-1"
+            rows={3}
+          />
+        </div>
+
+        {renderSelectControl(
+          "textAlign",
+          "Text Alignment",
+          TEXT_ALIGN_OPTIONS,
+          "left"
+        )}
+        {renderSelectControl(
+          "fontWeight",
+          "Font Weight",
+          FONT_WEIGHT_OPTIONS,
+          "normal"
+        )}
+        {renderDimensionControl("fontSize", "Font Size")}
+        {renderColorControl("color", "Text Color", "#000000")}
+        {renderDimensionControl("lineHeight", "Line Height")}
+        {renderDimensionControl("letterSpacing", "Letter Spacing")}
+      </div>
+    );
+  };
+
+  const renderImageControls = () => {
+    if (el.type !== "image") return null;
+
+    return (
+      <div className="space-y-4">
+        <h4 className="font-bold border-b pb-2">Image Properties</h4>
+
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-1">Image URL</label>
+          <input
+            type="text"
+            value={el.props.src || ""}
+            onChange={(e) => onChange("src", e.target.value)}
+            className="w-full border rounded px-2 py-1"
+            placeholder="https://example.com/image.jpg"
+          />
+        </div>
+
+        {renderDimensionControl("width", "Width")}
+        {renderDimensionControl("height", "Height")}
+        {renderSelectControl(
+          "objectFit",
+          "Object Fit",
+          OBJECT_FIT_OPTIONS,
+          "cover"
+        )}
+        {renderDimensionControl("borderRadius", "Border Radius")}
+        {renderSelectControl(
+          "borderStyle",
+          "Border Style",
+          BORDER_STYLE_OPTIONS,
+          "none"
+        )}
+        {renderDimensionControl("borderWidth", "Border Width")}
+        {renderColorControl("borderColor", "Border Color", "#000000")}
+      </div>
+    );
+  };
+
+  const renderCommonStyleControls = () => {
+    return (
+      <div className="space-y-4">
+        <h4 className="font-bold border-b pb-2">Common Styles</h4>
+
+        {renderDimensionControl("padding", "Padding")}
+        {renderDimensionControl("padding-left", "Padding Left")}
+        {renderDimensionControl("padding-right", "Padding Right")}
+        {renderDimensionControl("padding-bottom", "Padding Bottom")}
+        {renderDimensionControl("padding-top", "Padding Top")}
+        {renderDimensionControl("margin", "Margin")}
+        {renderDimensionControl("margin-left", "Margin Left")}
+        {renderDimensionControl("margin-right", "Margin Right")}
+        {renderDimensionControl("margin-bottom", "Margin Bottom")}
+        {renderDimensionControl("margin-top", "Margin Top")}
+        {renderDimensionControl("borderRadius", "Border Radius")}
+        {renderColorControl("backgroundColor", "Background Color", "#ffffff")}
+        {renderSelectControl(
+          "borderStyle",
+          "Border Style",
+          BORDER_STYLE_OPTIONS,
+          "none"
+        )}
+        {renderDimensionControl("borderWidth", "Border Width")}
+        {renderColorControl("borderColor", "Border Color", "#000000")}
+        {renderDimensionControl("opacity", "Opacity")}
+      </div>
+    );
+  };
+
+  return (
+    <div className="space-y-4 p-4 overflow-y-auto h-full" style={{maxHeight:"92vh",overflow:"scroll"}}>
+      <h3 className="font-bold text-lg border-b pb-2">
+        {el.type.charAt(0).toUpperCase() + el.type.slice(1)} Properties
+      </h3>
+
+      {renderDivControls()}
+      {renderTextControls()}
+      {renderImageControls()}
+      {renderCommonStyleControls()}
+    </div>
+  );
+};
+
+export default ElementEditor;
+
+ElementRenderer.tsx
+
+import React, { useEffect, useState } from "react";
+import { useFormStore } from "../store/useFormStore";
+import type { FormElement } from "../types";
+import DeleteSelectedElement from "../atoms/deleteSelectedElement";
+
+interface Props {
+  element: FormElement;
+}
+
+const ELEMENTS = [
+  { type: "text", label: "Text" },
+  { type: "image", label: "Image" },
+  { type: "text_input", label: "Text Input" },
+  { type: "radio", label: "Radio" },
+  { type: "checkbox", label: "Checkbox" },
+  { type: "switch", label: "Switch" },
+];
+
+const containerBaseStyle: React.CSSProperties = {
+  border: "1px solid #ccc",
+  padding: "12px",
+  marginBottom: "12px",
+  position: "relative",
+  borderRadius: "6px",
+  background: "#fafbfc",
+};
+
+const containerSelectedStyle: React.CSSProperties = {
+  border: "2px solid #2563eb",
+  background: "#e8f0fe",
+};
+
+const addButtonStyle: React.CSSProperties = {
+  background: "#2563eb",
+  color: "#fff",
+  borderRadius: "50%",
+  width: "24px",
+  height: "24px",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: "14px",
+  marginRight: "6px",
+  border: "none",
+  cursor: "pointer",
+};
+
+const addButtonHoverStyle: React.CSSProperties = {
+  background: "#1d4ed8",
+};
+
+const ElementRenderer: React.FC<Props> = ({ element }) => {
+  const select = useFormStore((s) => s.selectElement);
+  const selected = useFormStore((s) => s.selectedElement);
+  const addElement = useFormStore((s) => s.addElement);
+  const updateField = useFormStore((s) => s.updateFieldValue);
+  const deleteElement = useFormStore((s)=>s.deleteElement)
+  const fields = useFormStore((s) => s.fieldValues);
+
+  const [showModal, setShowModal] = useState(false);
+
+  const { id, type, props } = element;
+  const children = "children" in element ? element.children : undefined;
+  const isSelected = selected === id;
+
+   useEffect(()=>{
+    console.log('showModal',showModal)
+  },[showModal])
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    select(id);
+  };
+
+  const show = !props.conditional?.field
+    || fields[props.conditional.field] === props.conditional.value;
+  if (!show) return null;
+
+ const handleElementAddUsingIcon = (e:any) => {
+    e.stopPropagation(); 
+    setShowModal(true);
+ }
+
+  switch (type) {
+    case "div":
+      return (
+        <div
+          onDoubleClick={handleClick}
+          style={{
+            ...containerBaseStyle,
+            ...(isSelected ? containerSelectedStyle : {}),
+            ...props.style,
+            position:'relative'
+          }}
+        >
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          {
+            children?.length ?
+            children?.map((c) => <ElementRenderer key={c.id} element={c} />) :
+            <>
+            {/* <div style={{ display: "flex",marginTop: "8px", position:'absolute', top:0, left:'50%' }}>
+              <button style={{ background: "#2563eb", color: "#fff", borderRadius: "50%", width: "32px", height: "32px", border: "none", fontSize: "24px", cursor: "pointer", alignItems: 'center', justifyContent: 'center', display: 'flex' }}
+                onClick={handleElementAddUsingIcon}>+</button>
+            </div> */}
+            {/* <div style={{ fontSize: "12px", fontStyle: "italic", color: "#6b7280", marginBottom: "6px",position:'absolute', alignItems:'center', justifyContent:'center', display:'flex', left:'50%', top:`{calc(${props?.style?.height?.substring(props?.style?.height?.length, -2) ?? 0/2}px`}}>
+            (Container)
+            </div> */}
+            </>
+          }
+          {/* {showModal && (
+            <div
+              style={{
+                position: "fixed",
+                top: '25%',
+                left: '40%',
+                width: "auto",
+                height: "50%",
+                background: "red",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                zIndex: 1000,
+              }}
+              onClick={() => setShowModal(false)}
+            >
+              <div
+                style={{
+                  background: "#fff",
+                  padding: "24px",
+                  borderRadius: "8px",
+                  minWidth: "240px",
+                  boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <h3 style={{ marginBottom: "16px" }}>Add Element</h3>
+                {ELEMENTS.map((el:any) => (
+                  <button
+                    key={el.type}
+                    style={{
+                      display: "block",
+                      width: "100%",
+                      padding: "10px",
+                      marginBottom: "8px",
+                      background: "#2563eb",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "16px",
+                    }}
+                    onClick={() => {
+                      addElement(el.type, id);
+                      setShowModal(false);
+                    }}
+                  >
+                    {el.label}
+                  </button>
+                ))}
+                <button
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    padding: "10px",
+                    background: "#e5e7eb",
+                    color: "#333",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontSize: "16px",
+                  }}
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )} */}
+          </div>
+      );
+    case "text":
+      return (
+        <div
+          onDoubleClick={handleClick}
+          style={{
+            border: isSelected ? "2px solid #2563eb" : "1px solid #ccc",
+            padding: "8px",
+            marginBottom: "8px",
+            cursor: "pointer",
+            ...props.style,
+            position:'relative'
+          }}
+        >
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          {props.content || "Text Block"}
+        </div>
+      );
+    case "text_input":
+      return (
+        <div style={{position:'relative'}}>
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          <input
+            onDoubleClick={handleClick}
+            style={{
+              width: "100%",
+              border: isSelected ? "2px solid #2563eb" : "1px solid #ccc",
+              padding: "8px",
+              marginBottom: "8px",
+              ...props.style,
+            }}
+            placeholder={props.placeholder || ""}
+            onChange={(e) => updateField(id, e.target.value)}
+          />
+        </div>
+      );
+    case "image":
+      return (
+        <div style={{position:'relative'}}>
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          
+          <img
+            onDoubleClick={handleClick}
+            src={props.src || ""}
+            alt=""
+            style={{
+              width: "100%",
+              border: isSelected ? "2px solid #2563eb" : "1px solid #ccc",
+              marginBottom: "8px",
+              ...props.style,
+            }}
+          />
+        </div>
+      );
+    case "checkbox":
+    case "radio":
+      return (
+        <label
+          onDoubleClick={handleClick}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "8px",
+            border: isSelected ? "2px solid #2563eb" : "1px solid #ccc",
+            padding: "8px",
+            borderRadius: "4px",
+            ...props.style,
+            position:'relative'
+          }}
+        >
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          <input type={type} style={{ marginRight: "8px" }} /> {props.label || type}
+        </label>
+      );
+    case "switch":
+      return (
+        <label
+          onDoubleClick={handleClick}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "8px",
+            border: isSelected ? "2px solid #2563eb" : "1px solid #ccc",
+            padding: "8px",
+            borderRadius: "4px",
+            ...props.style,
+            position:'relative'
+          }}
+        >
+          {
+            isSelected && (
+              <DeleteSelectedElement id={id} deleteElement={deleteElement}/>
+            )
+          }
+          <input type="checkbox" style={{ marginRight: "8px" }} />
+          Switch
+        </label>
+      );
+    default:
+      return null;
+  }
+};
+
+export default ElementRenderer;
+
+FormPreview.tsx
+
+import React, { useState } from "react";
+import type { FormElement } from "../types";
+
+interface Props {
+  elements: FormElement[];
+}
+
+const FormPreview: React.FC<Props> = ({ elements }) => {
+  const [data, setData] = useState<Record<string, any>>({});
+  const handleChange = (id: string, val: any) => setData((d) => ({ ...d, [id]: val }));
+
+  const renderEl = (el: FormElement): React.ReactNode => {
+    const style = el.props.style;
+    switch (el.type) {
+      case "text":
+        return <div key={el.id} style={style}>{el.props.content}</div>;
+      case "text_input":
+        return (
+          <input
+            key={el.id}
+            style={style}
+            placeholder={el.props.placeholder}
+            onChange={(e) => handleChange(el.id, e.target.value)}
+            className="border px-2 py-1 mb-2 w-full"
+          />
+        );
+      case "div":
+        return <div key={el.id} style={style} className="border p-2 mb-2">{el.children.map(renderEl)}</div>;
+      case "checkbox":
+      case "radio":
+        return (
+          <label key={el.id} style={style} className="flex items-center mb-2">
+            <input type={el.type} onChange={(e) => handleChange(el.id, e.target.checked)} className="mr-2" />
+            {el.props.label}
+          </label>
+        );
+      case "switch":
+        return (
+          <label key={el.id} style={style} className="flex items-center mb-2">
+            <input type="checkbox" onChange={(e) => handleChange(el.id, e.target.checked)} className="mr-2" />
+            Switch
+          </label>
+        );
+      case "image":
+        return <img key={el.id} src={el.props.src} alt="" style={style} className="mb-2" />;
+      default:
+        return null;
+    }
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    alert(JSON.stringify(data, null, 2));
+  };
+
+  return (
+    <form onSubmit={onSubmit} className="space-y-2">
+      {elements.map(renderEl)}
+      <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Submit</button>
+    </form>
+  );
+};
+
+export default FormPreview;
+
+
+SideBar.tsx
+
+import React from "react";
+import { useDraggable } from "@dnd-kit/core";
 import { useFormStore } from "../store/useFormStore";
 import { useDrag } from 'react-dnd';
-import { ItemTypes, FormElementType } from '../types';
+import { ItemTypes, FormElementType } from './Types';
 
-const ELEMENTS: FormElementType[] = ["text", "div", "image", "text_input", "radio", "checkbox", "switch"];
+const ELEMENTS= [{ type: "text", label: "Text" },
+  { type: "div", label: "Container" },
+  { type: "image", label: "Image" },
+  { type: "text_input", label: "Text Input" },
+  { type: "radio", label: "Radio" },
+  { type: "checkbox", label: "Checkbox" },
+  { type: "switch", label: "Switch" }] as const;
 
 interface DraggableItemProps {
   type: FormElementType;
   selectedId: string | null;
+  label:string |null;
 }
+const sidebarItemStyle: React.CSSProperties = {
+  width: "100%",
+  textAlign: "left",
+  padding: "8px 12px",
+  background: "#fff",
+  marginBottom: "8px",
+  borderRadius: "6px",
+  boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+  cursor: "grab",
+  userSelect: "none",
+  border: "1px solid #e5e7eb",
+};
 
-const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
+const sidebarItemHoverStyle: React.CSSProperties = {
+  background: "#f3f4f6",
+};
+
+const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId,label }) => {
   const add = useFormStore((s) => s.addElement);
-  
+  const {attributes, listeners, setNodeRef} = useDraggable({
+    id:`sidebar-${type}`,
+    data: {type}
+  })
   const [{ isDragging }, drag] = useDrag(() => ({
     type: ItemTypes.FORM_ELEMENT,
     item: { type },
@@ -136,10 +1101,15 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
 
   return (
     <button
-      ref={(node) => drag(node as HTMLButtonElement)}
+      ref={(node: HTMLButtonElement | null) => {
+        if (node) {
+          drag(node); // Connect the node to the drag source
+        }
+      }}
+      onMouseOver={(e:any) => (e.currentTarget.style.background = sidebarItemHoverStyle.background!)}
+      onMouseOut={(e:any) => (e.currentTarget.style.background = sidebarItemStyle.background!)}
       onClick={() => add(type, selectedId)}
-      style={{ opacity }}
-      className="w-full text-left py-2 px-3 bg-white mb-2 rounded shadow-sm hover:bg-gray-200 cursor-move"
+      style={{ opacity ,...sidebarItemStyle }}
     >
       Add {type} {selectedId && "(inside selected)"}
     </button>
@@ -148,36 +1118,83 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ type, selectedId }) => {
 
 export default function Sidebar() {
   const sel = useFormStore((s) => s.selectedElement);
-
   return (
-    <div className="w-1/4 p-4 bg-gray-100">
-      <h2 className="font-bold mb-2">Elements</h2>
-      {ELEMENTS.map((type) => (
-        <DraggableItem key={type} type={type} selectedId={sel} />
+    <div style={{
+    width: "25%",
+    padding: "16px",
+    background: "#f3f4f6",
+    minWidth: "180px",
+    boxSizing: "border-box"
+  }}>
+      <h2 style={{ fontWeight: "bold", marginBottom: "8px" }}>Elements</h2>
+      {ELEMENTS.map((el) => (
+        <DraggableItem key={el.type} type={el.type} selectedId={sel} label={el.label} />
       ))}
     </div>
   );
 }
-```
 
-Key fixes:
+SortableElement.tsx
 
-1. **Type Safety**:
-   - Created proper `FormElementType` and `DragItem` types
-   - Typed the ELEMENTS array in Sidebar explicitly
-   - Properly typed the drop handler parameters
+import React from "react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import ElementRenderer from "./ElementRenderer";
+import type { FormElement } from "../types";
 
-2. **Ref Handling**:
-   - Used type assertions with `as HTMLDivElement` and `as HTMLButtonElement`
-   - Wrapped ref assignments in callback functions
+interface Props {
+  element: FormElement;
+}
 
-3. **Performance**:
-   - Added `useCallback` for the drop handler in Canvas
-   - Maintained proper typing throughout the component tree
+const SortableElement: React.FC<Props> = ({ element }) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: element.id });
+  const style = { transform: CSS.Transform.toString(transform), transition };
+  return (
+    //{...attributes} {...listeners} for sorting
+    <div ref={setNodeRef} style={style} >
+      <ElementRenderer element={element} />
+    </div>
+  );
+};
 
-4. **Error Resolution**:
-   - Fixed the type mismatch for `addElement` parameter
-   - Resolved the ref type incompatibilities
-   - Ensured proper type flow between components
+export default SortableElement;
 
-These changes should resolve all the TypeScript errors while maintaining all the functionality of your form builder.
+
+
+
+types.tsx
+
+export const ItemTypes = {
+  FORM_ELEMENT: 'formElement',
+} as const;
+
+export type FormElementType = 
+  | 'text' 
+  | 'div' 
+  | 'image' 
+  | 'text_input' 
+  | 'radio' 
+  | 'checkbox' 
+  | 'switch';
+
+export interface FormElement {
+  id: string;
+  type: FormElementType;
+  props: {
+    style?: React.CSSProperties;
+    content?: string;
+    placeholder?: string;
+    src?: string;
+    label?: string;
+    conditional?: {
+      field: string;
+      value: string;
+    };
+    [key: string]: any;
+  };
+  children?: FormElement[];
+}
+
+export interface DragItem {
+  type: FormElementType;
+}
