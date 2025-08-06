@@ -1,584 +1,359 @@
-//ganttViewDetailAction
+import moment from 'moment';
+import FlightIcon from '../../assets/ganttFlightIcon.svg'
+import React from 'react';
+import MouseOverPopover from '../mousePopOver';
+import './flightSlot.css';
+import Styles from './Styles';
 
-import { takeLatest, put } from "redux-saga/effects";
-import Constants from "../../globals/Constants";
-import  { APIcall } from "../../environments/Service"
-import configuration from "../../environments/Configuration";
-import { CustomResponseType} from "../../globals/PropTypes";
-import { getPayloadCallAdvisory, getPayloadWorkAndWidget } from "../../globals/Common";
-import flightCardViewAction from "../flightcardview/action";
-// below thing for testing purpose
-// import GanttData from './data.json';
-import GanttData from './dataNew.json';
-
-export const ganttViewDetailAction = {
-        getGanttDetailData: (payload: any) => {
-      return {
-        type: Constants.GET_GANTT_VIEW_DETAIL ,
-        payload
-      }
-    },
-    callAdvisory: (payload: any) => {
-      return {
-        type: 'CALL ADVISORY',
-        payload
-      }
-    },
-    postConfigData: () => {
-      return {
-        type: 'POST CONFIG DATA',
-      }
-    },
-    postConfigType: () => {
-      return {
-        type: 'POST CONFIG TYPE',
-      }
-    },
-    postConfigChange: () => {
-      return {
-        type: 'POST CONFIG CHANGE',
-      }
-    },
-    resolveProcessCheck: (payload: any) => {
-      return {
-        type: 'GET RESOLVE PROCESS UPDATE',
-        payload
-      }
-    }
-}
-
-    function* getGanttDetailData({payload}: any) {
-
-      let headerPayload: any = getPayloadWorkAndWidget()
-      headerPayload.station = payload.station
-      headerPayload.terminal = payload.terminal
-      headerPayload.enterpriseCode = payload.enterpriseCode
-
-    let response: CustomResponseType = yield APIcall(
-      'POST',
-      configuration.url.getganttdetails,
-      headerPayload
-    )
-    console.log("getGanttDetailData",response);
-    
-    if (response.status === 200 || response.status === 304) {
-        yield put({ 
-          type: Constants.SAVE_GANTT_VIEW_DETAIL, 
-          // payload: response.data 
-          // below thing for testing purpose
-          payload: GanttData
-        })
-    } else if (response?.response?.status === 401 || response?.response?.status === 403) {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Session Timeout',
-          content: 'Login to start a new session'
+const FlightSlot = (props: any) => {
+    const { otherStartTime, configLine, type, track, detailData, slotWidth, selectedFlight } = props;
+    detailData.arrFlightNo === 'UA 470' && console.log(otherStartTime, detailData.ETD, detailData.STD, 'check FlightSlot FlightSlot props ==>', props, props?.detailData?.arrFlightNo?.split(" ")[1] === selectedFlight)
+    detailData.arrFlightNo === 'UA 1528' && console.log(otherStartTime,'check for current main box => ',detailData)
+    React.useEffect(() => {
+        if (detailData?.arrFlightNo?.split(" ")[1] === selectedFlight || detailData?.depFlightNo?.split(" ")[1] === selectedFlight) {
+            document.getElementById(selectedFlight)?.scrollIntoView({ block: "center", inline: "nearest" });
         }
-      })
-    } else {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Alert',
-          content: 'Oops, something went wrong. Please try again later.'
-        }
-      })
-    }
-  }
+    }, [selectedFlight]);
 
-  function* callAdvisory({payload}: any) {
-    try {
-      let headerPayload: any = getPayloadCallAdvisory()
-      headerPayload.station = payload.station
-      headerPayload.terminal = payload.terminal
-      headerPayload.enterpriseCode = payload.enterpriseCode
-      let requestBody :any= headerPayload
-      let tempId = Date.now().toString();
-      requestBody["resolveProcessId"] = tempId
-      requestBody["id"]= tempId
-      requestBody["station"]=localStorage.getItem('selectedStation')
-      localStorage.setItem('resolveProcessId',requestBody.resolveProcessId);
-      console.log('check ne add of resoveProcessId ==> ',requestBody)
-      let response: CustomResponseType = yield APIcall(
-        'POST',
-        configuration.url.mrvGateAdvisory,
-        requestBody
-      )
-      console.log("callAdvisory",response);
-      
-      if (response?.data?.status === "200") {
-          if(response?.data?.message!='Message posted'){
-          localStorage.setItem('resolveProcessId','');
-          yield put(
-            {
-              type:'UPDATE_ALERT', 
-              payload:{
-                title: 'Alert',
-                content: `${response?.data?.message}`}
-            }
-          )
-        }
-      }
-      else if (response?.data?.status === 401 || response?.data?.status === 403) {
-        localStorage.setItem('resolveProcessId','');
-        yield put({
-          type: 'UPDATE_ALERT', payload: {
-            title: 'Session Timeout',
-            content: 'Login to start a new session'
-          }
-        })
-      }
-    } catch (error) {
-      localStorage.setItem('resolveProcessId','');
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Alert',
-          content: 'Oops, something went wrong. Please try again later.'
-        }
-      })
-    }
-}
-
-
-function* postConfigData() {
-  try {
-    let response: CustomResponseType = yield APIcall(
-      'POST',
-      configuration.url.postData,
-      {data:"overall"}
-    )
-    console.log("callAdvisory",response);
-    
-    if (response?.data?.status === "200") {
-      console.log('callAdvisory success ',response)
-    }
-    else if (response?.data?.status === 401 || response?.data?.status === 403) {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Session Timeout',
-          content: 'Login to start a new session'
-        }
-      })
-    }
-  } catch (error) {
-    yield put({
-      type: 'UPDATE_ALERT', payload: {
-        title: 'Alert',
-        content: 'Oops, something went wrong. Please try again later.'
-      }
-    })
-  }
-}
-
-function* postConfigType() {
-  try {
-    let response: CustomResponseType = yield APIcall(
-      'POST',
-      configuration.url.postData,
-      {data:"conflict"}
-    )
-    console.log("callAdvisory",response);
-    
-    if (response?.data?.status === "200") {
-      console.log('callAdvisory success ',response)
-    }
-    else if (response?.data?.status === 401 || response?.data?.status === 403) {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          
-          title: 'Session Timeout',
-          content: 'Login to start a new session'
-        }
-      })
-    }
-  } catch (error) {
-    yield put({
-      type: 'UPDATE_ALERT', payload: {
-        title: 'Alert',
-        content: 'Oops, something went wrong. Please try again later.'
-      }
-    })
-  }
-}
-
-function* postConfigChange() {
-  try {
-    let response: CustomResponseType = yield APIcall(
-      'POST',
-      configuration.url.postData,
-      {data:"in"}
-    )
-    console.log("callAdvisory",response);
-    
-    if (response?.data?.status === "200") {
-      console.log('callAdvisory success ',response)
-    }
-    else if (response?.data?.status === 401 || response?.data?.status === 403) {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          
-          title: 'Session Timeout',
-          content: 'Login to start a new session'
-        }
-      })
-    }
-  } catch (error) {
-    yield put({
-      type: 'UPDATE_ALERT', payload: {
-        title: 'Alert',
-        content: 'Oops, something went wrong. Please try again later.'
-      }
-    })
-  }
-}
-
-function* resolveProcessCheck({payload}: any) {
-  if(localStorage.getItem('resolveProcessId')&&localStorage.getItem('resolveProcessId')!=''){
-    try {
-      let headerPayloadMain = {
-        resolveProcessId:localStorage.getItem('resolveProcessId'),
-        station:payload?.station ,
-        terminal: payload?.terminal,
-        enterpriseCode: payload?.enterpriseCode
-      }
-      let response: CustomResponseType = yield APIcall(
-        'POST',
-        configuration.url.resolveProcessCheck,
-        // {
-        //   resolveProcessId:localStorage.getItem('resolveProcessId'),
-        //   station:`${localStorage.getItem('selectedStation')}`,
-        //   terminal:`${localStorage.getItem('selectedTerminal')}`,
-        //   enterpriseCode:`${localStorage.getItem('selectedEnterpriseCode')}`
-        // }
-        headerPayloadMain
-      )
-      console.log("resolveProcessCheck",response);
-      
-      if (response?.data?.status === "200") {
-        let headerPayload = {
-          station:payload?.station ,
-          terminal: payload?.terminal,
-          enterpriseCode: payload?.enterpriseCode
-        }
-        if(response?.data?.message==='Gate Advisory Posted Sucessfully'){
-          localStorage.setItem('resolveProcessId','');
-          yield put(flightCardViewAction.getFlightCardData(headerPayload));
-        }
-
-        if(response?.data?.message==='Gates are Not Advised'){
-          localStorage.setItem('resolveProcessId','');
-          yield put(
-            {
-              type:'UPDATE_ALERT', 
-              payload:{
-                title: 'Alert',
-                content: `${response?.data?.message} for the requested conflict flights.`}
-            }
-          )
-          yield put(flightCardViewAction.getFlightCardData(headerPayload));
-        }
-      }else{
-        yield put({
-          type: 'UPDATE_ALERT', payload: {
-            title: 'Alert',
-            content: 'Oops, something went wrong. Please try again later.'
-          }
-        })
-      }
-    } catch (error) {
-      yield put({
-        type: 'UPDATE_ALERT', payload: {
-          title: 'Alert',
-          content: 'Oops, something went wrong. Please try again later.'
-        }
-      })
-    }
-  }
-}
-
-export function* ganttViewDetailSaga(){
-    yield takeLatest(Constants.GET_GANTT_VIEW_DETAIL,getGanttDetailData)
-    yield takeLatest('CALL ADVISORY',callAdvisory)
-    yield takeLatest('POST CONFIG DATA',postConfigData)
-    yield takeLatest('POST CONFIG TYPE',postConfigType)
-    yield takeLatest('POST CONFIG CHANGE',postConfigChange)
-    yield takeLatest('GET RESOLVE PROCESS UPDATE',resolveProcessCheck)
-}
-
-
-src/app.tsx
-
-import './App.css';
-import Login from './screens/login';
-import Home from './screens/home';
-import FlightScoreDetails from './screens/flightScoreDetails';
-import Alert from './atoms/alert';
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { loginAction } from './store/login/action';
-import moment from 'moment'; 
-import { timerAction } from './store/timer/action';
-import { redirectToUnitedLogin,getAccessTokenApi,refershTokenApi } from './globals/OAUTH/oauthFunction';
-import { stationTerminalAction } from './store/stationTerminal/action';
-import { getTimingByTimeZone } from './globals/CommonTiming';
-
-const App = ()=> {
-  // below thing for block to inspect or right click on our app for prod data security purpose 
-  // const handleBlockInspect = (event:any)=>{
-  //   event.preventDefault();
-  // }
-  // useEffect(()=>{
-  //   window.addEventListener('contextmenu',handleBlockInspect);
-  //   return function cleanup(){
-  //     window.removeEventListener('contextmenu',handleBlockInspect);
-  //   }
-  // },[])
-
-  const[timeInterval,setTimeInterval]=useState(40); 
-  // we need to change the below veriable value to "start" after adding the AOUTH data
-  let isOAUTH = 'notStart';
-  const dispatch = useDispatch()
-  const isloggedin = useSelector((state: any) => state.UserData.isValidUserLoggedIn)
-  const reducerTimerCounter = useSelector((state:any)=> state.timerData.timerCount)
-  let storeTimeZone = useSelector((state:any)=> state.stationTerminalData.timeZone)
-  let testStore = useSelector((state:any)=> state)
-
-  const getReducerTimerCounterValue = ()=>{
-    if(reducerTimerCounter===''){
-      if(window.location.hostname==='gate-ai-1293274274.ap-south-1.elb.amazonaws.com' ||
-       window.location.hostname === 'localhost'){
-        return moment('09:45','HH:mm').subtract(timeInterval,'minutes').subtract(0,'day').format('HH:mm')
-      }else{
-        return moment(getTimingByTimeZone(storeTimeZone),'YYYY-MM-DDTHH:mm:SS').subtract(timeInterval,'minutes').format('HH:mm')
-      }
-    }else{
-      // below thing for testing purpose
-      // return moment('02:50','HH:mm').subtract(timeInterval,'minutes').subtract(0,'day').format('HH:mm'):
-      return moment(reducerTimerCounter,'HH:mm').format('HH:mm')
-    }
-  }
-
-  const timerCounter = getReducerTimerCounterValue()
-
-    //OAUTH thing is start from here 
-    useEffect(()=>{
-      if(isOAUTH==='start'){
-        console.log("localstorage", localStorage.getItem('tokenOIDC'))
-        const search = window.location.search;
-        const params = new URLSearchParams(search);
-        const code = params.get('code');
-        console.log("search Location", search, params, code)
-
-        if (localStorage.getItem('tokenOIDC') === null && code === null&&localStorage.getItem('expires_timing') ===null) {
-          localStorage.removeItem('codeVerifier');
-          localStorage.removeItem('codeChallenge')
-          redirectToUnitedLogin();
-        } else if (code&&localStorage.getItem('expires_timing') ===null&&localStorage.getItem('tokenOIDC') === null) {
-          getAccessTokenApi(code);
-        }
-      }
-    },[])
-
-    // for refersh the OAUTH token
-    if(isOAUTH==='start'){
-      setInterval(()=>{
-        if(localStorage.getItem('expires_timing')!=null){
-          const expiresTime = moment(localStorage.getItem('expires_timing'),'YYYY-MM-DDTHH:mm:SS')
-          const currentTime = moment(moment().format('YYYY-MM-DDTHH:mm:SS'),'YYYY-MM-DDTHH:mm:SS')
-          console.log('check refershTokenApi => 2',expiresTime.diff(currentTime,'minutes'))
-          if(expiresTime.diff(currentTime,'minutes')===1){
-            refershTokenApi()
-          }
-        }
-      },60*1000)
-    }
-    //OAUTH thing is ended here 
-  
-  useEffect(()=>{
-    if(reducerTimerCounter===''){
-      dispatch(timerAction.storeTimer({time:timerCounter}))
-    }
-    setInterval(()=>{
-      console.log('check timer value change =>',moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm'));
-      (window.location.hostname!='gate-ai-1293274274.ap-south-1.elb.amazonaws.com' &&
-      window.location.hostname != 'localhost')&&
-        dispatch(timerAction.storeTimer({time:moment(moment(getTimingByTimeZone(storeTimeZone),'YYYY-MM-DDTHH:mm:SS').subtract(timeInterval+1,'minutes').format('HH:mm'),'HH:mm').add(1,'minute').format('HH:mm')}))
-      // below thing for testing purpose
-      // dispatch(timerAction.storeTimer({time:moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm')}))
-    },60000)
-},[reducerTimerCounter])
-
-
-  const setTimeOnHoursSelection = (time:any)=>{
-    console.log('check the setTimeOnHoursSelection => ',time)
-    setTimeInterval(time);
-  }
-
-  useEffect(() => {
-    if (localStorage.getItem('isValidUser') == 'true') {
-      dispatch(loginAction.storeUserData({ accessToken: localStorage.getItem('accessToken') }))
-      dispatch(stationTerminalAction.getStationAndTerminalList())
-    }
-    
-  }, [])
-  console.log('check the current page thing ===> ',localStorage.getItem('currentPage'))
-  const currentPage = localStorage.getItem('currentPage')
-  console.log('check the store value by testStore => ',testStore)
-  const isFromVolar = false;
-  return (
-    <>
-    <Alert />
-    <BrowserRouter basename='/iao/gateAI'>
-    {/* <BrowserRouter> */}
-        <Routes>
-            <Route path="/*" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />
-            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />}
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />}
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/login" element={<Login />} />}
-        </Routes>
-      </BrowserRouter>
-      </>
-  );
-}
-export default App;
-
-moreDetails.tsx
-
-
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 	
-import Styles from "./Styles";
- 
-const MoreDetail = (props : any)=>{
-    const {data, selectIndex, setSelectIndex, selectBox, domain,isAircraft} = props
-    
- 
-    const handleSelectIndex = (index:any)=>{
-        if(selectBox===index){
-            return setSelectIndex(-1)
+    const getCurrentInFlightBoxWidth = ()=>{
+        let mainBarConst = detailData?.mainBar > 0 ? 1 : -1
+        if(detailData.tarmecIn > (mainBarConst * detailData?.mainBar)){
+            return 0
         }else{
-            return setSelectIndex(index)
+            return detailData.tarmecIn
         }
     }
-    const getDomain = ()=>{
-        if(domain){
-            Iif(domain==='Tail Connection')return tailConnectionGetDomain(data);
-            Iif(domain==='crewInfo'){
-                return crewInfoGetDomain(handleSelectIndex, selectIndex, data)
-            }
-            Iif(domain==='paxInfo'){
-                return paxInfoGetDomain(handleSelectIndex, selectIndex, data)
-            }
-            Iif(domain==='text'){
-                return textGetDomain(handleSelectIndex, selectIndex, data, isAircraft)
-            }
+
+    const getCurrentSlotDetailTimeBoxMarginTop = ()=>{
+        let tempWidth = detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar
+        if(track * tempWidth > 330 ){
+            return 20
         }else{
-            return getDomainElse()
+            return 0
         }
     }
-    return(
-        <>
-            {getDomain()}
-        </>
-    )
-}
-export default MoreDetail;
- 
-function getDomainElse() {
-    return <div style={{ marginLeft: '25px', textAlign: 'left' }}>-</div>;
-}
- 
-function textGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any, isAircraft: any) {
-    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
-        <div>{`${data} ${!isAircraft ? 'Pax' : ''}`}</div>
-    </div>;
-}
- 
-function paxInfoGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any) {
-    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
-        {data && data.length > 0 && data.map((el: any) => { return (<div key={el.paxCabinType}>{`${el.paxCabinType ? el.paxCabinType : '-'}`}</div>); })}
-    </div>;
-}
- 
-function crewInfoGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any) {
-    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
-        {data && data.length > 0 && data.map((el: any) => { return (<div key={el.staffId}>{`${el.staffId ? el.staffId : '-'} | ${el.name ? el.name : '-'} | ${el.crewWorkPosition ? el.crewWorkPosition : '-'}`}</div>); })}
-    </div>;
-}
- 
-function tailConnectionGetDomain(data: any) {
-    {
-        return <div style={{ marginLeft: '25px', textAlign: 'left' }}>{data}</div>;
+
+    const getCurrentSlotGanttMain = ()=>{
+        let tempTrack = track
+        let mainBarConst = detailData?.mainBar > 0 ? 1 : -1
+        if(detailData.currentMainBar < 0 ){
+            return tempTrack*0
+        }else{
+            if(detailData.currentMainBar > (mainBarConst * detailData?.mainBar)){
+                return tempTrack*0
+            }else{
+                return tempTrack*detailData.currentMainBar
+            }
+        }
     }
+
+    const getCurrentSlotGanttMainBox = ()=>{
+        if(detailData.subMainBreakDown.arrDelay < 0){
+            if(moment(otherStartTime,'YYYY-MM-DDTHH:mm:SS').valueOf()>=moment(detailData?.ETA,'YYYY-MM-DDTHH:mm:SS').valueOf()){
+                return 0
+            }else{
+                return ((track) * (-detailData.subMainBreakDown.arrDelay))
+            }
+        }else{return 0} 
+    }
+
+    const getCurrentSlotGanttSubMain = ()=>{
+        let tempTrack = track
+        let tempMain = detailData.mainBar
+        let mainBarConst = detailData?.mainBar > 0 ? 1 : -1
+        if(detailData.currentMainBar < 0){
+            return tempTrack*(tempMain-0)
+        }else{
+            if(detailData.currentMainBar > (mainBarConst * detailData?.mainBar)){
+                return tempTrack*(tempMain-0)
+            }else{
+                return tempTrack*(tempMain-detailData.currentMainBar)
+            }
+        }
+    }
+
+    const getOtherSlotBox = ()=>{
+        let final = 0
+        let tempTrack = track
+        let tempArrCount = detailData?.subMainBreakDown?.arrDelay > 0 ? 1 : -1
+
+        if(detailData.subMainBar > detailData.mainBar){
+            final = final+(tempTrack*detailData.subMainBar)
+        }else{
+            final = final+(tempTrack*detailData.mainBar)
+        }
+
+        if(detailData?.subMainBreakDown?.arrDelay === 0){
+            final = final+(tempTrack*0)
+        }else{
+            final = final+(tempTrack*(tempArrCount * detailData?.subMainBreakDown?.arrDelay))
+        }
+
+        return final
+    }
+
+    const getOtherSlotGanttSubBox = ()=>{
+        let final = 0
+        let tempTrack = track
+        let tempArrCount = detailData?.subMainBreakDown?.arrDelay > 0 ? 1 : -1
+        if(detailData.subMainBar > 0){
+            final = final+(tempTrack*detailData.subMainBar)
+        }else{
+            final = final+(tempTrack*detailData.mainBar)
+        } 
+        if(detailData?.subMainBreakDown?.arrDelay === 0){
+            final = final+(tempTrack*0)
+        }else{
+            final = final+(tempTrack*(tempArrCount * detailData?.subMainBreakDown?.arrDelay))
+        }
+         
+        return final
+    }
+
+    const getOtherSlotGanttMain = ()=>{
+        if(detailData?.subMainBreakDown?.arrDelay < 0){
+            return `${((track) * (-1 * detailData?.subMainBreakDown?.arrDelay))}`
+        }else{
+            return ''
+        }
+    }
+
+    const getOtherSlotGanttBox = ()=>{
+        let finalData = 0
+        let tempTrack = track
+        let tempArrCount = detailData?.subMainBreakDown?.arrDelay > 0 ? 1 : -1
+
+        if(detailData.subMainBar > 0){
+            finalData = finalData+(tempTrack*detailData.subMainBar)
+        }else{ 
+            finalData = finalData+(tempTrack*detailData.mainBar)
+        }
+
+        if(detailData?.subMainBreakDown?.arrDelay === 0){
+            finalData = finalData+(tempTrack*0)
+        }else{
+            finalData = finalData+(tempTrack*(tempArrCount * detailData?.subMainBreakDown?.arrDelay))
+        }
+
+        return finalData
+    }
+
+    const getPastSlotBox = ()=>{
+        let tempArrCount = detailData?.subMainBreakDown?.arrDelay >= 0 ? 0 : -1
+        if(Date.UTC(Number(otherStartTime?.split('T')[0]?.split('-')[0]), Number(otherStartTime?.split('T')[0]?.split('-')[1]), Number(otherStartTime?.split('T')[0]?.split('-')[2]), Number(otherStartTime?.split('T')[1]?.split(':')[0]), Number(otherStartTime?.split('T')[1]?.split(':')[1])) > Date.UTC(Number(detailData?.ETA?.split('T')[0]?.split('-')[0]), Number(detailData?.ETA?.split('T')[0]?.split('-')[1]), Number(detailData?.ETA?.split('T')[0]?.split('-')[2]), Number(detailData?.ETA?.split('T')[1]?.split(':')[0]), Number(detailData?.ETA?.split('T')[1]?.split(':')[1]))){
+            return '0px'
+        }else{
+            return `${((track) * detailData.subMainBar) + ((track) * (tempArrCount * detailData?.subMainBreakDown?.arrDelay))}px`
+        }
+    }
+
+    const getPastSlotDetailTimeBox = ()=>{
+        let tempCheck = detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar
+        if(track * tempCheck > 240){
+            return 20
+        }else{
+            return 0
+        }
+    }
+
+    const getCurrentFligh = ()=>{
+        return (
+            <div className='currentMainBox' style={{ width: `${slotWidth}px` }}>
+                <div className='currentInFlinghtBox' style={{ width: `${(track) * getCurrentInFlightBoxWidth()}px` }}>
+                    <div style={{width:'0px'}}><div className='currentInFlinghtIconBox' style={{ width: `${(track) * getCurrentInFlightBoxWidth()}px` }}>
+                        <img src={FlightIcon} className='currentInFlinghtIcon' />
+                        <div className='currentInFlinghtIconLine' style={{...Styles.currentFlightSlotPrimeColorBG,...{ width: `${(track) * getCurrentInFlightBoxWidth()}px` }}}></div>
+                    </div></div>
+                    <div className='currentInFlinghtLine' style={{...Styles.flightLineBG,...{ width: `${(track) * getCurrentInFlightBoxWidth()}px` }}}></div>
+                </div>
+                <div className='currentSlotBox' style={{ width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}>
+
+                    <div style={{width:'0px'}}><div className='currentSlotDetailBox' style={{ font: 'normal normal normal 15px / 20px Roboto', width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}>
+                        <div className='currentSlotDetailDataBox' style={{ width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}>
+                            <div className='currentSlotDetailDataInFlightBox'>
+                                <div className='currentSlotDetailDataInFlightStn'>{detailData.arr}</div>
+                                <div className='currentSlotDetailDataInFlightFlt' style={Styles.flightSlotSubText}>{detailData.arrFlightNo}</div>
+                            </div>
+                            <div><MouseOverPopover configLine={configLine} conflictBox={detailData?.conflictBox} value={detailData.popUpDetail} /></div>
+                            <div className='currentSlotDetailDataOutFlightBox'>
+                                <div className='currentSlotDetailDataOutFlightFlt' style={Styles.flightSlotSubText}>{detailData.depFlightNo}</div>
+                                <div className='currentSlotDetailDataOutFlightStn'>{detailData.dep}</div>
+                            </div>
+                        </div>
+                        <div className='currentSlotDetailTimeBox' style={{ width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px`, marginTop: `${getCurrentSlotDetailTimeBoxMarginTop()}px` }}>
+                            <div className='currentSlotDetailTimeInFlightBox'>
+                                <div>{moment(detailData.ETA?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STA?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                            <div className='currentSlotDetailTimeOutFlightBox'>
+                                <div>&nbsp;{moment(detailData.ETD?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STD?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                        </div>
+                    </div></div>
+                    <div id={detailData?.arrFlightNo?.split(" ")[1]} style={{...(detailData?.arrFlightNo?.split(" ")[1] === selectedFlight||detailData?.depFlightNo?.split(" ")[1]===selectedFlight)&&Styles.flightSlotForCurrentAndUpComing,...{ width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}} className={(detailData?.arrFlightNo?.split(" ")[1] === selectedFlight || detailData?.depFlightNo?.split(" ")[1]===selectedFlight) ? 'currentSlotGanttBox':''}>
+                        <div className='currentSlotGanttMainBox' style={{...Styles.currentFlightSlotPrimeColorBG,...Styles.currentFlightSlotPrimeColorBorder,...{ width: `${(track) * detailData.mainBar}px`, marginLeft: `${getCurrentSlotGanttMainBox()}px` }}}>
+
+                            <div className='currentSlotGanttMain' style={{...Styles.currentFlightSlotPrimeColorBG,...{ width: `${getCurrentSlotGanttMain()}px` }}}></div>
+                            <div className='currentSlotGanttSubMain' style={{ width: `${getCurrentSlotGanttSubMain()}px` }}></div>
+                        </div>
+                        <div style={{width:'0px',marginTop:'-10px'}}>
+                        <div className='currentSlotGanttCurrentTimeBox'>
+                            <div className='currentSlotGanttCurrentTimeArrDealyBox' style={{ width: `${(track) * detailData.subMainBreakDown.arrDelay}px`, border: detailData.subMainBreakDown.arrDelay > 0 ? '1px solid #3483F4' : '' }}>
+                                <div className='currentSlotGanttCurrentTimeArrDealy' style={{ width: `${(track) * detailData.subMainBreakDown.arrDelay}px` }}>
+                                    <div className='currentSlotGanttCurrentTimeArrDealyLine' style={{...Styles.currentFlightSlotPrimeColorBG,...{ width: `${(track) * detailData.subMainBreakDown.arrDelay}px` }}}></div>
+                                </div>
+                            </div>
+
+                            <div className='currentSlotGanttCurrentTimeMainBox' style={{ width: `${(track) * (detailData.subMainBar)}px` }}>
+                                <div className='currentSlotGanttCurrentTimeMain' style={{...Styles.currentFlightSlotPrimeColorBG,...Styles.currentFlightSlotPrimeColorBorder,...{ width: `${(track) * (detailData.subMainBreakDown.currentRemain)}px` }}}></div>
+                                <div className='currentSlotGanttCurrentTimeSubMain' style={{ width: `${(track) * (detailData.subMainBreakDown.otherRemain)}px` }}></div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='currentOutFlinghtBox' style={{ width: `${(track) * detailData.tarmecOut}px` }}>
+                    <div style={{width:'0px'}}><div className='currentOutFlinghtIconBox' style={{ width: `${(track) * detailData.tarmecOut}px` }}>
+
+                        <div className='currentOutFlinghtIconLine' style={{...Styles.currentFlightSlotPrimeColorBorderTopDashed,...{ width: `${(track) * detailData.tarmecOut}px` }}}></div>
+
+                        <div style={{width:'0px'}}><img src={FlightIcon} className='currentOutFlinghtIcon' style={{ marginLeft: `${((track) * detailData.tarmecOut < 0 ? 0 : (track) * detailData.tarmecOut)}px` }} /></div>
+                    </div></div>
+                    <div className='currentOutFlinghtLine' style={{...Styles.flightLineBG,...{ width: `${(track) * detailData.tarmecOut}px` }}}></div>
+                </div>
+            </div>
+        )
+    }
+
+    const getOtherFlight =()=>{
+        return (
+            <div className='otherMainBox' style={{ width: `${slotWidth}px` }}>
+                <div className='otherInFlinghtBox' style={{ width: `${(track) * detailData.tarmecIn}px` }}>
+                    <div className='otherInFlinghtLine' style={{...Styles.flightLineBG,...{ width: `${(track) * detailData.tarmecIn}px` }}}></div>
+                </div>
+
+                <div className='otherSlotBox' style={{ width: `${getOtherSlotBox()}px` }}>
+                    <div style={{width:'0px'}}><div className='otherSlotDetailBox' style={{ font: 'normal normal normal 15px / 20px Roboto', width: `${slotWidth}px` }}>
+                        <div className='otherSlotDetailDataBox' style={{ width: `${slotWidth}px` }}>
+                            <div className='otherSlotDetailDataInFlightBox'>
+                                <div className='otherSlotDetailDataInFlightStn'>{detailData.arr}</div>
+                                <div className='otherSlotDetailDataInFlightFlt' style={Styles.flightSlotSubText}>{detailData.arrFlightNo}</div>
+                            </div>
+
+                            <div><MouseOverPopover configLine={configLine} conflictBox={detailData?.conflictBox} value={detailData.popUpDetail} /></div>
+                            <div className='otherSlotDetailDataOutFlightBox'>
+                                <div className='otherSlotDetailDataOutFlightFlt' style={Styles.flightSlotSubText}>{detailData.depFlightNo}</div>
+                                <div className='otherSlotDetailDataOutFlightStn'>{detailData.dep}</div>
+                            </div>
+                        </div>
+                        <div className='otherSlotDetailTimeBox' style={{ width: `${slotWidth}px`, marginTop: `${slotWidth > 330 ? 20 : 0}px` }}>
+                            <div className='otherSlotDetailInFlightTimeBox'>
+                                <div>{moment(detailData.ETA?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STA?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                            <div className='otherSlotDetailOutFlightTimeBox'>
+                                <div>&nbsp;{moment(detailData.ETD?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STD?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                        </div>
+                    </div></div>
+
+                    <div id={detailData?.arrFlightNo?.split(" ")[1]} className={(detailData?.arrFlightNo?.split(" ")[1] === selectedFlight || detailData?.depFlightNo?.split(" ")[1]===selectedFlight) ?'otherSlotGanttBox':''} style={{...(detailData?.arrFlightNo?.split(" ")[1] === selectedFlight||detailData?.depFlightNo?.split(" ")[1]===selectedFlight)&&Styles.flightSlotForCurrentAndUpComing,...{ width: `${getOtherSlotGanttBox()}px`, height: '10px' }}}>
+                        <div className='otherSlotGanttSubBox' 
+                            style={{ width: `${getOtherSlotGanttSubBox()}px`}}
+                        >
+                            <div className='otherSlotGanttSubBoxArrDelay' 
+                                style={{width: `${(track) * detailData.subMainBreakDown.arrDelay}px`}}
+                            ></div>
+                            <div className='otherSlotGanttSubBoxRemain' 
+                                style={{width: `${(track) * detailData.subMainBreakDown.remain}px`}}
+                            ></div>
+                        </div>
+                        <div className='otherSlotGanttMain' 
+                            style={{ 
+                                width: `${(track) * detailData.mainBar}px`, 
+                                marginLeft: `${getOtherSlotGanttMain()}px`,
+                            }}
+                        ></div>
+                    </div>
+                </div>
+                <div className='otherOutFlinghtBox' style={{ width: `${(track) * detailData.tarmecOut}px` }}>
+                    <div className='otherOutFlinghtLine' style={{...Styles.flightLineBG,...{ width: `${(track) * detailData.tarmecOut}px` }}}></div>
+                </div>
+            </div>
+        )
+    }
+    const getPastFlight = ()=>{
+        return (
+            <div className='pastMainBox' style={{ width: `${slotWidth}px` }}>
+                <div className='pastInFlinghtBox' style={{ width: Date.UTC(Number(otherStartTime?.split('T')[0]?.split('-')[0]), Number(otherStartTime?.split('T')[0]?.split('-')[1]), Number(otherStartTime?.split('T')[0]?.split('-')[2]), Number(otherStartTime?.split('T')[1]?.split(':')[0]), Number(otherStartTime?.split('T')[1]?.split(':')[1])) > Date.UTC(Number(detailData?.STA?.split('T')[0]?.split('-')[0]), Number(detailData?.STA?.split('T')[0]?.split('-')[1]), Number(detailData?.STA?.split('T')[0]?.split('-')[2]), Number(detailData?.STA?.split('T')[1]?.split(':')[0]), Number(detailData?.STA?.split('T')[1]?.split(':')[1])) ? '0px' : `${(track) * detailData.tarmecIn}px` }}>
+                    <div style={{width:'0px'}}><div className='pastInFlinghtIconBox' style={{ width:Date.UTC(Number(otherStartTime?.split('T')[0]?.split('-')[0]), Number(otherStartTime?.split('T')[0]?.split('-')[1]), Number(otherStartTime?.split('T')[0]?.split('-')[2]), Number(otherStartTime?.split('T')[1]?.split(':')[0]), Number(otherStartTime?.split('T')[1]?.split(':')[1])) > Date.UTC(Number(detailData?.STA?.split('T')[0]?.split('-')[0]), Number(detailData?.STA?.split('T')[0]?.split('-')[1]), Number(detailData?.STA?.split('T')[0]?.split('-')[2]), Number(detailData?.STA?.split('T')[1]?.split(':')[0]), Number(detailData?.STA?.split('T')[1]?.split(':')[1])) ? '0px' : `${(track) * detailData.tarmecIn}px` }}>
+                        <img src={FlightIcon} className='pastInFlinghtIcon' />
+                        <div className='pastInFlinghtIconLine' style={{...Styles.pastFlightSlotPrimeColorBG,...{width:Date.UTC(Number(otherStartTime?.split('T')[0]?.split('-')[0]), Number(otherStartTime?.split('T')[0]?.split('-')[1]), Number(otherStartTime?.split('T')[0]?.split('-')[2]), Number(otherStartTime?.split('T')[1]?.split(':')[0]), Number(otherStartTime?.split('T')[1]?.split(':')[1])) > Date.UTC(Number(detailData?.STA?.split('T')[0]?.split('-')[0]), Number(detailData?.STA?.split('T')[0]?.split('-')[1]), Number(detailData?.STA?.split('T')[0]?.split('-')[2]), Number(detailData?.STA?.split('T')[1]?.split(':')[0]), Number(detailData?.STA?.split('T')[1]?.split(':')[1])) ? '0px' : `${(track) * detailData.tarmecIn}px` }}}></div>
+                    </div></div>
+                    <div className='pastInFlinghtLine' style={{...Styles.pastFlightSlotPrimeColorBG,...{ width: Date.UTC(Number(otherStartTime?.split('T')[0]?.split('-')[0]), Number(otherStartTime?.split('T')[0]?.split('-')[1]), Number(otherStartTime?.split('T')[0]?.split('-')[2]), Number(otherStartTime?.split('T')[1]?.split(':')[0]), Number(otherStartTime?.split('T')[1]?.split(':')[1])) > Date.UTC(Number(detailData?.STA?.split('T')[0]?.split('-')[0]), Number(detailData?.STA?.split('T')[0]?.split('-')[1]), Number(detailData?.STA?.split('T')[0]?.split('-')[2]), Number(detailData?.STA?.split('T')[1]?.split(':')[0]), Number(detailData?.STA?.split('T')[1]?.split(':')[1])) ? '0px' : `${(track) * detailData.tarmecIn}px` }}}></div>
+                </div>
+                <div className='pastSlotBox' style={{ width: getPastSlotBox() }}>
+                    <div style={{width:'0px'}}><div className='pastSlotDetailBox' style={{ font: 'normal normal normal 15px / 20px Roboto', width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}>
+                        <div className='pastSlotDetailDataBox' style={{ width: `${(track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar)}px` }}>
+                            <div className='pastSlotDetailDataInFlightBox'>
+                                <div className='pastSlotDetailDataInFlightStn'>{detailData.arr}</div>
+                                <div className='pastSlotDetailDataInFlightFlt' style={Styles.flightSlotSubText}>{detailData.arrFlightNo}</div>
+                            </div>
+                            <div><MouseOverPopover configLine={configLine} conflictBox={detailData?.conflictBox} value={detailData.popUpDetail} /></div>
+                            <div className='pastSlotDetailDataOutFlightBox'>
+                                <div className='pastSlotDetailDataOutFlightFlt' style={Styles.flightSlotSubText}>{detailData.depFlightNo}</div>
+                                <div className='pastSlotDetailDataOutFlightStn'>{detailData.dep}</div>
+                            </div>
+                        </div>
+                        <div className='pastSlotDetailTimeBox' style={{ width: `${((track) * (detailData.subMainBar > detailData.mainBar ? detailData.subMainBar : detailData.mainBar))}px`, marginTop: `${getPastSlotDetailTimeBox()}px` }}>
+                            <div className='pastSlotDetailTimeInFlightBox'>
+                                <div>{moment(detailData.ETA?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STA?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                            <div className='pastSlotDetailTimeOutFlightBox'>
+                                <div>&nbsp;{moment(detailData.ETD?.substring(0, 19)).format('HH:mm')}</div>
+                                <div style={Styles.flightSlotSubText}>&nbsp;{`(${moment(detailData.STD?.substring(0, 19)).format('HH:mm')})`}</div>
+                            </div>
+                        </div>
+                    </div></div>
+                    <div className='pastSlotGanttBox' style={{ width: `${(track) * detailData.subMainBar}px` }}>
+                        <div className='pastSlotGanttMain' style={{...Styles.pastFlightSlotPrimeColorBG,...{ width: `${(track) * detailData.mainBar}px` }}}></div>
+                        <div style={{width:'0px',marginTop:'-10px'}}>
+                        <div className='pastSlotGanttSubBox' style={{...Styles.pastFlightSlotPrimeColorBG,...{ width: `${(track) * detailData.subMainBar}px` }}}>
+                            <div className='pastSlotGanttSubArrDelayBox' style={{...Styles.pastFlightSlotPrimeColorBG,...Styles.pastFlightSlotPrimeColorBorder,...{ width: `${(track) * detailData.arrDelay}px` }}}>
+                                <div className='pastSlotGanttSubArrDelay' style={{ width: `${(track) * detailData.arrDelay}px` }}></div>
+                            </div>
+                            <div className='pastSlotGanttSub' style={{...Styles.pastFlightSlotPrimeColorBG,...Styles.pastFlightSlotPrimeColorBorder,...{ width: `${(track) * detailData.remain}px` }}}></div>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div className='pastOutFlinghtBox' style={{ width: `${(track) * detailData.tarmecOut}px` }}>
+                    <div style={{width:'0px'}}><div className='pastOutFlinghtIconBox' style={{ width: `${(track) * detailData.tarmecOut}px` }}>
+                        <div className='pastOutFlinghtIconLine' style={{...Styles.pastFlightSlotPrimeColorBG,...{ width: `${(track) * detailData.tarmecOut}px` }}}></div>
+                        <div style={{width:'0px'}}><img src={FlightIcon} className='pastOutFlinghtIcon' style={{ marginLeft: `${(track) * detailData.tarmecOut}px` }} /></div>
+                    </div></div>
+                    <div className='pastOutFlinghtLine' style={{...Styles.flightLineBG,...{ width: `${(track) * detailData.tarmecOut}px` }}}></div>
+                </div>
+            </div>
+        )
+    }
+
+    const getFlightGantt = ()=>{
+        if(type === "current"){return (getCurrentFligh())}
+        if(type === "other"){return (getOtherFlight())}
+        if(type === "past"){return (getPastFlight())}
+        if(type === "sameOther"){return (
+            <div className='sameOtherMainBox' style={{ width: `${slotWidth}px` }}>
+                <div className='sameOtherMainBoxLine' style={{...Styles.pastFlightSlotPrimeColorBG,...{ width: `${slotWidth}px` }}}></div>
+            </div>
+        )}
+    }
+    return (<div>
+        {getFlightGantt()}
+    </div>)
 }
+
+export default FlightSlot;
