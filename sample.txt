@@ -1,102 +1,64 @@
-import configuration from "../../environments/Configuration";
-import { generateRandomString,encrypt } from "./oauthConfig";
-import moment from "moment";
-import { jwtDecode } from "jwt-decode";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'
+import Styles from "./Styles";
 
-export async function redirectToUnitedLogin() {
+const MoreDetail = (props : any)=>{
+    const {data, selectIndex, setSelectIndex, selectBox, domain,isAircraft} = props
+    
 
-    const codeVerifier = generateRandomString(128);
-    localStorage.setItem('codeVerifier', codeVerifier);
-    let codeChallenge = await encrypt(codeVerifier);
-    localStorage.setItem('codeChallenge', codeChallenge);
-    const redirectUrl = `${configuration.BASEENDPOINT}/authorize?client_id=${configuration.CLIENTID}&domain=${configuration.DOMAIN}&redirect_uri=${configuration.REDIRECTURI}&code_challenge_method=${configuration.CODECHALLENGEMETHOD}&response_type=${configuration.RESPONSECODE}&scope=${configuration.SCOPE}&client_secret=${configuration.SECRET}&code_challenge=${codeChallenge}`;
-    console.log("redirectToLogin login", redirectUrl)
-    window.location.replace(redirectUrl);
-}
-
-export async function getAccessTokenApi(code:any) {
-    try {
-      const newCodeVerifier :any = localStorage.getItem("codeVerifier")!=null?localStorage.getItem("codeVerifier"):'';
-      const formData = new URLSearchParams();
-      formData.append('grant_type','AUTHORIZATION_CODE')
-      formData.append('redirect_uri',configuration.REDIRECTURI)
-      formData.append('code',code)
-      formData.append('code_verifier',newCodeVerifier)
-      formData.append('response_type','token');
-  
-      const headers = {
-        'X-OAUTH-IDENTITY-DOMAIN-NAME': configuration.DOMAIN,
-        Authorization: `Basic ${configuration.CLIENTID_ENCRYPT}`,
-      };
-
-      axios({
-        method: "post",
-        url: `${configuration.BASEENDPOINT}/token`,
-        headers: headers,
-        data : formData,
-      }).then(function (response:any) {
-        const navigate = useNavigate()
-        console.log('getAccessTokenApi',response);
-        localStorage.setItem('access_token', response.data.access_token);
-        localStorage.setItem('tokenOIDC', response.data.access_token);
-        localStorage.setItem('expires_in', response.data.expires_in);
-        localStorage.setItem('expires_timing',moment().add(((Number(response.data.expires_in)/60)-5),'minutes').format('YYYY-MM-DDTHH:mm:SS'));
-        localStorage.setItem('id_token', response.data.id_token);
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        localStorage.setItem('token_type', response.data.token_type);
-        localStorage.setItem('scope', response.data.scope);
-        localStorage.setItem('isValidUser','true');
-  
-        // get user detail using access_token
-        let userDecodedValue :any = jwtDecode(response.data.access_token)
-        localStorage.setItem('user_fullName', userDecodedValue?.fullname);
-        localStorage.setItem('user_mail', userDecodedValue?.mail);
-        localStorage.setItem('user_uid', userDecodedValue?.uid);
-        localStorage.setItem('user_givenName', userDecodedValue?.givenName);
-        navigate('/home')
-      });
-    } catch (error:any) {
-      console.log("AuthService Error", error, error.message)
+    const handleSelectIndex = (index:any)=>{
+        if(selectBox===index){
+            return setSelectIndex(-1)
+        }else{
+            return setSelectIndex(index)
+        }
     }
+    const getDomain = ()=>{
+        if(domain){
+            if(domain==='Tail Connection')return tailConnectionGetDomain(data);
+            if(domain==='crewInfo'){
+                return crewInfoGetDomain(handleSelectIndex, selectIndex, data)
+            }
+            if(domain==='paxInfo'){
+                return paxInfoGetDomain(handleSelectIndex, selectIndex, data)
+            }
+            if(domain==='text'){
+                return textGetDomain(handleSelectIndex, selectIndex, data, isAircraft)
+            }
+        }else{
+            return getDomainElse()
+        }
+    }
+    return(
+        <>
+            {getDomain()}
+        </>
+    )
+}
+export default MoreDetail;
+
+function getDomainElse() {
+    return <div style={{ marginLeft: '25px', textAlign: 'left' }}>-</div>;
 }
 
-export async function refershTokenApi() {
-    try {
-      const codeVerifier :any = localStorage.getItem("codeVerifier");
-      const refreshToken :any = localStorage.getItem("refresh_token")
-      const scope :any= localStorage.getItem("scope")
-      const formData = new URLSearchParams();
-      formData.append('grant_type','REFRESH_TOKEN')
-      formData.append('redirect_uri',configuration.REDIRECTURI)
-      formData.append('refresh_token',refreshToken)
-      formData.append('code_verifier',codeVerifier)
-      formData.append('scope',scope)
-  
-      const headers = {
-        'X-OAUTH-IDENTITY-DOMAIN-NAME': configuration.DOMAIN,
-        Authorization: `Basic ${configuration.CLIENTID_ENCRYPT}`,
-      };
-  
-      console.log('check the request of refershTokenApi => ',formData,headers);
-  
-      axios({
-        method: "post",
-        url: `${configuration.BASEENDPOINT}/token`,
-        headers: headers,
-        data : formData,
-      }).then(function (response:any) {
-        console.log('refershTokenAip',response);
-        localStorage.setItem('accessToken', response.data.access_token);
-        localStorage.setItem('tokenOIDC', response.data.access_token);
-        localStorage.setItem('expires_in', response.data.expires_in);
-        localStorage.setItem('expires_timing',moment().add(((Number(response.data.expires_in)/60)-5),'minutes').format('YYYY-MM-DDTHH:mm:SS'));
-        localStorage.setItem('refresh_token', response.data.refresh_token);
-        localStorage.setItem('token_type', response.data.token_type);
-        localStorage.setItem('scope', response.data.scope);
-      });
-    } catch (error:any) {
-      console.log("Refersh Token Service Error", error, error.message) 
+function textGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any, isAircraft: any) {
+    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
+        <div>{`${data} ${!isAircraft ? 'Pax' : ''}`}</div>
+    </div>;
+}
+
+function paxInfoGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any) {
+    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
+        {data && data.length > 0 && data.map((el: any) => { return (<div key={el.paxCabinType}>{`${el.paxCabinType ? el.paxCabinType : '-'}`}</div>); })}
+    </div>;
+}
+
+function crewInfoGetDomain(handleSelectIndex: (index: any) => any, selectIndex: any, data: any) {
+    return <div style={{ ...Styles.moreDetailBoxDetail, ...{ textAlign: 'left', overflowX: 'auto' } }} onClick={() => { handleSelectIndex(selectIndex); } }>
+        {data && data.length > 0 && data.map((el: any) => { return (<div key={el.staffId}>{`${el.staffId ? el.staffId : '-'} | ${el.name ? el.name : '-'} | ${el.crewWorkPosition ? el.crewWorkPosition : '-'}`}</div>); })}
+    </div>;
+}
+
+function tailConnectionGetDomain(data: any) {
+    {
+        return <div style={{ marginLeft: '25px', textAlign: 'left' }}>{data}</div>;
     }
 }
