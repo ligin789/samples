@@ -1,133 +1,102 @@
-import './App.css';
-import Login from './screens/login';
-import Home from './screens/home';
-import FlightScoreDetails from './screens/flightScoreDetails';
-import Alert from './atoms/alert';
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { loginAction } from './store/login/action';
-import moment from 'moment'; 
-import { timerAction } from './store/timer/action';
-import { redirectToUnitedLogin,getAccessTokenApi,refershTokenApi } from './globals/OAUTH/oauthFunction';
-import { stationTerminalAction } from './store/stationTerminal/action';
-import { getTimingByTimeZone } from './globals/CommonTiming';
+import configuration from "../../environments/Configuration";
+import { generateRandomString,encrypt } from "./oauthConfig";
+import moment from "moment";
+import { jwtDecode } from "jwt-decode";
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 
-const App = ()=> {
- 
-  const[timeInterval,setTimeInterval]=useState(40); 
-  // we need to change the below veriable value to "start" after adding the AOUTH data
-  let isOAUTH = 'notStart';
-  const dispatch = useDispatch()
-  const isloggedin = useSelector((state: any) => state.UserData.isValidUserLoggedIn)
-  const reducerTimerCounter = useSelector((state:any)=> state.timerData.timerCount)
-  let storeTimeZone = useSelector((state:any)=> state.stationTerminalData.timeZone)
-  let testStore = useSelector((state:any)=> state)
+export async function redirectToUnitedLogin() {
 
-  const getReducerTimerCounterValue = ()=>{
-    if(reducerTimerCounter===''){
-      if(window.location.hostname==='gate-ai-1293274274.ap-south-1.elb.amazonaws.com' ||
-       window.location.hostname === 'localhost'){
-        return moment('09:45','HH:mm').subtract(timeInterval,'minutes').subtract(0,'day').format('HH:mm')
-      }else{
-        return moment(getTimingByTimeZone(storeTimeZone),'YYYY-MM-DDTHH:mm:SS').subtract(timeInterval,'minutes').format('HH:mm')
-      }
-    }else{
-      // below thing for testing purpose
-      // return moment('02:50','HH:mm').subtract(timeInterval,'minutes').subtract(0,'day').format('HH:mm'):
-      return moment(reducerTimerCounter,'HH:mm').format('HH:mm')
-    }
-  }
-
-  const timerCounter = getReducerTimerCounterValue()
-
-    //OAUTH thing is start from here 
-    useEffect(()=>{
-      if(isOAUTH==='start'){
-        console.log("localstorage", localStorage.getItem('tokenOIDC'))
-        const search = window.location.search;
-        const params = new URLSearchParams(search);
-        const code = params.get('code');
-        console.log("search Location", search, params, code)
-
-        if (localStorage.getItem('tokenOIDC') === null && code === null&&localStorage.getItem('expires_timing') ===null) {
-          localStorage.removeItem('codeVerifier');
-          localStorage.removeItem('codeChallenge')
-          redirectToUnitedLogin();
-        } else if (code&&localStorage.getItem('expires_timing') ===null&&localStorage.getItem('tokenOIDC') === null) {
-          getAccessTokenApi(code);
-        }
-      }
-    },[])
-
-    // for refersh the OAUTH token
-    if(isOAUTH==='start'){
-      setInterval(()=>{
-        if(localStorage.getItem('expires_timing')!=null){
-          const expiresTime = moment(localStorage.getItem('expires_timing'),'YYYY-MM-DDTHH:mm:SS')
-          const currentTime = moment(moment().format('YYYY-MM-DDTHH:mm:SS'),'YYYY-MM-DDTHH:mm:SS')
-          console.log('check refershTokenApi => 2',expiresTime.diff(currentTime,'minutes'))
-          if(expiresTime.diff(currentTime,'minutes')===1){
-            refershTokenApi()
-          }
-        }
-      },60*1000)
-    }
-    //OAUTH thing is ended here 
-  
-  useEffect(()=>{
-    if(reducerTimerCounter===''){
-      dispatch(timerAction.storeTimer({time:timerCounter}))
-    }
-    setInterval(()=>{
-      console.log('check timer value change =>',moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm'));
-      (window.location.hostname!='gate-ai-1293274274.ap-south-1.elb.amazonaws.com' &&
-      window.location.hostname != 'localhost')&&
-        dispatch(timerAction.storeTimer({time:moment(moment(getTimingByTimeZone(storeTimeZone),'YYYY-MM-DDTHH:mm:SS').subtract(timeInterval+1,'minutes').format('HH:mm'),'HH:mm').add(1,'minute').format('HH:mm')}))
-      // below thing for testing purpose
-      // dispatch(timerAction.storeTimer({time:moment(timerCounter,'HH:mm').add(1,'minute').format('HH:mm')}))
-    },60000)
-},[reducerTimerCounter])
-
-
-  const setTimeOnHoursSelection = (time:any)=>{
-    console.log('check the setTimeOnHoursSelection => ',time)
-    setTimeInterval(time);
-  }
-
-  useEffect(() => {
-    if (localStorage.getItem('isValidUser') == 'true') {
-      dispatch(loginAction.storeUserData({ accessToken: localStorage.getItem('accessToken') }))
-      dispatch(stationTerminalAction.getStationAndTerminalList())
-    }
-    
-  }, [])
-  console.log('check the current page thing ===> ',localStorage.getItem('currentPage'))
-  const currentPage = localStorage.getItem('currentPage')
-  console.log('check the store value by testStore => ',testStore)
-  const isFromVolar = false;
-  return (
-    <>
-    <Alert />
-    {/* <BrowserRouter basename='/iao/gateAI'> */}
-    <BrowserRouter>
-        <Routes>
-            <Route path="/*" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />
-            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/home" element={<Home currentPage={currentPage} timerCounter={timerCounter} setTimeOnHoursSelection={(el:any)=>{setTimeOnHoursSelection(el)}}/>} />}
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/flightScoreDetails" element={<FlightScoreDetails />} />}
-
-            {(localStorage.getItem('isValidUser') == 'true' || isloggedin)&&
-            <Route path="/login" element={<Login />} />}
-        </Routes>
-      </BrowserRouter>
-      </>
-  );
+    const codeVerifier = generateRandomString(128);
+    localStorage.setItem('codeVerifier', codeVerifier);
+    let codeChallenge = await encrypt(codeVerifier);
+    localStorage.setItem('codeChallenge', codeChallenge);
+    const redirectUrl = `${configuration.BASEENDPOINT}/authorize?client_id=${configuration.CLIENTID}&domain=${configuration.DOMAIN}&redirect_uri=${configuration.REDIRECTURI}&code_challenge_method=${configuration.CODECHALLENGEMETHOD}&response_type=${configuration.RESPONSECODE}&scope=${configuration.SCOPE}&client_secret=${configuration.SECRET}&code_challenge=${codeChallenge}`;
+    console.log("redirectToLogin login", redirectUrl)
+    window.location.replace(redirectUrl);
 }
-export default App;
+
+export async function getAccessTokenApi(code:any) {
+    try {
+      const newCodeVerifier :any = localStorage.getItem("codeVerifier")!=null?localStorage.getItem("codeVerifier"):'';
+      const formData = new URLSearchParams();
+      formData.append('grant_type','AUTHORIZATION_CODE')
+      formData.append('redirect_uri',configuration.REDIRECTURI)
+      formData.append('code',code)
+      formData.append('code_verifier',newCodeVerifier)
+      formData.append('response_type','token');
+  
+      const headers = {
+        'X-OAUTH-IDENTITY-DOMAIN-NAME': configuration.DOMAIN,
+        Authorization: `Basic ${configuration.CLIENTID_ENCRYPT}`,
+      };
+
+      axios({
+        method: "post",
+        url: `${configuration.BASEENDPOINT}/token`,
+        headers: headers,
+        data : formData,
+      }).then(function (response:any) {
+        const navigate = useNavigate()
+        console.log('getAccessTokenApi',response);
+        localStorage.setItem('access_token', response.data.access_token);
+        localStorage.setItem('tokenOIDC', response.data.access_token);
+        localStorage.setItem('expires_in', response.data.expires_in);
+        localStorage.setItem('expires_timing',moment().add(((Number(response.data.expires_in)/60)-5),'minutes').format('YYYY-MM-DDTHH:mm:SS'));
+        localStorage.setItem('id_token', response.data.id_token);
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+        localStorage.setItem('token_type', response.data.token_type);
+        localStorage.setItem('scope', response.data.scope);
+        localStorage.setItem('isValidUser','true');
+  
+        // get user detail using access_token
+        let userDecodedValue :any = jwtDecode(response.data.access_token)
+        localStorage.setItem('user_fullName', userDecodedValue?.fullname);
+        localStorage.setItem('user_mail', userDecodedValue?.mail);
+        localStorage.setItem('user_uid', userDecodedValue?.uid);
+        localStorage.setItem('user_givenName', userDecodedValue?.givenName);
+        navigate('/home')
+      });
+    } catch (error:any) {
+      console.log("AuthService Error", error, error.message)
+    }
+}
+
+export async function refershTokenApi() {
+    try {
+      const codeVerifier :any = localStorage.getItem("codeVerifier");
+      const refreshToken :any = localStorage.getItem("refresh_token")
+      const scope :any= localStorage.getItem("scope")
+      const formData = new URLSearchParams();
+      formData.append('grant_type','REFRESH_TOKEN')
+      formData.append('redirect_uri',configuration.REDIRECTURI)
+      formData.append('refresh_token',refreshToken)
+      formData.append('code_verifier',codeVerifier)
+      formData.append('scope',scope)
+  
+      const headers = {
+        'X-OAUTH-IDENTITY-DOMAIN-NAME': configuration.DOMAIN,
+        Authorization: `Basic ${configuration.CLIENTID_ENCRYPT}`,
+      };
+  
+      console.log('check the request of refershTokenApi => ',formData,headers);
+  
+      axios({
+        method: "post",
+        url: `${configuration.BASEENDPOINT}/token`,
+        headers: headers,
+        data : formData,
+      }).then(function (response:any) {
+        console.log('refershTokenAip',response);
+        localStorage.setItem('accessToken', response.data.access_token);
+        localStorage.setItem('tokenOIDC', response.data.access_token);
+        localStorage.setItem('expires_in', response.data.expires_in);
+        localStorage.setItem('expires_timing',moment().add(((Number(response.data.expires_in)/60)-5),'minutes').format('YYYY-MM-DDTHH:mm:SS'));
+        localStorage.setItem('refresh_token', response.data.refresh_token);
+        localStorage.setItem('token_type', response.data.token_type);
+        localStorage.setItem('scope', response.data.scope);
+      });
+    } catch (error:any) {
+      console.log("Refersh Token Service Error", error, error.message) 
+    }
+}
