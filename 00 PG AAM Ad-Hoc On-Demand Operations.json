@@ -1,0 +1,174 @@
+{
+  "process_group_id": "5579d0ae-404a-49c7-888e-20c722360e60",
+  "name": "On-Demand Flight Request and fulfilment Process",
+  "execution_model": "DAG",
+  "purpose": {
+    "business_objective": "AAM Ad-Hoc On-Demand Operations",
+    "primary_kpis": [
+      "BOOKING_TO_DEPARTURE_LEAD_TIME",
+      "ON_TIME_DEPARTURE",
+      "FLIGHT_COMPLETION_TIME",
+      "TURNAROUND_TIME"
+    ]
+  },
+  "domain": {
+    "industry": "AAM",
+    "function": "booking",
+    "subfunction": "prebooking",
+    "applicability": {
+      "operatingcluster": [
+        "BLR"
+      ]
+    }
+  },
+  "operator": {
+    "operatorCode": "VELOSKY",
+    "operatorName": "VeloSky Aviation India Limited",
+    "operatorType": "AAM_OPERATOR",
+    "policyNamespace": "opa://policies/aam/operators/VELOSKY",
+    "region": "BLR"
+  },
+  "nodes": [
+    {
+      "node_id": "PG-FEASIBILITY",
+      "process_key": "ADHOC_BOOKING_FEASIBILITY_ASSESSMENT",
+      "planned": {
+        "expectedDurationMinutes": 3
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "BOOKING_TO_DEPARTURE_LEAD_TIME"
+      ],
+      "exports": [
+        "AggregateFeasibilityContext",
+        "BookingOfferInfo"
+      ]
+    },
+    {
+      "node_id": "PG-CONFIRMATION",
+      "process_key": "PASSENGER_BOOKING_CONFIRMATION_AND_HOLD",
+      "planned": {
+        "expectedDurationMinutes": 2
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "BOOKING_TO_DEPARTURE_LEAD_TIME"
+      ],
+      "imports": [
+        "AggregateFeasibilityContext",
+        "BookingOfferInfo"
+      ],
+      "exports": [
+        "BookingHold"
+      ]
+    },
+    {
+      "node_id": "PG-FLIGHT-PREP",
+      "process_key": "DYNAMIC_FLIGHT_PREPARATION",
+      "planned": {
+        "expectedDurationMinutes": 25
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "ON_TIME_DEPARTURE"
+      ],
+      "imports": [
+        "BookingHold"
+      ],
+      "exports": [
+        "FlightReady"
+      ]
+    },
+    {
+      "node_id": "PG-BOARDING",
+      "process_key": "PASSENGER_ARRIVAL_AND_BOARDING",
+      "planned": {
+        "expectedDurationMinutes": 10
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "ON_TIME_DEPARTURE"
+      ],
+      "imports": [
+        "FlightReady"
+      ],
+      "exports": [
+        "BoardingComplete"
+      ]
+    },
+    {
+      "node_id": "PG-FLIGHT",
+      "process_key": "FLIGHT_EXECUTION",
+      "planned": {
+        "expectedDurationMinutes": 45
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "FLIGHT_COMPLETION_TIME"
+      ],
+      "imports": [
+        "BoardingComplete"
+      ],
+      "exports": [
+        "FlightCompleted"
+      ]
+    },
+    {
+      "node_id": "PG-DISEMBARK",
+      "process_key": "PASSENGER_DISEMBARKATION_AND_COMPLETION",
+      "planned": {
+        "expectedDurationMinutes": 7
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "FLIGHT_COMPLETION_TIME"
+      ],
+      "imports": [
+        "FlightCompleted"
+      ],
+      "exports": [
+        "AircraftAvailable"
+      ]
+    },
+    {
+      "node_id": "PG-TURNAROUND",
+      "process_key": "RAPID_TURNAROUND_NEXT_FLIGHT",
+      "planned": {
+        "expectedDurationMinutes": 20
+      },
+      "actual": {},
+      "kpi_contributions": [
+        "TURNAROUND_TIME"
+      ],
+      "imports": [
+        "AircraftAvailable"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "PG-FEASIBILITY",
+      "to": "PG-CONFIRMATION"
+    },
+    {
+      "from": "PG-CONFIRMATION",
+      "to": "PG-FLIGHT-PREP"
+    },
+    {
+      "from": "PG-FLIGHT-PREP",
+      "to": "PG-BOARDING"
+    },
+    {
+      "from": "PG-BOARDING",
+      "to": "PG-FLIGHT"
+    },
+    {
+      "from": "PG-FLIGHT",
+      "to": "PG-DISEMBARK"
+    },
+    {
+      "from": "PG-DISEMBARK",
+      "to": "PG-TURNAROUND"
+    }
+  ]
+}
