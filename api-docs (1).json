@@ -1,0 +1,1752 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/api/v1/operators/{id}": {
+            "get": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "get",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "delete",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "patch",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorPatchRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/operatorregion/auth/{id}": {
+            "get": {
+                "tags": [
+                    "operator-region-auth-controller"
+                ],
+                "operationId": "getOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorRegionAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "operator-region-auth-controller"
+                ],
+                "operationId": "update_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorRegionAuthRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorRegionAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "operator-region-auth-controller"
+                ],
+                "operationId": "delete_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/operator-cluster-auth/{id}": {
+            "get": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "get_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorClusterAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "update_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorClusterAuthUpdateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorClusterAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "delete_2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "patch_1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorClusterAuthPatchRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorClusterAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/operators": {
+            "get": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "search",
+                "parameters": [
+                    {
+                        "name": "operatorCode",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tenantId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "homeClusterId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "operatorType",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "AIRCRAFT_OPERATOR",
+                                "VERTIPORT_OPERATOR",
+                                "GROUND_HANDLER",
+                                "MRO",
+                                "CARGO_OPERATOR",
+                                "MEDVAC_OPERATOR"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "operatorStatus",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ACTIVE",
+                                "SUSPENDED",
+                                "REVOKED",
+                                "DEACTIVATED"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageOperatorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "operator-controller"
+                ],
+                "operationId": "create",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/operatorregion/auth": {
+            "get": {
+                "tags": [
+                    "operator-region-auth-controller"
+                ],
+                "operationId": "getAll",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/OperatorRegionAuthResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "operator-region-auth-controller"
+                ],
+                "summary": "Create Operator Region Auth",
+                "description": "Creates a new operator region authorization entry",
+                "operationId": "create_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorRegionAuthRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorRegionAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/operator-cluster-auth": {
+            "get": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "search_1",
+                "parameters": [
+                    {
+                        "name": "operatorId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "tenantId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "clusterId",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING",
+                                "UNDER_REVIEW",
+                                "APPROVED",
+                                "SUSPENDED",
+                                "REVOKED",
+                                "EXPIRED"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "FULL",
+                                "PROVISIONAL",
+                                "TRIAL",
+                                "EVENT_SPECIFIC",
+                                "EMERGENCY"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "pageable",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/components/schemas/Pageable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageOperatorClusterAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "operator-cluster-auth-controller"
+                ],
+                "operationId": "create_2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OperatorClusterAuthCreateRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/OperatorClusterAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "OperatorUpdateRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorCode": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "minLength": 0
+                    },
+                    "operatorType": {
+                        "type": "string",
+                        "enum": [
+                            "AIRCRAFT_OPERATOR",
+                            "VERTIPORT_OPERATOR",
+                            "GROUND_HANDLER",
+                            "MRO",
+                            "CARGO_OPERATOR",
+                            "MEDVAC_OPERATOR"
+                        ]
+                    },
+                    "operatorSubtype": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 0
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorName": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "legalEntityType": {
+                        "type": "string",
+                        "enum": [
+                            "CORPORATION",
+                            "LLC",
+                            "PARTNERSHIP",
+                            "GOVERNMENT",
+                            "SUBSIDIARY"
+                        ]
+                    },
+                    "parentOperatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "registrationNumber": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "minLength": 0
+                    },
+                    "registrationCountry": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 0
+                    },
+                    "registrationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "homeClusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "homeRegionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "websiteUrl": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "hasAoc": {
+                        "type": "boolean"
+                    },
+                    "operatesAircraft": {
+                        "type": "boolean"
+                    },
+                    "operatesVertiport": {
+                        "type": "boolean"
+                    },
+                    "providesGroundHandling": {
+                        "type": "boolean"
+                    },
+                    "providesMro": {
+                        "type": "boolean"
+                    },
+                    "acceptsThirdPartyCargo": {
+                        "type": "boolean"
+                    },
+                    "operatorStatus": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "DEACTIVATED"
+                        ]
+                    },
+                    "createdBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "acceptsThirdPartyCargo",
+                    "hasAoc",
+                    "homeClusterId",
+                    "legalEntityType",
+                    "operatesAircraft",
+                    "operatesVertiport",
+                    "operatorCode",
+                    "operatorName",
+                    "operatorStatus",
+                    "operatorType",
+                    "parentOperatorId",
+                    "providesGroundHandling",
+                    "providesMro",
+                    "registrationCountry",
+                    "registrationDate",
+                    "registrationNumber",
+                    "tenantId"
+                ]
+            },
+            "OperatorResponse": {
+                "type": "object",
+                "properties": {
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorCode": {
+                        "type": "string"
+                    },
+                    "operatorType": {
+                        "type": "string",
+                        "enum": [
+                            "AIRCRAFT_OPERATOR",
+                            "VERTIPORT_OPERATOR",
+                            "GROUND_HANDLER",
+                            "MRO",
+                            "CARGO_OPERATOR",
+                            "MEDVAC_OPERATOR"
+                        ]
+                    },
+                    "operatorSubtype": {
+                        "type": "string"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorName": {
+                        "type": "string"
+                    },
+                    "legalEntityType": {
+                        "type": "string",
+                        "enum": [
+                            "CORPORATION",
+                            "LLC",
+                            "PARTNERSHIP",
+                            "GOVERNMENT",
+                            "SUBSIDIARY"
+                        ]
+                    },
+                    "parentOperatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "registrationNumber": {
+                        "type": "string"
+                    },
+                    "registrationCountry": {
+                        "type": "string"
+                    },
+                    "registrationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "homeClusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "homeRegionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "websiteUrl": {
+                        "type": "string"
+                    },
+                    "hasAoc": {
+                        "type": "boolean"
+                    },
+                    "operatesAircraft": {
+                        "type": "boolean"
+                    },
+                    "operatesVertiport": {
+                        "type": "boolean"
+                    },
+                    "providesGroundHandling": {
+                        "type": "boolean"
+                    },
+                    "providesMro": {
+                        "type": "boolean"
+                    },
+                    "acceptsThirdPartyCargo": {
+                        "type": "boolean"
+                    },
+                    "operatorStatus": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "DEACTIVATED"
+                        ]
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OperatorRegionAuthRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "regionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterAuthId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "operatingAltitudeMin": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "operatingAltitudeMax": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "operatingAltitudeUnit": {
+                        "type": "string"
+                    },
+                    "canOverrideWxMinima": {
+                        "type": "boolean"
+                    },
+                    "canOverridePerfLimits": {
+                        "type": "boolean"
+                    },
+                    "canOverrideCurfew": {
+                        "type": "boolean"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OperatorRegionAuthResponse": {
+                "type": "object",
+                "properties": {
+                    "regionAuthId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "regionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterAuthId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "operatingAltitudeMin": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "operatingAltitudeMax": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "operatingAltitudeUnit": {
+                        "type": "string"
+                    },
+                    "canOverrideWxMinima": {
+                        "type": "boolean"
+                    },
+                    "canOverridePerfLimits": {
+                        "type": "boolean"
+                    },
+                    "canOverrideCurfew": {
+                        "type": "boolean"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OperatorClusterAuthUpdateRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "approvalConditions": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "requiresSlotPreApproval": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "authStatus",
+                    "authType",
+                    "clusterId",
+                    "operatorId",
+                    "requiresSlotPreApproval",
+                    "tenantId",
+                    "validFrom"
+                ]
+            },
+            "OperatorClusterAuthResponse": {
+                "type": "object",
+                "properties": {
+                    "clusterAuthId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "approvalConditions": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "requiresSlotPreApproval": {
+                        "type": "boolean"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updatedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "OperatorCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorCode": {
+                        "type": "string",
+                        "maxLength": 20,
+                        "minLength": 0
+                    },
+                    "operatorType": {
+                        "type": "string",
+                        "enum": [
+                            "AIRCRAFT_OPERATOR",
+                            "VERTIPORT_OPERATOR",
+                            "GROUND_HANDLER",
+                            "MRO",
+                            "CARGO_OPERATOR",
+                            "MEDVAC_OPERATOR"
+                        ]
+                    },
+                    "operatorSubtype": {
+                        "type": "string",
+                        "maxLength": 30,
+                        "minLength": 0
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorName": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "legalEntityType": {
+                        "type": "string",
+                        "enum": [
+                            "CORPORATION",
+                            "LLC",
+                            "PARTNERSHIP",
+                            "GOVERNMENT",
+                            "SUBSIDIARY"
+                        ]
+                    },
+                    "parentOperatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "registrationNumber": {
+                        "type": "string",
+                        "maxLength": 60,
+                        "minLength": 0
+                    },
+                    "registrationCountry": {
+                        "type": "string",
+                        "maxLength": 50,
+                        "minLength": 0
+                    },
+                    "registrationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "homeClusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "homeRegionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "websiteUrl": {
+                        "type": "string",
+                        "maxLength": 255,
+                        "minLength": 0
+                    },
+                    "hasAoc": {
+                        "type": "boolean"
+                    },
+                    "operatesAircraft": {
+                        "type": "boolean"
+                    },
+                    "operatesVertiport": {
+                        "type": "boolean"
+                    },
+                    "providesGroundHandling": {
+                        "type": "boolean"
+                    },
+                    "providesMro": {
+                        "type": "boolean"
+                    },
+                    "acceptsThirdPartyCargo": {
+                        "type": "boolean"
+                    },
+                    "operatorStatus": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "DEACTIVATED"
+                        ]
+                    },
+                    "createdBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "homeClusterId",
+                    "legalEntityType",
+                    "operatorCode",
+                    "operatorName",
+                    "operatorType",
+                    "parentOperatorId",
+                    "registrationCountry",
+                    "registrationDate",
+                    "registrationNumber",
+                    "tenantId"
+                ]
+            },
+            "OperatorClusterAuthCreateRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "approvalConditions": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "requiresSlotPreApproval": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "clusterId",
+                    "operatorId",
+                    "tenantId"
+                ]
+            },
+            "OperatorPatchRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorCode": {
+                        "type": "string"
+                    },
+                    "operatorType": {
+                        "type": "string",
+                        "enum": [
+                            "AIRCRAFT_OPERATOR",
+                            "VERTIPORT_OPERATOR",
+                            "GROUND_HANDLER",
+                            "MRO",
+                            "CARGO_OPERATOR",
+                            "MEDVAC_OPERATOR"
+                        ]
+                    },
+                    "operatorSubtype": {
+                        "type": "string"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "operatorName": {
+                        "type": "string"
+                    },
+                    "legalEntityType": {
+                        "type": "string",
+                        "enum": [
+                            "CORPORATION",
+                            "LLC",
+                            "PARTNERSHIP",
+                            "GOVERNMENT",
+                            "SUBSIDIARY"
+                        ]
+                    },
+                    "parentOperatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "registrationNumber": {
+                        "type": "string"
+                    },
+                    "registrationCountry": {
+                        "type": "string"
+                    },
+                    "registrationDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "homeClusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "homeRegionId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "websiteUrl": {
+                        "type": "string"
+                    },
+                    "hasAoc": {
+                        "type": "boolean"
+                    },
+                    "operatesAircraft": {
+                        "type": "boolean"
+                    },
+                    "operatesVertiport": {
+                        "type": "boolean"
+                    },
+                    "providesGroundHandling": {
+                        "type": "boolean"
+                    },
+                    "providesMro": {
+                        "type": "boolean"
+                    },
+                    "acceptsThirdPartyCargo": {
+                        "type": "boolean"
+                    },
+                    "operatorStatus": {
+                        "type": "string",
+                        "enum": [
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "DEACTIVATED"
+                        ]
+                    },
+                    "createdBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "notes": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OperatorClusterAuthPatchRequest": {
+                "type": "object",
+                "properties": {
+                    "operatorId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "tenantId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "clusterId": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "authStatus": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "UNDER_REVIEW",
+                            "APPROVED",
+                            "SUSPENDED",
+                            "REVOKED",
+                            "EXPIRED"
+                        ]
+                    },
+                    "authType": {
+                        "type": "string",
+                        "enum": [
+                            "FULL",
+                            "PROVISIONAL",
+                            "TRIAL",
+                            "EVENT_SPECIFIC",
+                            "EMERGENCY"
+                        ]
+                    },
+                    "validFrom": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "validTo": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "approvedBy": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "approvedAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "approvalConditions": {
+                        "type": "string"
+                    },
+                    "notes": {
+                        "type": "string"
+                    },
+                    "maxConcurrentFlights": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "requiresSlotPreApproval": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "Pageable": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 0
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32",
+                        "minimum": 1
+                    },
+                    "sort": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "PageOperatorResponse": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OperatorResponse"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageableObject": {
+                "type": "object",
+                "properties": {
+                    "offset": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageNumber": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "paged": {
+                        "type": "boolean"
+                    },
+                    "unpaged": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "SortObject": {
+                "type": "object",
+                "properties": {
+                    "empty": {
+                        "type": "boolean"
+                    },
+                    "sorted": {
+                        "type": "boolean"
+                    },
+                    "unsorted": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageOperatorClusterAuthResponse": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OperatorClusterAuthResponse"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            }
+        }
+    }
+}
