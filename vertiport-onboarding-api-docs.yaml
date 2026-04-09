@@ -1,0 +1,3269 @@
+openapi: 3.1.0
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8000
+  description: Generated server url
+tags:
+- name: Vertiport Operating Schedule API
+  description: REST API for Vertiport Operating Schedule related operations
+- name: Vertiport Contact API
+  description: REST API for Vertiport Contact related operations
+- name: Vertihub API
+  description: REST API for Vertihub related operations
+- name: Vertiport Address API
+  description: REST API for Vertiport Address related operations
+- name: Vertiport Audit Log API
+  description: REST API for Vertiport Audit Log related operations
+- name: Vertiport Pad API
+  description: REST API for Vertiport Pad related operations
+- name: Vertiport Pad Capability API
+  description: REST API for Vertiport Pad Capability related operations
+- name: Vertiport API
+  description: REST API for Vertiport related operations
+- name: Vertiport Terminal API
+  description: REST API for Vertiport Terminal related operations
+- name: Vertiport Airside Zone API
+  description: REST API for Vertiport Airside Zone related operations
+- name: Vertiport Vtm API
+  description: REST API for Vertiport Vtm related operations
+- name: Vertihub Energy API
+  description: REST API for Vertihub Energy related operations
+- name: Vertiport Noise Limits API
+  description: REST API for Vertiport Noise Limits related operations
+paths:
+  /vertiport_vtm/{vtmId}:
+    get:
+      tags:
+      - Vertiport Vtm API
+      operationId: getVtmById
+      parameters:
+      - name: vtmId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VtmDto"
+    put:
+      tags:
+      - Vertiport Vtm API
+      operationId: updateVtm
+      parameters:
+      - name: vtmId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VtmRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VtmDto"
+    delete:
+      tags:
+      - Vertiport Vtm API
+      operationId: deleteVtm
+      parameters:
+      - name: vtmId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_vertihubEnergy/{vertihubEnergyId}:
+    get:
+      tags:
+      - Vertihub Energy API
+      operationId: getVertihubEnergyById
+      parameters:
+      - name: vertihubEnergyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubEnergyDto"
+    put:
+      tags:
+      - Vertihub Energy API
+      operationId: updateVertihubEnergy
+      parameters:
+      - name: vertihubEnergyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertihubEnergyRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubEnergyDto"
+    delete:
+      tags:
+      - Vertihub Energy API
+      operationId: deleteVertihubEnergy
+      parameters:
+      - name: vertihubEnergyId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_terminal/{terminalId}:
+    get:
+      tags:
+      - Vertiport Terminal API
+      operationId: getTerminalById
+      parameters:
+      - name: terminalId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TerminalDto"
+    put:
+      tags:
+      - Vertiport Terminal API
+      operationId: updateTerminal
+      parameters:
+      - name: terminalId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminalRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TerminalDto"
+    delete:
+      tags:
+      - Vertiport Terminal API
+      operationId: deleteTerminal
+      parameters:
+      - name: terminalId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_pad_capability/{padCapabilityId}:
+    get:
+      tags:
+      - Vertiport Pad Capability API
+      operationId: getPadCapabilityById
+      parameters:
+      - name: padCapabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadCapabilityDto"
+    put:
+      tags:
+      - Vertiport Pad Capability API
+      operationId: updatePadCapability
+      parameters:
+      - name: padCapabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PadCapabilityRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadCapabilityDto"
+    delete:
+      tags:
+      - Vertiport Pad Capability API
+      operationId: deletePadCapability
+      parameters:
+      - name: padCapabilityId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_pad/{padId}:
+    get:
+      tags:
+      - Vertiport Pad API
+      operationId: getPadById
+      parameters:
+      - name: padId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadDto"
+    put:
+      tags:
+      - Vertiport Pad API
+      operationId: updatePad
+      parameters:
+      - name: padId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PadRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadDto"
+    delete:
+      tags:
+      - Vertiport Pad API
+      operationId: deletePad
+      parameters:
+      - name: padId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_operating_schedule/{operatingScheduleId}:
+    get:
+      tags:
+      - Vertiport Operating Schedule API
+      operationId: getOperatingScheduleById
+      parameters:
+      - name: operatingScheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OperatingScheduleDto"
+    put:
+      tags:
+      - Vertiport Operating Schedule API
+      operationId: updateOperatingSchedule
+      parameters:
+      - name: operatingScheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OperatingScheduleRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OperatingScheduleDto"
+    delete:
+      tags:
+      - Vertiport Operating Schedule API
+      operationId: deleteOperatingSchedule
+      parameters:
+      - name: operatingScheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_noise_limits/{noiseLimitsId}:
+    get:
+      tags:
+      - Vertiport Noise Limits API
+      operationId: getNoiseLimitsById
+      parameters:
+      - name: noiseLimitsId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NoiseLimitsDto"
+    put:
+      tags:
+      - Vertiport Noise Limits API
+      operationId: updateNoiseLimits
+      parameters:
+      - name: noiseLimitsId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoiseLimitsRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NoiseLimitsDto"
+    delete:
+      tags:
+      - Vertiport Noise Limits API
+      operationId: deleteNoiseLimits
+      parameters:
+      - name: noiseLimitsId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_contact/{contactId}:
+    get:
+      tags:
+      - Vertiport Contact API
+      operationId: getContactById
+      parameters:
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ContactDto"
+    put:
+      tags:
+      - Vertiport Contact API
+      operationId: updateContact
+      parameters:
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ContactDto"
+    delete:
+      tags:
+      - Vertiport Contact API
+      operationId: deleteContact
+      parameters:
+      - name: contactId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_audit_log/{auditLogId}:
+    get:
+      tags:
+      - Vertiport Audit Log API
+      operationId: getAuditLogById
+      parameters:
+      - name: auditLogId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuditLogDto"
+    put:
+      tags:
+      - Vertiport Audit Log API
+      operationId: updateAuditLog
+      parameters:
+      - name: auditLogId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuditLogRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuditLogDto"
+    delete:
+      tags:
+      - Vertiport Audit Log API
+      operationId: deleteAuditLog
+      parameters:
+      - name: auditLogId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_airside_zone/{airsideZoneId}:
+    get:
+      tags:
+      - Vertiport Airside Zone API
+      operationId: getAirsideZoneById
+      parameters:
+      - name: airsideZoneId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AirsideZoneDto"
+    put:
+      tags:
+      - Vertiport Airside Zone API
+      operationId: updateAirsideZone
+      parameters:
+      - name: airsideZoneId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AirsideZoneRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AirsideZoneDto"
+    delete:
+      tags:
+      - Vertiport Airside Zone API
+      operationId: deleteAirsideZone
+      parameters:
+      - name: airsideZoneId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_address/{addressId}:
+    get:
+      tags:
+      - Vertiport Address API
+      operationId: getAddressById
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AddressDto"
+    put:
+      tags:
+      - Vertiport Address API
+      operationId: updateAddress
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AddressDto"
+    delete:
+      tags:
+      - Vertiport Address API
+      operationId: deleteAddress
+      parameters:
+      - name: addressId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport/{vertiportId}:
+    get:
+      tags:
+      - Vertiport API
+      operationId: getVertiportById
+      parameters:
+      - name: vertiportId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertiportDto"
+    put:
+      tags:
+      - Vertiport API
+      operationId: updateVertiport
+      parameters:
+      - name: vertiportId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertiportRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertiportDto"
+    delete:
+      tags:
+      - Vertiport API
+      operationId: deleteVertiport
+      parameters:
+      - name: vertiportId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertihub/{vertihubId}:
+    get:
+      tags:
+      - Vertihub API
+      operationId: getVertihubById
+      parameters:
+      - name: vertihubId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubDto"
+    put:
+      tags:
+      - Vertihub API
+      operationId: updateVertihub
+      parameters:
+      - name: vertihubId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertihubRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubDto"
+    delete:
+      tags:
+      - Vertihub API
+      operationId: deleteVertihub
+      parameters:
+      - name: vertihubId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /vertiport_vtm:
+    get:
+      tags:
+      - Vertiport Vtm API
+      operationId: getAllVtms
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VtmDto"
+    post:
+      tags:
+      - Vertiport Vtm API
+      operationId: saveVtm
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VtmRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VtmDto"
+  /vertiport_vertihubEnergy:
+    get:
+      tags:
+      - Vertihub Energy API
+      operationId: getAllVertihubEnergys
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VertihubEnergyDto"
+    post:
+      tags:
+      - Vertihub Energy API
+      operationId: saveVertihubEnergy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertihubEnergyRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubEnergyDto"
+  /vertiport_terminal:
+    get:
+      tags:
+      - Vertiport Terminal API
+      operationId: getAllTerminals
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TerminalDto"
+    post:
+      tags:
+      - Vertiport Terminal API
+      operationId: saveTerminal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TerminalRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/TerminalDto"
+  /vertiport_pad_capability:
+    get:
+      tags:
+      - Vertiport Pad Capability API
+      operationId: getAllPadCapabilitys
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PadCapabilityDto"
+    post:
+      tags:
+      - Vertiport Pad Capability API
+      operationId: savePadCapability
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PadCapabilityRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadCapabilityDto"
+  /vertiport_pad:
+    get:
+      tags:
+      - Vertiport Pad API
+      operationId: getAllPads
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PadDto"
+    post:
+      tags:
+      - Vertiport Pad API
+      operationId: savePad
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PadRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/PadDto"
+  /vertiport_operating_schedule:
+    get:
+      tags:
+      - Vertiport Operating Schedule API
+      operationId: getOperatingScheduleById_1
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OperatingScheduleDto"
+    post:
+      tags:
+      - Vertiport Operating Schedule API
+      operationId: saveOperatingSchedule
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OperatingScheduleRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/OperatingScheduleDto"
+  /vertiport_noise_limits:
+    get:
+      tags:
+      - Vertiport Noise Limits API
+      operationId: getAllNoiseLimits
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NoiseLimitsDto"
+    post:
+      tags:
+      - Vertiport Noise Limits API
+      operationId: saveNoiseLimits
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NoiseLimitsRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/NoiseLimitsDto"
+  /vertiport_contact:
+    get:
+      tags:
+      - Vertiport Contact API
+      operationId: getAllContacts
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ContactDto"
+    post:
+      tags:
+      - Vertiport Contact API
+      operationId: saveContact
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ContactDto"
+  /vertiport_audit_log:
+    get:
+      tags:
+      - Vertiport Audit Log API
+      operationId: getAllAuditLogs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLogDto"
+    post:
+      tags:
+      - Vertiport Audit Log API
+      operationId: saveAuditLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuditLogRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuditLogDto"
+  /vertiport_airside_zone:
+    get:
+      tags:
+      - Vertiport Airside Zone API
+      operationId: getAllAirsideZones
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AirsideZoneDto"
+    post:
+      tags:
+      - Vertiport Airside Zone API
+      operationId: saveAirsideZone
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AirsideZoneRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AirsideZoneDto"
+  /vertiport_address:
+    get:
+      tags:
+      - Vertiport Address API
+      operationId: getAllAddresses
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AddressDto"
+    post:
+      tags:
+      - Vertiport Address API
+      operationId: saveAddress
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AddressDto"
+  /vertiport:
+    get:
+      tags:
+      - Vertiport API
+      operationId: getAllVertiports
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VertiportDto"
+    post:
+      tags:
+      - Vertiport API
+      operationId: saveVertiport
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertiportRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertiportDto"
+  /vertihub:
+    get:
+      tags:
+      - Vertihub API
+      operationId: getAllVertihubs
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VertihubDto"
+    post:
+      tags:
+      - Vertihub API
+      operationId: saveVertihub
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VertihubRequestDto"
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/VertihubDto"
+components:
+  schemas:
+    VtmRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        vtmSystemRegistryId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        vtmIntegration:
+          type: boolean
+        integrationStatus:
+          type: string
+          enum:
+          - ENABLED
+          - DISABLED
+          - ONBOARDING
+          - SUSPENDED
+          - DECOMMISSIONED
+        integrationEffectiveFrom:
+          type: string
+          format: date-time
+        integrationEffectiveTo:
+          type: string
+          format: date-time
+        disableReason:
+          type: string
+          maxLength: 300
+          minLength: 0
+        lastStateChangeUtc:
+          type: string
+          format: date-time
+        integrationPriority:
+          type: integer
+          format: int32
+        isFallback:
+          type: boolean
+        trafficScope:
+          type: string
+          enum:
+          - ALL
+          - ARRIVAL_ONLY
+          - DEPARTURE_ONLY
+          - EMERGENCY_ONLY
+        overrideRateLimitRpm:
+          type: integer
+          format: int32
+        overrideTimeoutMs:
+          type: integer
+          format: int32
+        overridePollingIntervalSec:
+          type: integer
+          format: int32
+        circuitBreakerEnabled:
+          type: boolean
+        circuitOpenAfterFailures:
+          type: integer
+          format: int32
+        circuitResetAfterSec:
+          type: integer
+          format: int32
+        authScopeOverride:
+          type: string
+          maxLength: 200
+          minLength: 0
+        clientCredentialRef:
+          type: string
+          maxLength: 200
+          minLength: 0
+        mtlsCertRef:
+          type: string
+          maxLength: 200
+          minLength: 0
+        supportsPadStatus:
+          type: boolean
+        supportsSlotReservation:
+          type: boolean
+        supportsSlotRelease:
+          type: boolean
+        supportsAirspaceVolume:
+          type: boolean
+        supportsSequencing:
+          type: boolean
+        supportsEventFeed:
+          type: boolean
+        lastSuccessfulCallUtc:
+          type: string
+          format: date-time
+        lastFailureUtc:
+          type: string
+          format: date-time
+        consecutiveFailures:
+          type: integer
+          format: int32
+        observedLatencyP95Ms:
+          type: integer
+          format: int32
+        observedErrorRatePct:
+          type: number
+        slaBreached:
+          type: boolean
+        regulatoryAuthority:
+          type: string
+          enum:
+          - DGCA
+          - FAA
+          - EASA
+          - CAA
+          - LOCAL_ATC
+        approvalReference:
+          type: string
+        complianceStatus:
+          type: string
+          enum:
+          - APPROVED
+          - CONDITIONAL
+          - REVOKED
+          - PENDING
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+      required:
+      - circuitBreakerEnabled
+      - complianceStatus
+      - consecutiveFailures
+      - integrationPriority
+      - integrationStatus
+      - isFallback
+      - partnerId
+      - slaBreached
+      - supportsAirspaceVolume
+      - supportsEventFeed
+      - supportsPadStatus
+      - supportsSequencing
+      - supportsSlotRelease
+      - supportsSlotReservation
+      - trafficScope
+      - vertiportId
+      - vtmIntegration
+      - vtmSystemRegistryId
+    VtmDto:
+      type: object
+      properties:
+        techSystemId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        vtmSystemRegistryId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        vtmIntegration:
+          type: boolean
+        integrationStatus:
+          type: string
+          enum:
+          - ENABLED
+          - DISABLED
+          - ONBOARDING
+          - SUSPENDED
+          - DECOMMISSIONED
+        integrationEffectiveFrom:
+          type: string
+          format: date-time
+        integrationEffectiveTo:
+          type: string
+          format: date-time
+        disableReason:
+          type: string
+        lastStateChangeUtc:
+          type: string
+          format: date-time
+        integrationPriority:
+          type: integer
+          format: int32
+        isFallback:
+          type: boolean
+        trafficScope:
+          type: string
+          enum:
+          - ALL
+          - ARRIVAL_ONLY
+          - DEPARTURE_ONLY
+          - EMERGENCY_ONLY
+        overrideRateLimitRpm:
+          type: integer
+          format: int32
+        overrideTimeoutMs:
+          type: integer
+          format: int32
+        overridePollingIntervalSec:
+          type: integer
+          format: int32
+        circuitBreakerEnabled:
+          type: boolean
+        circuitOpenAfterFailures:
+          type: integer
+          format: int32
+        circuitResetAfterSec:
+          type: integer
+          format: int32
+        authScopeOverride:
+          type: string
+        clientCredentialRef:
+          type: string
+        mtlsCertRef:
+          type: string
+        supportsPadStatus:
+          type: boolean
+        supportsSlotReservation:
+          type: boolean
+        supportsSlotRelease:
+          type: boolean
+        supportsAirspaceVolume:
+          type: boolean
+        supportsSequencing:
+          type: boolean
+        supportsEventFeed:
+          type: boolean
+        lastSuccessfulCallUtc:
+          type: string
+          format: date-time
+        lastFailureUtc:
+          type: string
+          format: date-time
+        consecutiveFailures:
+          type: integer
+          format: int32
+        observedLatencyP95Ms:
+          type: integer
+          format: int32
+        observedErrorRatePct:
+          type: number
+        slaBreached:
+          type: boolean
+        regulatoryAuthority:
+          type: string
+          enum:
+          - DGCA
+          - FAA
+          - EASA
+          - CAA
+          - LOCAL_ATC
+        approvalReference:
+          type: string
+        complianceStatus:
+          type: string
+          enum:
+          - APPROVED
+          - CONDITIONAL
+          - REVOKED
+          - PENDING
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        updatedBy:
+          type: string
+    VertihubEnergyRequestDto:
+      type: object
+      properties:
+        vertihubId:
+          type: string
+          format: uuid
+        tariffWindowStart:
+          type: string
+          format: date-time
+        tariffWindowEnd:
+          type: string
+          format: date-time
+        tariffPeriodType:
+          type: string
+          maxLength: 20
+          minLength: 0
+        dayOfWeek:
+          type: string
+          maxLength: 20
+          minLength: 0
+        gridCapacityKw:
+          type: number
+        simultaneousChargeLimit:
+          type: integer
+          format: int32
+        reservedCapacityKw:
+          type: number
+        availableCapacityKw:
+          type: number
+        tariffRatePerKwh:
+          type: number
+        currencyCode:
+          type: string
+          maxLength: 3
+          minLength: 0
+        demandChargePerKw:
+          type: number
+        gridOperator:
+          type: string
+          maxLength: 80
+          minLength: 0
+        meterId:
+          type: string
+          maxLength: 60
+          minLength: 0
+        recordStatus:
+          type: string
+          maxLength: 20
+          minLength: 0
+      required:
+      - currencyCode
+      - demandChargePerKw
+      - gridCapacityKw
+      - recordStatus
+      - reservedCapacityKw
+      - simultaneousChargeLimit
+      - tariffPeriodType
+      - tariffRatePerKwh
+      - tariffWindowEnd
+      - tariffWindowStart
+      - vertihubId
+    VertihubEnergyDto:
+      type: object
+      properties:
+        hubEnergyId:
+          type: string
+          format: uuid
+        vertihubId:
+          type: string
+          format: uuid
+        tariffWindowStart:
+          type: string
+          format: date-time
+        tariffWindowEnd:
+          type: string
+          format: date-time
+        tariffPeriodType:
+          type: string
+        dayOfWeek:
+          type: string
+        gridCapacityKw:
+          type: number
+        simultaneousChargeLimit:
+          type: integer
+          format: int32
+        reservedCapacityKw:
+          type: number
+        availableCapacityKw:
+          type: number
+        tariffRatePerKwh:
+          type: number
+        currencyCode:
+          type: string
+        demandChargePerKw:
+          type: number
+        gridOperator:
+          type: string
+        meterId:
+          type: string
+        recordStatus:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    TerminalRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        terminalCode:
+          type: string
+          maxLength: 20
+          minLength: 0
+        terminalName:
+          type: string
+          maxLength: 150
+          minLength: 0
+        terminalType:
+          type: string
+          enum:
+          - DOMESTIC
+          - INTERNATIONAL
+          - MEDEVAC
+          - VIP
+          - CARGO
+          - MIXED
+        buildingGeometry:
+          type: object
+          additionalProperties: {}
+        floorCount:
+          type: integer
+          format: int32
+        totalAreaSqm:
+          type: number
+        paxCapacityPeak:
+          type: integer
+          format: int32
+        paxThroughputPerHour:
+          type: integer
+          format: int32
+        gateCount:
+          type: integer
+          format: int32
+        checkInDeskCount:
+          type: integer
+          format: int32
+        securityLaneCount:
+          type: integer
+          format: int32
+        accessibilityCompliant:
+          type: boolean
+        hasBaggageHandling:
+          type: boolean
+        hasCargoFacility:
+          type: boolean
+        hasLounge:
+          type: boolean
+        hasCustoms:
+          type: boolean
+        operatingScheduleId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - OPEN
+          - CLOSED
+          - MAINTENANCE
+          - LIMITED_OPS
+      required:
+      - accessibilityCompliant
+      - floorCount
+      - gateCount
+      - hasBaggageHandling
+      - hasCargoFacility
+      - hasLounge
+      - partnerId
+      - paxCapacityPeak
+      - paxThroughputPerHour
+      - status
+      - terminalCode
+      - terminalName
+      - terminalType
+      - vertiportId
+    TerminalDto:
+      type: object
+      properties:
+        terminalId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        terminalCode:
+          type: string
+        terminalName:
+          type: string
+        terminalType:
+          type: string
+          enum:
+          - DOMESTIC
+          - INTERNATIONAL
+          - MEDEVAC
+          - VIP
+          - CARGO
+          - MIXED
+        buildingGeometry:
+          type: object
+          additionalProperties: {}
+        floorCount:
+          type: integer
+          format: int32
+        totalAreaSqm:
+          type: number
+        paxCapacityPeak:
+          type: integer
+          format: int32
+        paxThroughputPerHour:
+          type: integer
+          format: int32
+        gateCount:
+          type: integer
+          format: int32
+        checkInDeskCount:
+          type: integer
+          format: int32
+        securityLaneCount:
+          type: integer
+          format: int32
+        accessibilityCompliant:
+          type: boolean
+        hasBaggageHandling:
+          type: boolean
+        hasCargoFacility:
+          type: boolean
+        hasLounge:
+          type: boolean
+        hasCustoms:
+          type: boolean
+        operatingScheduleId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - OPEN
+          - CLOSED
+          - MAINTENANCE
+          - LIMITED_OPS
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PadCapabilityRequestDto:
+      type: object
+      properties:
+        padId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        aircraftTypeId:
+          type: string
+          format: uuid
+        aircraftTypeCode:
+          type: string
+          maxLength: 30
+          minLength: 0
+        isCompatible:
+          type: boolean
+        maxMtowKg:
+          type: number
+        approachDirectionApproved:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          minItems: 0
+        opsCategory:
+          type: string
+          enum:
+          - IFR
+          - VFR
+          - BOTH
+        nightOpsCapable:
+          type: boolean
+        autonomousOpsCapable:
+          type: boolean
+        canCharge:
+          type: boolean
+        chargingStandard:
+          type: string
+          maxLength: 50
+          minLength: 0
+        maxChargeRateKw:
+          type: number
+        minTurnaroundMin:
+          type: integer
+          format: int32
+        maxOccupancyMin:
+          type: integer
+          format: int32
+        winchingCapable:
+          type: boolean
+        weightRestrictionNote:
+          type: string
+          maxLength: 500
+          minLength: 0
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveUntil:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - UNDER_REVIEW
+      required:
+      - aircraftTypeCode
+      - aircraftTypeId
+      - approachDirectionApproved
+      - autonomousOpsCapable
+      - canCharge
+      - effectiveFrom
+      - isCompatible
+      - maxMtowKg
+      - minTurnaroundMin
+      - nightOpsCapable
+      - opsCategory
+      - padId
+      - partnerId
+      - status
+      - vertiportId
+      - winchingCapable
+    PadCapabilityDto:
+      type: object
+      properties:
+        capabilityId:
+          type: string
+          format: uuid
+        padId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        aircraftTypeId:
+          type: string
+          format: uuid
+        aircraftTypeCode:
+          type: string
+        isCompatible:
+          type: boolean
+        maxMtowKg:
+          type: number
+        approachDirectionApproved:
+          type: array
+          items:
+            type: string
+        opsCategory:
+          type: string
+          enum:
+          - IFR
+          - VFR
+          - BOTH
+        nightOpsCapable:
+          type: boolean
+        autonomousOpsCapable:
+          type: boolean
+        canCharge:
+          type: boolean
+        chargingStandard:
+          type: string
+        maxChargeRateKw:
+          type: number
+        minTurnaroundMin:
+          type: integer
+          format: int32
+        maxOccupancyMin:
+          type: integer
+          format: int32
+        winchingCapable:
+          type: boolean
+        weightRestrictionNote:
+          type: string
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveUntil:
+          type: string
+          format: date
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - SUSPENDED
+          - UNDER_REVIEW
+        createdAt:
+          type: string
+          format: date-time
+    PadRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        airsideZoneId:
+          type: string
+          format: uuid
+        vtmPadRef:
+          type: string
+          maxLength: 50
+          minLength: 0
+        padCode:
+          type: string
+          maxLength: 20
+          minLength: 0
+        padName:
+          type: string
+          maxLength: 80
+          minLength: 0
+        padType:
+          type: string
+          enum:
+          - FATO
+          - PARKING
+          - CHARGING
+          - MAINTENANCE
+          - EMERGENCY
+          - COMBINED_FATO_PARKING
+          - COMBINED_CHARGING_PARKING
+          - HELIPAD_LEGACY
+        padFunction:
+          type: string
+          enum:
+          - ARRIVAL_ONLY
+          - DEPARTURE_ONLY
+          - BIDIRECTIONAL
+          - PARKING_ONLY
+          - CHARGING_ONLY
+          - MAINTENANCE_ONLY
+          - MULTI_FUNCTION
+        padGeometry:
+          type: object
+          additionalProperties: {}
+        centroidLat:
+          type: number
+        centroidLon:
+          type: number
+        elevationFtAmsl:
+          type: number
+        dimensionsMLength:
+          type: number
+        dimensionsMWidth:
+          type: number
+        loadRatingMtowKg:
+          type: number
+        surfaceType:
+          type: string
+          enum:
+          - CONCRETE
+          - ASPHALT
+          - COMPOSITE
+          - STEEL_DECK
+          - ROOFTOP
+          - COMPOSITE_DECK
+        pcnRating:
+          type: string
+          maxLength: 20
+          minLength: 0
+        hasTouchdownMarker:
+          type: boolean
+        hasLighting:
+          type: boolean
+        lightingType:
+          type: string
+          enum:
+          - LED_EDGE
+          - TOUCHDOWN
+          - AMBER_TAXI
+          - FLOODLIGHT
+          maxLength: 100
+          minLength: 0
+        hasVisualDocking:
+          type: boolean
+        vdgsType:
+          type: string
+          maxLength: 50
+          minLength: 0
+        hasAutoConnect:
+          type: boolean
+        fatoId:
+          type: string
+          format: uuid
+        adjacentFatoId:
+          type: string
+          format: uuid
+        taxiwayEntryPoint:
+          type: string
+          maxLength: 20
+          minLength: 0
+        minSeparationToAdjacentM:
+          type: number
+        windShearExposure:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+        maxWindOpsKts:
+          type: number
+        noiseSensitiveDirectionDeg:
+          type: integer
+          format: int32
+        vtmLiveStatus:
+          type: string
+          enum:
+          - AVAILABLE
+          - OCCUPIED
+          - RESERVED
+          - MAINTENANCE
+          - CLOSED
+          - WEATHER_HOLD
+        vtmStatusUpdatedAt:
+          type: string
+          format: date-time
+        isEmergencyPad:
+          type: boolean
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - MAINTENANCE
+          - DECOMMISSIONED
+      required:
+      - airsideZoneId
+      - centroidLat
+      - centroidLon
+      - dimensionsMLength
+      - dimensionsMWidth
+      - elevationFtAmsl
+      - hasAutoConnect
+      - hasLighting
+      - hasTouchdownMarker
+      - hasVisualDocking
+      - isEmergencyPad
+      - loadRatingMtowKg
+      - padCode
+      - padFunction
+      - padGeometry
+      - padName
+      - padType
+      - partnerId
+      - status
+      - surfaceType
+      - vertiportId
+      - vtmLiveStatus
+      - vtmPadRef
+      - windShearExposure
+    PadDto:
+      type: object
+      properties:
+        padId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        airsideZoneId:
+          type: string
+          format: uuid
+        vtmPadRef:
+          type: string
+        padCode:
+          type: string
+        padName:
+          type: string
+        padType:
+          type: string
+          enum:
+          - FATO
+          - PARKING
+          - CHARGING
+          - MAINTENANCE
+          - EMERGENCY
+          - COMBINED_FATO_PARKING
+          - COMBINED_CHARGING_PARKING
+          - HELIPAD_LEGACY
+        padFunction:
+          type: string
+          enum:
+          - ARRIVAL_ONLY
+          - DEPARTURE_ONLY
+          - BIDIRECTIONAL
+          - PARKING_ONLY
+          - CHARGING_ONLY
+          - MAINTENANCE_ONLY
+          - MULTI_FUNCTION
+        padGeometry:
+          type: object
+          additionalProperties: {}
+        centroidLat:
+          type: number
+        centroidLon:
+          type: number
+        elevationFtAmsl:
+          type: number
+        dimensionsMLength:
+          type: number
+        dimensionsMWidth:
+          type: number
+        loadRatingMtowKg:
+          type: number
+        surfaceType:
+          type: string
+          enum:
+          - CONCRETE
+          - ASPHALT
+          - COMPOSITE
+          - STEEL_DECK
+          - ROOFTOP
+          - COMPOSITE_DECK
+        pcnRating:
+          type: string
+        hasTouchdownMarker:
+          type: boolean
+        hasLighting:
+          type: boolean
+        lightingType:
+          type: string
+          enum:
+          - LED_EDGE
+          - TOUCHDOWN
+          - AMBER_TAXI
+          - FLOODLIGHT
+        hasVisualDocking:
+          type: boolean
+        vdgsType:
+          type: string
+        hasAutoConnect:
+          type: boolean
+        fatoId:
+          type: string
+          format: uuid
+        adjacentFatoId:
+          type: string
+          format: uuid
+        taxiwayEntryPoint:
+          type: string
+        minSeparationToAdjacentM:
+          type: number
+        windShearExposure:
+          type: string
+          enum:
+          - LOW
+          - MEDIUM
+          - HIGH
+        maxWindOpsKts:
+          type: number
+        noiseSensitiveDirectionDeg:
+          type: integer
+          format: int32
+        vtmLiveStatus:
+          type: string
+          enum:
+          - AVAILABLE
+          - OCCUPIED
+          - RESERVED
+          - MAINTENANCE
+          - CLOSED
+          - WEATHER_HOLD
+        vtmStatusUpdatedAt:
+          type: string
+          format: date-time
+        isEmergencyPad:
+          type: boolean
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - INACTIVE
+          - MAINTENANCE
+          - DECOMMISSIONED
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    OperatingScheduleRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        scheduleName:
+          type: string
+          maxLength: 100
+          minLength: 0
+        scheduleType:
+          type: string
+          enum:
+          - STANDARD
+          - SEASONAL
+          - HOLIDAY
+          - EVENT
+          - REDUCED
+          - EXTENDED
+          - EMERGENCY
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveUntil:
+          type: string
+          format: date
+        daysOfWeek:
+          type: array
+          items:
+            type: boolean
+        openTimeLocal:
+          type: string
+        closeTimeLocal:
+          type: string
+        is24hr:
+          type: boolean
+        opsCategory:
+          type: string
+          enum:
+          - FULL
+          - LIMITED
+          - REDUCED
+          - EMERGENCY_ONLY
+          - CLOSED
+        maxMovementsPerHour:
+          type: integer
+          format: int32
+        maxPaxPerHour:
+          type: integer
+          format: int32
+        nightOpsPermitted:
+          type: boolean
+        appliesTo:
+          type: string
+          enum:
+          - FULL_VERTIPORT
+          - FATO_ONLY
+          - SPECIFIC_TERMINAL
+        notes:
+          type: string
+      required:
+      - appliesTo
+      - closeTimeLocal
+      - daysOfWeek
+      - effectiveFrom
+      - is24hr
+      - maxMovementsPerHour
+      - nightOpsPermitted
+      - openTimeLocal
+      - opsCategory
+      - scheduleName
+      - scheduleType
+      - vertiportId
+    OperatingScheduleDto:
+      type: object
+      properties:
+        scheduleId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        scheduleName:
+          type: string
+        scheduleType:
+          type: string
+          enum:
+          - STANDARD
+          - SEASONAL
+          - HOLIDAY
+          - EVENT
+          - REDUCED
+          - EXTENDED
+          - EMERGENCY
+        effectiveFrom:
+          type: string
+          format: date
+        effectiveUntil:
+          type: string
+          format: date
+        daysOfWeek:
+          type: array
+          items:
+            type: boolean
+        openTimeLocal:
+          type: string
+        closeTimeLocal:
+          type: string
+        is24hr:
+          type: boolean
+        opsCategory:
+          type: string
+          enum:
+          - FULL
+          - LIMITED
+          - REDUCED
+          - EMERGENCY_ONLY
+          - CLOSED
+        maxMovementsPerHour:
+          type: integer
+          format: int32
+        maxPaxPerHour:
+          type: integer
+          format: int32
+        nightOpsPermitted:
+          type: boolean
+        appliesTo:
+          type: string
+          enum:
+          - FULL_VERTIPORT
+          - FATO_ONLY
+          - SPECIFIC_TERMINAL
+        notes:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+    NoiseLimitsRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        daytimeDbLimit:
+          type: number
+        daytimeDbRange:
+          type: number
+        nighttimeDbLimit:
+          type: number
+        nighttimeDbRange:
+          type: number
+        isNoiseMonitoring:
+          type: boolean
+        daytimeStart:
+          type: string
+        nighttimeStart:
+          type: string
+      required:
+      - daytimeDbLimit
+      - daytimeDbRange
+      - daytimeStart
+      - isNoiseMonitoring
+      - partnerId
+      - vertiportId
+    NoiseLimitsDto:
+      type: object
+      properties:
+        noiseLimitsId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        daytimeDbLimit:
+          type: number
+        daytimeDbRange:
+          type: number
+        nighttimeDbLimit:
+          type: number
+        nighttimeDbRange:
+          type: number
+        isNoiseMonitoring:
+          type: boolean
+        daytimeStart:
+          type: string
+        nighttimeStart:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ContactRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        contactGroupType:
+          type: string
+          enum:
+          - head_quarters
+          - operations_Command_center
+          - regional_command_center
+          - emergency
+        contactGroupRole:
+          type: string
+          enum:
+          - ACCOUNTABLE_MANAGER
+          - SAFETY_MANAGER
+          - OPS_DIRECTOR
+          - DISPATCH_LEAD
+          - TECH_LEAD
+          - FINANCE
+          - REGULATORY
+          - NOC
+          - EMERGENCY
+          - API_ADMIN
+        contactTypeCode:
+          type: string
+          enum:
+          - Mobile
+          - Fixed_Line
+          - Fax
+        contactTypeName:
+          type: string
+          maxLength: 50
+          minLength: 0
+        dialCountryCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        dialCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        dialNumber:
+          type: string
+          maxLength: 30
+          minLength: 0
+        dialExtension:
+          type: string
+          maxLength: 10
+          minLength: 0
+        dialFormattedNumber:
+          type: string
+          maxLength: 50
+          minLength: 0
+        contactEmailAddress:
+          type: string
+          maxLength: 100
+          minLength: 0
+        contactSurname:
+          type: string
+          maxLength: 200
+          minLength: 0
+        contactFirstName:
+          type: string
+          maxLength: 200
+          minLength: 0
+        contactNameTitle:
+          type: string
+          maxLength: 200
+          minLength: 0
+        notes:
+          type: string
+      required:
+      - contactEmailAddress
+      - contactTypeCode
+      - dialCode
+      - dialCountryCode
+      - dialNumber
+      - partnerId
+      - vertiportId
+    ContactDto:
+      type: object
+      properties:
+        contactId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        contactGroupType:
+          type: string
+          enum:
+          - head_quarters
+          - operations_Command_center
+          - regional_command_center
+          - emergency
+        contactGroupRole:
+          type: string
+          enum:
+          - ACCOUNTABLE_MANAGER
+          - SAFETY_MANAGER
+          - OPS_DIRECTOR
+          - DISPATCH_LEAD
+          - TECH_LEAD
+          - FINANCE
+          - REGULATORY
+          - NOC
+          - EMERGENCY
+          - API_ADMIN
+        contactTypeCode:
+          type: string
+          enum:
+          - Mobile
+          - Fixed_Line
+          - Fax
+        contactTypeName:
+          type: string
+        dialCountryCode:
+          type: string
+        dialCode:
+          type: string
+        dialNumber:
+          type: string
+        dialExtension:
+          type: string
+        dialFormattedNumber:
+          type: string
+        contactEmailAddress:
+          type: string
+        contactSurname:
+          type: string
+        contactFirstName:
+          type: string
+        contactNameTitle:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    AuditLogRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        tableName:
+          type: string
+          maxLength: 100
+          minLength: 0
+        actionTypeCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        actionPerformed:
+          type: string
+          maxLength: 50
+          minLength: 0
+        changedBy:
+          type: string
+          maxLength: 100
+          minLength: 0
+        changedAt:
+          type: string
+          format: date-time
+        oldValues:
+          type: object
+          additionalProperties: {}
+        newValues:
+          type: object
+          additionalProperties: {}
+        ipAddress:
+          type: string
+          maxLength: 50
+          minLength: 0
+        userName:
+          type: string
+          maxLength: 200
+          minLength: 0
+        createdBy:
+          type: string
+          maxLength: 200
+          minLength: 0
+      required:
+      - createdBy
+      - partnerId
+      - vertiportId
+    AuditLogDto:
+      type: object
+      properties:
+        auditId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        tableName:
+          type: string
+        actionTypeCode:
+          type: string
+        actionPerformed:
+          type: string
+        changedBy:
+          type: string
+        changedAt:
+          type: string
+          format: date-time
+        oldValues:
+          type: object
+          additionalProperties: {}
+        newValues:
+          type: object
+          additionalProperties: {}
+        ipAddress:
+          type: string
+        userName:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+    AirsideZoneRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        zoneCode:
+          type: string
+          maxLength: 30
+          minLength: 0
+        zoneName:
+          type: string
+          maxLength: 150
+          minLength: 0
+        zoneType:
+          type: string
+          enum:
+          - FATO_AREA
+          - APRON
+          - TAXIWAY_SYSTEM
+          - PARKING_AREA
+          - CHARGING_AREA
+          - MAINTENANCE_AREA
+          - OBSTACLE_FREE_ZONE
+          - BUFFER_ZONE
+          - EMERGENCY_ACCESS
+          - FUEL_AREA
+        zoneGeometry:
+          type: object
+          additionalProperties: {}
+        zoneGeometry3d:
+          type: object
+          additionalProperties: {}
+        elevationFtAmsl:
+          type: number
+        maxHeightAglFt:
+          type: integer
+          format: int32
+        loadRatingKpa:
+          type: number
+        pcnRating:
+          type: string
+          maxLength: 20
+          minLength: 0
+        surfaceType:
+          type: string
+          enum:
+          - CONCRETE
+          - ASPHALT
+          - COMPOSITE
+          - STEEL_DECK
+          - ROOFTOP
+          - GRASS
+          - GRAVEL
+        drainageClass:
+          type: string
+          enum:
+          - RAPID
+          - STANDARD
+          - POOR
+        lightingAvailable:
+          type: boolean
+        lightingType:
+          type: string
+        restrictedAccess:
+          type: boolean
+        vtmZoneRef:
+          type: string
+          maxLength: 50
+          minLength: 0
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CLOSED
+          - RESTRICTED
+          - UNDER_MAINTENANCE
+          maxLength: 100
+          minLength: 0
+      required:
+      - elevationFtAmsl
+      - lightingAvailable
+      - partnerId
+      - restrictedAccess
+      - status
+      - vertiportId
+      - zoneCode
+      - zoneGeometry
+      - zoneName
+      - zoneType
+    AirsideZoneDto:
+      type: object
+      properties:
+        airsideZoneId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        zoneCode:
+          type: string
+        zoneName:
+          type: string
+        zoneType:
+          type: string
+          enum:
+          - FATO_AREA
+          - APRON
+          - TAXIWAY_SYSTEM
+          - PARKING_AREA
+          - CHARGING_AREA
+          - MAINTENANCE_AREA
+          - OBSTACLE_FREE_ZONE
+          - BUFFER_ZONE
+          - EMERGENCY_ACCESS
+          - FUEL_AREA
+        zoneGeometry:
+          type: object
+          additionalProperties: {}
+        zoneGeometry3d:
+          type: object
+          additionalProperties: {}
+        elevationFtAmsl:
+          type: number
+        maxHeightAglFt:
+          type: integer
+          format: int32
+        loadRatingKpa:
+          type: number
+        pcnRating:
+          type: string
+        surfaceType:
+          type: string
+          enum:
+          - CONCRETE
+          - ASPHALT
+          - COMPOSITE
+          - STEEL_DECK
+          - ROOFTOP
+          - GRASS
+          - GRAVEL
+        drainageClass:
+          type: string
+          enum:
+          - RAPID
+          - STANDARD
+          - POOR
+        lightingAvailable:
+          type: boolean
+        lightingType:
+          type: string
+        restrictedAccess:
+          type: boolean
+        vtmZoneRef:
+          type: string
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CLOSED
+          - RESTRICTED
+          - UNDER_MAINTENANCE
+        createdAt:
+          type: string
+          format: date-time
+    AddressRequestDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        adrgroupcode:
+          type: string
+          enum:
+          - Primary
+          - operations_Command_center
+          - regional_command_center
+          - Emergency
+        adrTypeCode:
+          type: string
+          enum:
+          - HEAD_QUARTERS
+          - COMMAND_CENTER
+        contactTypeName:
+          type: string
+          maxLength: 50
+          minLength: 0
+        adrFirstLine:
+          type: string
+          maxLength: 200
+          minLength: 0
+        adrSecondLine:
+          type: string
+          maxLength: 200
+          minLength: 0
+        adrStreetName:
+          type: string
+          maxLength: 200
+          minLength: 0
+        adrCityCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        adrCityName:
+          type: string
+          maxLength: 200
+          minLength: 0
+        adrState:
+          type: string
+          maxLength: 200
+          minLength: 0
+        adrPostalCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        adrCountry:
+          type: string
+          maxLength: 100
+          minLength: 0
+        adrCountryCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        notes:
+          type: string
+      required:
+      - adrgroupcode
+      - partnerId
+      - vertiportId
+    AddressDto:
+      type: object
+      properties:
+        addressId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        partnerId:
+          type: string
+          format: uuid
+        adrgroupcode:
+          type: string
+          enum:
+          - Primary
+          - operations_Command_center
+          - regional_command_center
+          - Emergency
+        adrTypeCode:
+          type: string
+          enum:
+          - HEAD_QUARTERS
+          - COMMAND_CENTER
+        contactTypeName:
+          type: string
+        adrFirstLine:
+          type: string
+        adrSecondLine:
+          type: string
+        adrStreetName:
+          type: string
+        adrCityCode:
+          type: string
+        adrCityName:
+          type: string
+        adrState:
+          type: string
+        adrPostalCode:
+          type: string
+        adrCountry:
+          type: string
+        adrCountryCode:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        notes:
+          type: string
+    VertiportRequestDto:
+      type: object
+      properties:
+        vertiportCode:
+          type: string
+          maxLength: 10
+          minLength: 0
+        vertiportName:
+          type: string
+          maxLength: 200
+          minLength: 0
+        vertiportClass:
+          type: string
+          enum:
+          - VERTIHUB
+          - VERTIPORT
+          - VERTIPOINT
+          - FATO_ONLY
+          - MAINTENANCE_BASE
+          - EMERGENCY_LANDING
+        partnerId:
+          type: string
+          format: uuid
+        operatorId:
+          type: string
+          format: uuid
+        ownerId:
+          type: string
+          format: uuid
+        regulatorId:
+          type: string
+          format: uuid
+        operatingZoneId:
+          type: string
+          format: uuid
+        operatingRegionId:
+          type: string
+          format: uuid
+        operatingClusterId:
+          type: string
+          format: uuid
+        vtmSystemId:
+          type: string
+          format: uuid
+        latitudeDeg:
+          type: number
+        longitudeDeg:
+          type: number
+        elevationFtAmsl:
+          type: integer
+          format: int32
+        arpGeometry:
+          type: object
+          additionalProperties: {}
+        boundaryGeometry:
+          type: object
+          additionalProperties: {}
+        magneticVariationDeg:
+          type: number
+        utcOffsetHours:
+          type: number
+        timezoneName:
+          type: string
+          maxLength: 50
+          minLength: 0
+        totalFatoCount:
+          type: integer
+          format: int32
+        totalPadCount:
+          type: integer
+          format: int32
+        totalGateCount:
+          type: integer
+          format: int32
+        maxSimultaneousMovements:
+          type: integer
+          format: int32
+        maxAircraftMtowKg:
+          type: number
+        noiseAbatementProcedure:
+          type: string
+        iataCode:
+          type: string
+          maxLength: 3
+          minLength: 0
+        icaoDesignator:
+          type: string
+          maxLength: 4
+          minLength: 0
+        swimEndpoint:
+          type: string
+          maxLength: 500
+          minLength: 0
+        atmUnit:
+          type: string
+          maxLength: 100
+          minLength: 0
+        certificationStatus:
+          type: string
+          enum:
+          - CERTIFIED
+          - CONDITIONAL
+          - TRIAL_OPS
+          - UNDER_CONSTRUCTION
+          - CLOSED
+          - SUSPENDED
+        certificationAuthority:
+          type: string
+          maxLength: 100
+          minLength: 0
+        certificationExpiry:
+          type: string
+          format: date
+        isVtmConnected:
+          type: boolean
+        vtmConnectivityStatus:
+          type: string
+          enum:
+          - CONNECTED
+          - DEGRADED
+          - OFFLINE
+          - POLLING_ONLY
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CLOSED
+          - MAINTENANCE
+          - SUSPENDED
+          - EMERGENCY_ONLY
+      required:
+      - arpGeometry
+      - certificationStatus
+      - elevationFtAmsl
+      - isVtmConnected
+      - latitudeDeg
+      - longitudeDeg
+      - maxAircraftMtowKg
+      - maxSimultaneousMovements
+      - operatingClusterId
+      - operatingRegionId
+      - operatingZoneId
+      - operatorId
+      - partnerId
+      - status
+      - timezoneName
+      - totalFatoCount
+      - totalPadCount
+      - utcOffsetHours
+      - vertiportClass
+      - vertiportCode
+      - vertiportName
+      - vtmConnectivityStatus
+    VertiportDto:
+      type: object
+      properties:
+        vertiportId:
+          type: string
+          format: uuid
+        vertiportCode:
+          type: string
+        vertiportName:
+          type: string
+        vertiportClass:
+          type: string
+          enum:
+          - VERTIHUB
+          - VERTIPORT
+          - VERTIPOINT
+          - FATO_ONLY
+          - MAINTENANCE_BASE
+          - EMERGENCY_LANDING
+        partnerId:
+          type: string
+          format: uuid
+        operatorId:
+          type: string
+          format: uuid
+        ownerId:
+          type: string
+          format: uuid
+        regulatorId:
+          type: string
+          format: uuid
+        operatingZoneId:
+          type: string
+          format: uuid
+        operatingRegionId:
+          type: string
+          format: uuid
+        operatingClusterId:
+          type: string
+          format: uuid
+        vtmSystemId:
+          type: string
+          format: uuid
+        latitudeDeg:
+          type: number
+        longitudeDeg:
+          type: number
+        elevationFtAmsl:
+          type: integer
+          format: int32
+        arpGeometry:
+          type: object
+          additionalProperties: {}
+        boundaryGeometry:
+          type: object
+          additionalProperties: {}
+        magneticVariationDeg:
+          type: number
+        utcOffsetHours:
+          type: number
+        timezoneName:
+          type: string
+        totalFatoCount:
+          type: integer
+          format: int32
+        totalPadCount:
+          type: integer
+          format: int32
+        totalGateCount:
+          type: integer
+          format: int32
+        maxSimultaneousMovements:
+          type: integer
+          format: int32
+        maxAircraftMtowKg:
+          type: number
+        noiseAbatementProcedure:
+          type: string
+        iataCode:
+          type: string
+        icaoDesignator:
+          type: string
+        swimEndpoint:
+          type: string
+        atmUnit:
+          type: string
+        certificationStatus:
+          type: string
+          enum:
+          - CERTIFIED
+          - CONDITIONAL
+          - TRIAL_OPS
+          - UNDER_CONSTRUCTION
+          - CLOSED
+          - SUSPENDED
+        certificationAuthority:
+          type: string
+        certificationExpiry:
+          type: string
+          format: date
+        isVtmConnected:
+          type: boolean
+        vtmConnectivityStatus:
+          type: string
+          enum:
+          - CONNECTED
+          - DEGRADED
+          - OFFLINE
+          - POLLING_ONLY
+        status:
+          type: string
+          enum:
+          - ACTIVE
+          - CLOSED
+          - MAINTENANCE
+          - SUSPENDED
+          - EMERGENCY_ONLY
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    VertihubRequestDto:
+      type: object
+      properties:
+        vertihubCode:
+          type: string
+          maxLength: 20
+          minLength: 0
+        vertihubName:
+          type: string
+          maxLength: 120
+          minLength: 0
+        clusterId:
+          type: string
+          format: uuid
+        regionId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        hubType:
+          type: string
+          maxLength: 30
+          minLength: 0
+        maxParkedAircraft:
+          type: integer
+          format: int32
+        hasMaintenance:
+          type: boolean
+        hasCharging:
+          type: boolean
+        chargingPadCount:
+          type: integer
+          format: int32
+        maxChargePowerKw:
+          type: number
+        hubStatus:
+          type: string
+          maxLength: 20
+          minLength: 0
+      required:
+      - chargingPadCount
+      - clusterId
+      - hasCharging
+      - hasMaintenance
+      - hubStatus
+      - hubType
+      - maxParkedAircraft
+      - regionId
+      - vertihubCode
+      - vertihubName
+      - vertiportId
+    VertihubDto:
+      type: object
+      properties:
+        vertihubId:
+          type: string
+          format: uuid
+        vertihubCode:
+          type: string
+        vertihubName:
+          type: string
+        clusterId:
+          type: string
+          format: uuid
+        regionId:
+          type: string
+          format: uuid
+        vertiportId:
+          type: string
+          format: uuid
+        hubType:
+          type: string
+        maxParkedAircraft:
+          type: integer
+          format: int32
+        hasMaintenance:
+          type: boolean
+        hasCharging:
+          type: boolean
+        chargingPadCount:
+          type: integer
+          format: int32
+        maxChargePowerKw:
+          type: number
+        hubStatus:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
